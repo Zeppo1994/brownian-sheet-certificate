@@ -1,8 +1,8 @@
 # Entropy, Kolmogorov widths, and Brownian-sheet small deviations
 
 Throughout, $`d\ge2`$, $`\mathbb N=\{1,2,\ldots\}`$, and
-$`\mathbb N_0=\{0,1,2,\ldots\}`$. The spaces and operators are over the real
-scalars; Fourier expansions use complex notation, with $`i^2=-1`$.
+$`\mathbb N_0=\{0,1,2,\ldots\}`$. The spaces and operators are real; we use
+complex notation for Fourier expansions.
 The spaces $`L_p`$ on the cube use Lebesgue measure, and
 $`C([0,1]^d)`$ carries the supremum norm
 $`\|f\|_\infty=\sup_{\mathbf t\in[0,1]^d}|f(\mathbf t)|`$.
@@ -14,10 +14,10 @@ smoothness and integrability parameters, but not on $`k`$ or the radius.
 
 ## 1. Brownian-sheet small deviations
 
-Let $`(\Omega,\mathcal F,\mathbb P)`$ be any probability space.
-A centered Gaussian field means that every finite collection of evaluations
-is jointly Gaussian and has mean zero. All fields below are measurable as
-maps from $`\Omega`$ into $`C([0,1]^d)`$; their sample paths are continuous.
+Let $`(\Omega,\mathcal F,\mathbb P)`$ be a probability space. All Gaussian
+fields below have continuous paths and are measurable as maps from
+$`\Omega`$ into $`C([0,1]^d)`$. Every finite collection of evaluations is
+jointly Gaussian with mean zero.
 
 The Brownian sheet $`B`$ is the centered Gaussian field with covariance
 
@@ -26,9 +26,7 @@ The Brownian sheet $`B`$ is the centered Gaussian field with covariance
 =\prod_{i=1}^d\min(s_i,t_i).
 ```
 
-For any such random field $`X`$, set
-$`\|X\|_\infty=\sup_{\mathbf t\in[0,1]^d}|X(\mathbf t)|`$.
-Then
+Then, it holds
 
 ```math
 -\log\mathbb P\{\|B\|_\infty\le\varepsilon\}
@@ -39,36 +37,37 @@ Then
 
 There are positive constants $`c_d,C_d,\varepsilon_d`$, with
 $`\varepsilon_d<e^{-1}`$, giving both inequalities for every
-$`0<\varepsilon\le\varepsilon_d`$. They depend only on $`d`$ and are chosen
-before the probability space and realization.
+$`0<\varepsilon\le\varepsilon_d`$. The constants depend only on $`d`$ and
+are uniform over the probability space and realization.
 
 ## Notation: entropy, widths, and approximation numbers
 
 For Banach spaces $`X,Y`$, write $`B_X=\{x\in X:\|x\|_X\le1\}`$.
 For $`K\subset Y`$ and $`t>0`$, let $`N(K,t;Y)`$ be the least number of closed
 radius-$`t`$ balls, with centers in $`Y`$, needed to cover $`K`$, possibly infinite.
-For a bounded linear operator $`T:X\to Y`$ and $`k\in\mathbb N`$, set
+For a bounded linear operator $`T:X\to Y`$ and $`k\in\mathbb N`$, define the dyadic entropy numbers by
 
 ```math
-\begin{aligned}
-e_k(T)
-&=\inf\{t>0:N(T(B_X),t;Y)\le2^{k-1}\},\\
-d_k(T)
-&=\inf_{\substack{V\subset Y\ \mathrm{linear}\\\dim V<k}}
-  \sup_{x\in B_X}\inf_{v\in V}\|Tx-v\|_Y,\\
-a_k(T)
-&=\inf_{\substack{A:X\to Y\ \mathrm{bounded\ linear}\\
-                 \mathrm{rank}A<k}}\|T-A\|_{X\to Y}.
-\end{aligned}
+e_k(T)=\inf\{t>0:N(T(B_X),t;Y)\le2^{k-1}\}.
 ```
 
-Thus $`e_k`$ are dyadic entropy numbers, $`d_k`$ are Kolmogorov widths, and
-$`a_k`$ are approximation numbers. For a set $`K\subset Y`$, write $`e_k(K;Y)`$
-and $`d_k(K;Y)`$ for the corresponding covering and subspace quantities.
+For Kolmogorov widths, the infimum runs over linear subspaces $`V\subset Y`$ with $`\dim V<k`$:
+
+```math
+d_k(T)=\inf_{\dim V<k}\sup_{x\in B_X}\inf_{v\in V}\|Tx-v\|_Y.
+```
+
+For approximation numbers, the infimum runs over bounded linear maps $`A:X\to Y`$ with $`\mathrm{rank}A<k`$:
+
+```math
+a_k(T)=\inf_{\mathrm{rank}A<k}\|T-A\|_{X\to Y}.
+```
+
+For a set $`K\subset Y`$, we use $`e_k(K;Y)`$ and $`d_k(K;Y)`$ for the
+corresponding entropy numbers and Kolmogorov widths.
 In particular, $`e_k(T)=e_k(T(B_X);Y)`$ and $`d_k(T)=d_k(T(B_X);Y)`$.
 Here $`\mathrm{rank}A=\dim A(X)`$, and
 $`\|T-A\|_{X\to Y}=\sup_{x\in B_X}\|(T-A)x\|_Y`$.
-All dimension and rank bounds are **strictly less than $`k`$**.
 
 ## 2. Anchored mixed Sobolev ball: entropy and Kolmogorov widths
 
@@ -82,9 +81,11 @@ T_d &:L_2([0,1]^d)\longrightarrow C([0,1]^d),\\
 \end{aligned}
 ```
 
-Its image $`K_d=T_d(B_{L_2([0,1]^d)})`$ is the anchored mixed Sobolev
-unit ball, with the supremum norm on $`C([0,1]^d)`$. The anchoring is the
-zero boundary condition whenever any coordinate is zero. Then
+Its image $`K_d=T_d(B_{L_2([0,1]^d)})`$ is the non-periodic anchored mixed
+Sobolev unit ball. Its elements vanish whenever one coordinate is zero and
+have mixed weak derivative satisfying
+$`\|\partial_1\cdots\partial_d f\|_{L_2}\le1`$.
+In the uniform norm on $`C([0,1]^d)`$, it holds
 
 ```math
 e_k(T_d)\asymp d_k(T_d)
@@ -100,7 +101,7 @@ Equivalently, its covering entropy satisfies
 \qquad t\downarrow0.
 ```
 
-## 3. Periodic mixed smoothness: entropy lower bounds and sharp widths
+## 3. Periodic classes with mixed smoothness
 
 Let $`\mathbb T^d=(\mathbb R/\mathbb Z)^d`$ carry normalized Lebesgue measure.
 Choose a real even $`\varphi_0\in C_c^\infty(\mathbb R)`$ equal to one on
@@ -142,10 +143,10 @@ The periodic mixed Sobolev and Besov norms are
 \end{aligned}
 ```
 
-Here $`\mathbf W_p^r`$ is the mixed Bessel-potential space for $`1<p<\infty`$,
-$`\mathbf B_{p,\theta}^r`$ is the mixed Besov space, and $`\mathbf H_p^r`$ is
-the Nikol'skii space. Each space consists of the real $`L_1`$ functions
-with finite displayed norm, modulo equality almost everywhere.
+Here, $`\mathbf W_p^r`$ is the periodic mixed Bessel-potential space for
+$`1<p<\infty`$, $`\mathbf B_{p,\theta}^r`$ is the mixed Besov space, and
+$`\mathbf H_p^r`$ is the Nikol'skii space. We identify real $`L_1`$ functions
+that agree almost everywhere and require the displayed norm to be finite.
 For $`\theta<\infty`$, $`\|(a_{\mathbf s})\|_{\ell_\theta} =(\sum_{\mathbf s}|a_{\mathbf s}|^\theta)^{1/\theta}`$;
 for $`\theta=\infty`$, it is $`\sup_{\mathbf s}|a_{\mathbf s}|`$.
 The $`L_p`$ norm is the usual integral norm, with essential supremum when
@@ -154,8 +155,8 @@ $`L_\infty(\mathbb T^d)`$, and use $`1/\infty=0`$.
 The output norm is the essential supremum, equal to the supremum norm
 on continuous representatives.
 
-For $`1<p\le\infty`$, $`r>1/p`$, and $`1\le\theta\le\infty`$, the certified
-**entropy lower bounds** are
+For $`1<p\le\infty`$, $`r>1/p`$ and $`1\le\theta\le\infty`$, the entropy
+numbers satisfy
 
 ```math
 \begin{aligned}
@@ -169,7 +170,7 @@ e_k(I:\mathbf H_p^r\to L_\infty)
 \end{aligned}
 ```
 
-For $`r>1/2`$, the certified **two-sided Kolmogorov width estimates** are
+For $`r>1/2`$, the Kolmogorov widths satisfy
 
 ```math
 \begin{aligned}
@@ -182,9 +183,8 @@ d_k(I:\mathbf H_p^r\to L_\infty)
 \end{aligned}
 ```
 
-These statements hold for every cutoff specified above; constants may
-also depend on that fixed cutoff. The source classes and ambient
-$`L_\infty`$ norm are specified by the displayed definitions.
+The estimates hold for every cutoff specified above; the constants may
+also depend on that cutoff.
 
 ## 4. Tensor fractional integration: entropy and Kolmogorov widths
 
@@ -221,7 +221,7 @@ Explicitly, the tensor notation means
  g(\mathbf u)\,d\mathbf u.
 ```
 
-Thus the kernel is causal and Gamma-normalized. In particular,
+In particular,
 $`T_{\mathbf1}=T_d`$ for $`\mathbf1=(1,\ldots,1)`$.
 
 ## 5. Fractional Brownian-sheet small deviations
@@ -262,10 +262,9 @@ coordinates, then
  \bigl(\log(1/\varepsilon)\bigr)^{\nu-1+\nu/(2m_*+1)}.
 ```
 
-In both the fractional and integrated estimates, the norm is the full
-continuous-path supremum norm. Positive constants and a positive radius
-threshold depend only on $`d`$ and the regularity vector, and are chosen
-before the probability space and process realization.
+The constants and thresholds in the fractional and integrated estimates
+depend only on $`d`$ and the regularity vector. They are uniform over the
+probability space and realization.
 
 The fractional rate with $`H_i=1/2`$ for every $`i`$, and the integrated rate
 with $`m_i=0`$ for every $`i`$, both reduce to the Brownian-sheet rate in Result 1.
@@ -308,11 +307,9 @@ Explicit full-$`L^1`$ periodic conclusions are
 [fullL1_periodic_entropy_certified](BrownianSharp/AlignmentPeriodicCutoffCertified.lean#L32)
 and [fullL1_periodic_width_certified](BrownianSharp/AlignmentPeriodicCutoffCertified.lean#L36).
 
-The full-$`L^1`$ entropy lower bounds use inclusion of the corresponding
-continuous images. The width conclusions use the certified
-continuous-representative/image identifications for Sobolev and Nikol'skii
-classes in the stated width range; no full-$`L^1`$ Besov representative
-equality is asserted.
+For these full-$`L^1`$ classes, the entropy lower bounds follow by inclusion
+of the continuous image balls. The Sobolev and Nikol'skii width conclusions
+use the continuous-representative identifications in the stated range.
 
 ## Install and verify
 
@@ -373,15 +370,14 @@ import BrownianSharp
 ```
 
 Then run `lake env lean Inspect.lean` after the build. Use `#print` on the
-referenced definitions to inspect their hypotheses, ambient spaces, norms,
-and index conventions. The Brownian-sheet small-ball rate is a conclusion,
-not a field of the realization interface. The headline theorem quantifies
-over the specified continuous Gaussian realizations; it does not itself
-construct a canonical probability space.
+referenced definitions to inspect their hypotheses, ambient spaces, norms
+and index conventions. The Gaussian results quantify over continuous
+realizations with the stated covariance. The small-ball estimates are proved
+from these hypotheses. The exported statements do not construct a canonical
+probability space.
 
-Lean checks the formal proof terms. Comparing the mathematical statements
-above with their formal definitions remains a mathematical review task;
-a successful build does not automatically check the translation from prose.
+Lean checks the formal proof terms; the correspondence between the displayed
+mathematics and the formal definitions requires mathematical review.
 The formalization was developed with AI assistance.
 
 ## References and conjecture sources
