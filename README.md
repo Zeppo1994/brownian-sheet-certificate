@@ -1,9 +1,9 @@
 # Entropy, Kolmogorov widths, and Brownian-sheet small deviations
 
 Throughout, $`d\ge2`$, $`\mathbb N=\{1,2,\ldots\}`$, and
-$`\mathbb N_0=\{0,1,2,\ldots\}`$. The spaces and operators are real; we use
-complex notation for Fourier expansions.
-The spaces $`L_p`$ on the cube use Lebesgue measure, and
+$`\mathbb N_0=\{0,1,2,\ldots\}`$. The spaces and operators are real.
+We use complex notation for Fourier expansions.
+The spaces $`L_p`$ on the cube $`[0,1]^d`$ use the Lebesgue measure, and
 $`C([0,1]^d)`$ carries the supremum norm
 $`\|f\|_\infty=\sup_{\mathbf t\in[0,1]^d}|f(\mathbf t)|`$.
 All logarithms are natural. We write $`u_k\lesssim v_k`$ if $`u_k\le C v_k`$ for a fixed $`C\gt 0`$, and $`u_k\asymp v_k`$ when both
