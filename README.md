@@ -6,7 +6,7 @@ complex notation for Fourier expansions.
 The spaces $`L_p`$ on the cube use Lebesgue measure, and
 $`C([0,1]^d)`$ carries the supremum norm
 $`\|f\|_\infty=\sup_{\mathbf t\in[0,1]^d}|f(\mathbf t)|`$.
-All logarithms are natural. We write $`u_k\lesssim v_k`$ if $`u_k\le C v_k`$ for a fixed $`C>0`$, and $`u_k\asymp v_k`$ when both
+All logarithms are natural. We write $`u_k\lesssim v_k`$ if $`u_k\le C v_k`$ for a fixed $`C\gt 0`$, and $`u_k\asymp v_k`$ when both
 $`u_k\lesssim v_k`$ and $`v_k\lesssim u_k`$ hold with positive constants for all
 sufficiently large $`k`$; the analogous convention applies as a radius tends
 to zero. Constants may depend on the fixed dimension and the displayed
@@ -36,31 +36,31 @@ Then, it holds
 ```
 
 There are positive constants $`c_d,C_d,\varepsilon_d`$, with
-$`\varepsilon_d<e^{-1}`$, giving both inequalities for every
-$`0<\varepsilon\le\varepsilon_d`$. The constants depend only on $`d`$ and
+$`\varepsilon_d\lt e^{-1}`$, giving both inequalities for every
+$`0\lt \varepsilon\le\varepsilon_d`$. The constants depend only on $`d`$ and
 are uniform over the probability space and realization.
 
 ## Notation: entropy, widths, and approximation numbers
 
 For Banach spaces $`X,Y`$, write $`B_X=\{x\in X:\|x\|_X\le1\}`$.
-For $`K\subset Y`$ and $`t>0`$, let $`N(K,t;Y)`$ be the least number of closed
+For $`K\subset Y`$ and $`t\gt 0`$, let $`N(K,t;Y)`$ be the least number of closed
 radius-$`t`$ balls, with centers in $`Y`$, needed to cover $`K`$, possibly infinite.
 For a bounded linear operator $`T:X\to Y`$ and $`k\in\mathbb N`$, define the dyadic entropy numbers by
 
 ```math
-e_k(T)=\inf\{t>0:N(T(B_X),t;Y)\le2^{k-1}\}.
+e_k(T)=\inf\{t\gt 0:N(T(B_X),t;Y)\le2^{k-1}\}.
 ```
 
-For Kolmogorov widths, the infimum runs over linear subspaces $`V\subset Y`$ with $`\dim V<k`$:
+For Kolmogorov widths, the infimum runs over linear subspaces $`V\subset Y`$ with $`\dim V\lt k`$:
 
 ```math
-d_k(T)=\inf_{\dim V<k}\sup_{x\in B_X}\inf_{v\in V}\|Tx-v\|_Y.
+d_k(T)=\inf_{\dim V\lt k}\sup_{x\in B_X}\inf_{v\in V}\|Tx-v\|_Y.
 ```
 
-For approximation numbers, the infimum runs over bounded linear maps $`A:X\to Y`$ with $`\mathrm{rank}A<k`$:
+For approximation numbers, the infimum runs over bounded linear maps $`A:X\to Y`$ with $`\mathrm{rank}A\lt k`$:
 
 ```math
-a_k(T)=\inf_{\mathrm{rank}A<k}\|T-A\|_{X\to Y}.
+a_k(T)=\inf_{\mathrm{rank}A\lt k}\|T-A\|_{X\to Y}.
 ```
 
 For a set $`K\subset Y`$, we use $`e_k(K;Y)`$ and $`d_k(K;Y)`$ for the
@@ -144,10 +144,10 @@ The periodic mixed Sobolev and Besov norms are
 ```
 
 Here, $`\mathbf W_p^r`$ is the periodic mixed Bessel-potential space for
-$`1<p<\infty`$, $`\mathbf B_{p,\theta}^r`$ is the mixed Besov space, and
+$`1\lt p\lt \infty`$, $`\mathbf B_{p,\theta}^r`$ is the mixed Besov space, and
 $`\mathbf H_p^r`$ is the Nikol'skii space. We identify real $`L_1`$ functions
 that agree almost everywhere and require the displayed norm to be finite.
-For $`\theta<\infty`$, $`\|(a_{\mathbf s})\|_{\ell_\theta} =(\sum_{\mathbf s}|a_{\mathbf s}|^\theta)^{1/\theta}`$;
+For $`\theta\lt \infty`$, $`\|(a_{\mathbf s})\|_{\ell_\theta} =(\sum_{\mathbf s}|a_{\mathbf s}|^\theta)^{1/\theta}`$;
 for $`\theta=\infty`$, it is $`\sup_{\mathbf s}|a_{\mathbf s}|`$.
 The $`L_p`$ norm is the usual integral norm, with essential supremum when
 $`p=\infty`$. In the parameter ranges below, write $`I:f\mapsto f`$ for the canonical embedding into
@@ -155,14 +155,14 @@ $`L_\infty(\mathbb T^d)`$, and use $`1/\infty=0`$.
 The output norm is the essential supremum, equal to the supremum norm
 on continuous representatives.
 
-For $`1<p\le\infty`$, $`r>1/p`$ and $`1\le\theta\le\infty`$, the entropy
+For $`1\lt p\le\infty`$, $`r\gt 1/p`$ and $`1\le\theta\le\infty`$, the entropy
 numbers satisfy
 
 ```math
 \begin{aligned}
 e_k(I:\mathbf W_p^r\to L_\infty)
 &\gtrsim k^{-r}(\log k)^{r(d-1)+1/2}
-&& (p<\infty),\\
+&& (p\lt \infty),\\
 e_k(I:\mathbf B_{p,\theta}^r\to L_\infty)
 &\gtrsim k^{-r}(\log k)^{(r+1/2-1/\theta)(d-1)+1/2},\\
 e_k(I:\mathbf H_p^r\to L_\infty)
@@ -170,13 +170,13 @@ e_k(I:\mathbf H_p^r\to L_\infty)
 \end{aligned}
 ```
 
-For $`r>1/2`$, the Kolmogorov widths satisfy
+For $`r\gt 1/2`$, the Kolmogorov widths satisfy
 
 ```math
 \begin{aligned}
 d_k(I:\mathbf W_p^r\to L_\infty)
 &\asymp k^{-r}(\log k)^{r(d-1)+1/2}
-&& (2\le p<\infty),\\
+&& (2\le p\lt \infty),\\
 d_k(I:\mathbf H_p^r\to L_\infty)
 &\asymp k^{-r}(\log k)^{(r+1/2)(d-1)+1/2}
 && (2\le p\le\infty).
@@ -188,7 +188,7 @@ also depend on that cutoff.
 
 ## 4. Tensor fractional integration: entropy and Kolmogorov widths
 
-For $`\alpha>1/2`$, let $`R_\alpha:L_2(0,1)\to C([0,1])`$ be the Riemann–Liouville operator
+For $`\alpha\gt 1/2`$, let $`R_\alpha:L_2(0,1)\to C([0,1])`$ be the Riemann–Liouville operator
 
 ```math
 (R_\alpha g)(t)=\frac1{\Gamma(\alpha)}
@@ -196,7 +196,7 @@ For $`\alpha>1/2`$, let $`R_\alpha:L_2(0,1)\to C([0,1])`$ be the Riemann–Liouv
 ```
 
 Here $`\Gamma`$ is Euler's Gamma function. For
-$`\boldsymbol\alpha=(\alpha_1,\ldots,\alpha_d)`$ with all $`\alpha_i>1/2`$, set
+$`\boldsymbol\alpha=(\alpha_1,\ldots,\alpha_d)`$ with all $`\alpha_i\gt 1/2`$, set
 
 ```math
 T_{\boldsymbol\alpha}
@@ -273,7 +273,7 @@ with $`m_i=0`$ for every $`i`$, both reduce to the Brownian-sheet rate in Result
 
 For the tensor fractional-integration operator $`T_{\boldsymbol\alpha}`$
 defined above, let $`r=\min_i\alpha_i`$ and
-$`\nu=\#\{i:\alpha_i=r\}\ge2`$, with all $`\alpha_i>1/2`$. Then
+$`\nu=\#\{i:\alpha_i=r\}\ge2`$, with all $`\alpha_i\gt 1/2`$. Then
 
 ```math
 a_k(T_{\boldsymbol\alpha})
