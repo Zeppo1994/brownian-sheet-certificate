@@ -39,6 +39,12 @@ $`\varepsilon_d\lt e^{-1}`$, giving both inequalities for every
 $`0\lt \varepsilon\le\varepsilon_d`$. The constants depend only on $`d`$ and
 are uniform over the probability space and realization.
 
+This resolves the Brownian-sheet small-deviation conjecture stated as
+[Conjecture 2.12 by Bilyk–Lacey–Vagharshakyan](https://arxiv.org/pdf/0705.4619v3#page=6)
+in dimensions $`d\ge3`$, determining the exact logarithmic exponent in the
+uniform norm. The case $`d=2`$ was proved by
+[Talagrand](https://doi.org/10.1214/aop/1176988605).
+
 ## Notation: entropy, widths, and approximation numbers
 
 For Banach spaces $`X,Y`$, write $`B_X=\{x\in X:\|x\|_X\le1\}`$.
@@ -99,6 +105,14 @@ Equivalently, its covering entropy satisfies
 \asymp t^{-1}\bigl(\log(1/t)\bigr)^{d-1/2},
 \qquad t\downarrow0.
 ```
+
+The covering-entropy estimate resolves the $`p=2`$ case of
+[Bilyk–Lacey–Vagharshakyan's Conjecture 2.9](https://arxiv.org/pdf/0705.4619v3#page=5).
+The matching upper entropy estimate was known from
+[Dunker–Linde–Kühn–Lifshits](https://www.sciencedirect.com/science/article/pii/S0021904599933543).
+Together, the entropy and width estimates determine both the covering
+complexity of this ball and its optimal approximation error from subspaces
+of dimension less than $`k`$.
 
 ## 3. Periodic classes with mixed smoothness
 
@@ -185,6 +199,22 @@ d_k(I:\mathbf H_p^r\to L_\infty)
 The estimates hold for every cutoff specified above; the constants may
 also depend on that cutoff.
 
+For $`d\ge3`$, the Sobolev width estimate resolves the finite-$`p`$ part of
+[Conjecture 4.21](https://arxiv.org/pdf/1601.03978v3#page=50) in
+Dũng–Temlyakov–Ullrich's *Hyperbolic Cross Approximation*, and the Nikol'skii
+estimate resolves [Conjecture 4.27](https://arxiv.org/pdf/1601.03978v3#page=51)
+throughout its stated range. These determine the optimal subspace-approximation
+rates, including their logarithmic exponents, in the corresponding ranges
+of [Outstanding Open Problem 1.3](https://arxiv.org/pdf/1601.03978v3#page=12).
+
+The Sobolev entropy estimate supplies the conjectured lower bound in
+[Temlyakov's (1.8)](https://arxiv.org/pdf/1602.08712v1#page=5) and
+[Conjecture 6.16](https://arxiv.org/pdf/1601.03978v3#page=87) of the book.
+Together with the Besov and Nikol'skii lower bounds, it addresses the
+entropy question in [Outstanding Open Problem 1.6](https://arxiv.org/pdf/1601.03978v3#page=12)
+in the displayed ranges. The entropy statements above are lower bounds;
+the width statements give the two-sided orders.
+
 ## 4. Tensor fractional integration: entropy and Kolmogorov widths
 
 For $`\alpha\gt 1/2`$, let $`R_\alpha:L_2(0,1)\to C([0,1])`$ be the Riemann–Liouville operator
@@ -223,6 +253,14 @@ Explicitly, the tensor notation means
 In particular,
 $`T_{\mathbf1}=T_d`$ for $`\mathbf1=(1,\ldots,1)`$.
 
+This extends the entropy and width estimates in Result 2 to unequal
+fractional orders. It determines both covering complexity and optimal
+subspace-approximation error, including the dependence of the logarithmic
+exponent on the multiplicity of the least order.
+[Kühn–Linde, Section 5](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf)
+gives earlier results for the related Gaussian approximation problem;
+their Theorem 5.7 concerns Gaussian approximation numbers.
+
 ## 5. Fractional Brownian-sheet small deviations
 
 For $`\mathbf H=(H_1,\ldots,H_d)\in(0,1)^d`$, let $`B^{\mathbf H}`$ be the
@@ -241,6 +279,15 @@ Let $`H_*=\min_iH_i`$ occur in exactly $`\nu\ge2`$ coordinates. Then
 \asymp \varepsilon^{-1/H_*}
  \bigl(\log(1/\varepsilon)\bigr)^{\nu-1+\nu/(2H_*)}.
 ```
+
+The exact small-deviation rate is posed as an open problem in the
+[remark after Kühn–Linde's Corollary 7.5](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf#page=27).
+Their bounds in (7.19) differ by a factor
+$`(\log(1/\varepsilon))^{1/(2H_*)}`$ in the negative logarithm of the
+probability; their parameter is $`\gamma_i=2H_i`$.
+The estimate above attains the upper order and closes this gap in the
+stated repeated-minimum range. The equal-index two-dimensional case was
+established by [Belinsky–Linde](https://doi.org/10.1023/A:1016263614257).
 
 ## 6. Integrated Brownian-sheet small deviations
 
@@ -268,6 +315,12 @@ probability space and realization.
 The fractional rate with $`H_i=1/2`$ for every $`i`$, and the integrated rate
 with $`m_i=0`$ for every $`i`$, both reduce to the Brownian-sheet rate in Result 1.
 
+These rates determine the logarithmic exponent after coordinatewise integer
+integration in the stated repeated-minimum range. They follow from Result 4
+with $`\alpha_i=m_i+1`$ and the
+[Li–Linde entropy–small-deviation correspondence](https://doi.org/10.1214/aop/1022677459),
+extending the Brownian-sheet estimate to integrated sheets.
+
 ## 7. Approximation numbers and the approximation-to-width quotient
 
 For the tensor fractional-integration operator $`T_{\boldsymbol\alpha}`$
@@ -284,6 +337,13 @@ a_k(T_{\boldsymbol\alpha})
 
 The width in the denominator is positive and finite for all sufficiently
 large $`k`$.
+
+The approximation-number order was established in
+[Kühn–Linde, Proposition 5.8](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf#page=20).
+Combining it with the sharp width order from Result 4 yields the quotient.
+The factor $`\sqrt{k/\log k}`$ quantifies the loss from requiring a bounded
+linear finite-rank approximation, compared with best approximation from a
+fixed subspace.
 
 ## Statement-to-certificate map
 
@@ -372,11 +432,14 @@ The formalization was developed with AI assistance.
 
 ## References and conjecture sources
 
+Conjecture numbers refer to the linked author versions.
+
 - Dinh Dũng, Vladimir Temlyakov, and Tino Ullrich,
   [Hyperbolic Cross Approximation](https://link.springer.com/book/10.1007/978-3-319-92240-9),
   Birkhäuser (2018).
   [Open author version](https://arxiv.org/pdf/1601.03978v3):
-  Outstanding Open Problem 1.3; Conjectures 4.21 and 4.27; Sections 6.4–6.5.
+  Outstanding Open Problems 1.3 and 1.6; Conjectures 4.21, 4.27 and 6.16;
+  Sections 6.4–6.5.
 - Dmitriy Bilyk, Michael T. Lacey, and Armen Vagharshakyan,
   [On the Small Ball Inequality in All Dimensions](https://arxiv.org/pdf/0705.4619v3),
   J. Funct. Anal. 254 (2008), 2470–2502.
@@ -392,10 +455,18 @@ The formalization was developed with AI assistance.
   [Metric Entropy of Integration Operators and Small Ball Probabilities for the Brownian Sheet](https://www.sciencedirect.com/science/article/pii/S0021904599933543),
   J. Approx. Theory 101 (1999), 63–77, for the probability lower bound
   in all dimensions.
-
-Conjecture numbers refer to the linked author versions. The certified ranges
-are specified above; for instance, the Sobolev width clause covers finite $`p`$,
-and the periodic entropy clauses are lower bounds.
+- Eduard Belinsky and Werner Linde,
+  [Small Ball Probabilities of Fractional Brownian Sheets via Fractional Integration Operators](https://doi.org/10.1023/A:1016263614257),
+  J. Theoret. Probab. 15 (2002), 589–612, for the sharp two-dimensional
+  fractional-sheet estimate.
+- Thomas Kühn and Werner Linde,
+  [Optimal Series Representation of Fractional Brownian Sheets](https://www.jstor.org/stable/3318951),
+  Bernoulli 8 (2002), 669–696.
+  [Open author version](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf):
+  Theorem 5.7, Proposition 5.8, Corollary 7.5 and the following remark.
+- Wenbo V. Li and Werner Linde,
+  [Approximation, Metric Entropy and Small Ball Estimates for Gaussian Measures](https://doi.org/10.1214/aop/1022677459),
+  Ann. Probab. 27 (1999), 1556–1578, for the entropy–small-deviation correspondence.
 
 ## License
 
