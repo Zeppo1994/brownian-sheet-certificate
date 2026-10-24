@@ -303,14 +303,6 @@ Each row below is a field of that conjunction; full names begin with `BrownianSh
 | Integrated Brownian-sheet two-sided small deviations | [AlignmentGaussianIntegratedReverse.latest_integratedSheet_certified](BrownianSharp/AlignmentGaussianIntegratedReverse.lean#L219) |
 | Fractional-integration approximation numbers and approximation-to-width quotient | [AlignmentFractionalApproximationCertified.fractionalApproximation_certified](BrownianSharp/AlignmentFractionalApproximationCertified.lean#L12) |
 
-Explicit full-$`L^1`$ periodic conclusions are
-[fullL1_periodic_entropy_certified](BrownianSharp/AlignmentPeriodicCutoffCertified.lean#L32)
-and [fullL1_periodic_width_certified](BrownianSharp/AlignmentPeriodicCutoffCertified.lean#L36).
-
-For these full-$`L^1`$ classes, the entropy lower bounds follow by inclusion
-of the continuous image balls. The Sobolev and Nikol'skii width conclusions
-use the continuous-representative identifications in the stated range.
-
 ## Install and verify
 
 Install **Git** and **elan**, Lean's version manager, using the
@@ -373,8 +365,7 @@ Then run `lake env lean Inspect.lean` after the build. Use `#print` on the
 referenced definitions to inspect their hypotheses, ambient spaces, norms
 and index conventions. The Gaussian results quantify over continuous
 realizations with the stated covariance. The small-ball estimates are proved
-from these hypotheses. The exported statements do not construct a canonical
-probability space.
+from these hypotheses.
 
 Lean checks the formal proof terms; the correspondence between the displayed
 mathematics and the formal definitions requires mathematical review.
