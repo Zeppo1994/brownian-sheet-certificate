@@ -102,27 +102,6 @@ theorem sourceDyadicCell_cover {n : ℕ} {x : ℝ}
     rw [hcast]
     exact hltfloor
 
-theorem sourceDyadicCell_indicator_sum_eq_one_ae (n : ℕ) :
-    ∀ᵐ x ∂volume.restrict (Set.Icc (0:ℝ) 1),
-      (∑ j : Fin (2^n), (sourceDyadicCell n j).indicator (fun _ => (1:ℝ)) x) = 1 := by
-  let μ := volume.restrict (Set.Icc (0:ℝ) 1)
-  filter_upwards [ae_restrict_mem measurableSet_Icc, Measure.ae_ne μ 1] with x hx hne
-  have hxlt : x < 1 := lt_of_le_of_ne hx.2 hne
-  obtain ⟨j, hj⟩ := sourceDyadicCell_cover hx.1 hxlt
-  have hsum : (∑ i : Fin (2^n), (sourceDyadicCell n i).indicator
-      (fun _ => (1:ℝ)) x) =
-      (sourceDyadicCell n j).indicator (fun _ => (1:ℝ)) x := by
-    rw [Finset.sum_eq_single j]
-    · intro i hi hij
-      have hnot : x ∉ sourceDyadicCell n i := by
-        intro hxi
-        have hdisj := sourceDyadicCells_disjoint hij
-        exact (Set.disjoint_left.mp hdisj) hxi hj
-      simp [hnot]
-    · simp [hj]
-  rw [hsum]
-  simp [Set.indicator, hj]
-
 theorem sourceDyadicCellIndicator_orthogonal {n : ℕ} {i j : Fin (2^n)}
     (hij : i ≠ j) : inner ℝ (sourceDyadicCellIndicator n i)
       (sourceDyadicCellIndicator n j) = 0 := by

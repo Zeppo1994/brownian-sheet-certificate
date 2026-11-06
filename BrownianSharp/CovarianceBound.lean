@@ -247,12 +247,6 @@ theorem nativeLayerRowProduct_unique_addresses {d n : ℕ}
       subst jb
       rfl
 
-/-- A pair of midpoint rows, multiplied coordinatewise in the coefficient
-space of the grade-`n` native layer. -/
-noncomputable def layerRowProduct {d n : ℕ}
-    (left right : LayerIndex d n → ℝ) (a : LayerIndex d n) : ℝ :=
-  left a * right a
-
 /-- The active indices of a nonnegative row product. -/
 noncomputable def activeLayerIndices {d n : ℕ} (f : LayerIndex d n → ℝ) : Finset (LayerIndex d n) :=
   Finset.univ.filter (fun a => 0 < f a)

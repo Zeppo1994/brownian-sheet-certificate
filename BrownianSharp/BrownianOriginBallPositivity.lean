@@ -131,5 +131,4 @@ theorem probability_norm_le_pos_of_copyDifferenceLaw
   rw [Measure.map_apply hF measurableSet_closedBall, hpre] at hpos
   exact ENNReal.toReal_pos hpos.ne' (measure_ne_top P _)
 
-
 end HaarQuarter

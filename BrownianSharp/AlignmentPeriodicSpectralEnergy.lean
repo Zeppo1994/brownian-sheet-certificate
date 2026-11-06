@@ -67,7 +67,6 @@ theorem scalarBlock_frequency_weight_le (r ξ : ℝ) (hr : 0 ≤ r) (s : ℕ)
       congr 2
       ring
 
-
 theorem scalar_spectral_weight_le_energy (r ξ : ℝ) (hr : 0 ≤ r) (N : ℕ)
     (hpart : ∑ s ∈ Finset.range (N+1), scalarBlock s ξ = 1) :
     (1+ξ^2)^r ≤ 2*(5:ℝ)^r *
@@ -163,7 +162,6 @@ theorem block_l2_energy_eq {d : ℕ} (r : ℝ) (f : RealPeriodic d) (s : Fin d �
     ring
   rw [he]
   ring
-
 
 theorem finite_frequency_block_energy_le {d : ℕ} (r : ℝ) (f : RealPeriodic d)
     (s : Fin d → ℕ) (K : Finset (Fin d → ℤ)) :

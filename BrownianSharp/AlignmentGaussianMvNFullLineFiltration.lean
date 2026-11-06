@@ -226,14 +226,6 @@ theorem combinedSourceFiltration_finrank_le (U V : ℕ → Submodule ℝ E)
   rw [combinedSourceFiltration, ← Submodule.finrank_sup_add_finrank_inf_eq]
   exact Nat.le_add_right _ _
 
-/-- A pair of source-side approximants gives a full-line approximant in the
-sum filtration, with the expected triangle bound. -/
-theorem combinedSourceFiltration_approximation
-    (U V : ℕ → Submodule ℝ E) (n : ℕ) (x y : E)
-    (u : U n) (v : V n) :
-    x + y - (u.1 + v.1) = (x-u.1) + (y-v.1) := by
-  abel
-
 /-! Concrete image filtrations and a reusable source-to-full-line adapter. -/
 
 theorem finiteDimensional_map_submodule {F G : Type*}

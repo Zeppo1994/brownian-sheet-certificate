@@ -182,7 +182,7 @@ theorem fullL1SobolevImage_eq_continuous_image {d : ℕ}
   · intro hv
     exact continuousSobolevImage_subset_fullL1 φ p r hv
 
-/-- Literal latest periodic width clauses, but with the source class defined
+/-- Literal periodic width clauses, but with the source class defined
 directly on L¹ before passage to the global L-infinity ambient. -/
 def FullL1PeriodicWidthStatement : Prop :=
   ∀ (φ : AdmissibleCutoff) (d : ℕ), 2 ≤ d →

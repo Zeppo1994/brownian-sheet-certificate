@@ -33,12 +33,6 @@ theorem diagonalCoordinates_norm_le (e : ι → H) (he : Orthonormal ℝ e)
   nlinarith [norm_nonneg (diagonalCoordinates e w x),
     norm_nonneg (finiteOrthonormalCoordinates e x),norm_nonneg x]
 
-def diagonalCoordinateCLM (e : ι → H) (he : Orthonormal ℝ e)
-    (w : ι → ℝ) (hw : ∀ i, |w i| ≤ 1) :
-    H →L[ℝ] EuclideanSpace ℝ ι :=
-  (diagonalCoordinates e w).mkContinuous 1
-    (by intro x; simpa using diagonalCoordinates_norm_le e he w hw x)
-
 def contractionScale (η : ℝ) (N g : ℕ) : ℝ :=
   if g ≤ N then η^(N-g) else 1
 

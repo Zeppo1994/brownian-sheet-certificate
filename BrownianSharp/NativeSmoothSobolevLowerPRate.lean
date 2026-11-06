@@ -28,24 +28,6 @@ private theorem nativeLowerRateVarianceEnvelope_nonneg (d n K : ℕ) (C : ℝ)
   unfold scalarVarianceEnvelope
   split_ifs <;> positivity
 
-private theorem nativeLowerRateVariance (d n K : ℕ) (hK : 1 ≤ K) (C : ℝ)
-    (hC : ∀ x : ℝ, |iteratedDeriv K smoothAtom x| ≤ C)
-    (t : Fin d → ℕ) (x : UnitAddTorus (Fin d)) :
-    (∑ i : Fin (Fintype.card (LayerIndex d n)),
-      ‖block t (nativeLowerRateAtomsFin d n i) x‖ ^ 2) ≤
-      nativeLayerVarianceEnvelope d n K C t := by
-  let e := Fintype.equivFin (LayerIndex d n)
-  have hnative := nativeLayer_block_variance_le d n K hK C hC t x
-  have hreindex :
-      (∑ i : Fin (Fintype.card (LayerIndex d n)),
-        ‖block t (nativeLowerRateAtomsFin d n i) x‖ ^ 2) =
-      ∑ a : LayerIndex d n, ‖block t (periodicNativeAtom a) x‖ ^ 2 := by
-    classical
-    unfold nativeLowerRateAtomsFin
-    exact e.symm.sum_comp (fun a => ‖block t (periodicNativeAtom a) x‖ ^ 2)
-  rw [hreindex]
-  exact hnative
-
 /-- Native literal Sobolev energy bound at `1 ≤ p < 2`, with the sharp
 square-root layer normalization and an explicit dimensionwise constant. -/
 theorem nativeSmoothSobolev_lowerP_expected_energy_rate

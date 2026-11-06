@@ -130,11 +130,7 @@ theorem dyadic_brownian_reverse_certified : DyadicBrownianReverseStatement := by
     simpa only [scaledFiniteGaussianPath] using hscaled N M)
   exact ⟨A,B,hA,hB,0,fun Ω _ P _ X N _=>hfull Ω P X N⟩
 
-theorem brownian_upperLog_certified : BrownianUpperLogStatement :=
-  brownian_upperLog_of_dyadic dyadic_brownian_reverse_certified
-
-/-- The complete, literal two-sided Brownian-sheet clause in the latest
-manuscript, proved for the actual continuous path law. -/
+/-- The complete, literal two-sided Brownian-sheet clause of Theorem 1.1, proved for the actual continuous path law. -/
 theorem latest_brownian_twoSided_certified : Latest.BrownianTwoSidedStatement :=
   latest_brownian_twoSided_of_dyadic dyadic_brownian_reverse_certified
 

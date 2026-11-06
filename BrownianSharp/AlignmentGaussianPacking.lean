@@ -31,21 +31,6 @@ theorem finite_separated_ball_mass_bound {X : Type*} [MetricSpace X]
     _ ≤ μ Set.univ := measure_mono (Set.subset_univ _)
     _ = 1 := measure_univ
 
-/-- The finite packing step behind the entropy/small-ball comparison.
-The analytic input is an explicit lower bound for translated ball masses. -/
-theorem smallBall_mass_bound_of_translated_packing
-    {X : Type*} [NormedAddCommGroup X] [MeasurableSpace X] [BorelSpace X]
-    (μ : Measure X) [IsProbabilityMeasure μ]
-    (S : Finset X) (ε R : ℝ)
-    (hsep : ∀ x∈S, ∀ y∈S, x≠y → 2*ε<dist x y)
-    (hshift : ∀ x∈S, ENNReal.ofReal (Real.exp (-(R^2)/2)) *
-      μ (Metric.closedBall 0 ε) ≤ μ (Metric.closedBall x ε)) :
-    (S.card:ENNReal)*ENNReal.ofReal (Real.exp (-(R^2)/2)) *
-      μ (Metric.closedBall 0 ε) ≤ 1 := by
-  simpa only [mul_assoc] using finite_separated_ball_mass_bound μ S ε
-    (ENNReal.ofReal (Real.exp (-(R^2)/2))*μ (Metric.closedBall 0 ε)) hsep hshift
-
-
 theorem smallBall_mass_bound_of_external_cover
     {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
     [MeasurableSpace X] [BorelSpace X]
@@ -110,7 +95,6 @@ theorem smallBall_mass_bound_of_entropy_radius
     exact (not_le_of_gt hentropy) (sInf_le ⟨ρ,rfl,hc⟩)
   exact smallBall_mass_bound_of_external_cover μ K ρ hρ (2^(k-1)) hcover R hR hshift
 
-
 theorem smallBall_mass_exponential_of_entropy_radius
     {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
     [MeasurableSpace X] [BorelSpace X]
@@ -153,7 +137,6 @@ theorem smallBall_mass_exponential_of_entropy_radius
     (le_div_iff₀ (Real.exp_pos _)).2 (by simpa only [mul_comm] using hh)
   change (μ (Metric.closedBall 0 (R*ρ/3))).toReal ≤ _
   simpa only [Real.exp_neg,one_div,neg_mul] using hm
-
 
 theorem smallBall_index_rate_of_entropy_lower
     {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]

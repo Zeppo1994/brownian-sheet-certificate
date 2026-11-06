@@ -1,5 +1,5 @@
-import BrownianSharp.AlignmentFiniteOverlapRpow
 import Mathlib.Analysis.MeanInequalities
+import Mathlib.Tactic
 
 noncomputable section
 open scoped BigOperators ENNReal

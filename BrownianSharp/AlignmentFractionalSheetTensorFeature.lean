@@ -48,10 +48,6 @@ theorem normalizedAxis_continuous (H : ℝ) (hH0 : 0 < H) (hH1 : H < 1) :
     (continuous_subtype_val.comp continuous_snd)).abs.rpow_const
       (fun _ => Or.inr (by linarith))).sqrt
 
-def normalizedAxisFamily (H : ℝ) (hH0 : 0 < H) (hH1 : H < 1) :
-    C(UnitInterval, FullLineL2) :=
-  ⟨normalizedAxis H hH0 hH1, normalizedAxis_continuous H hH0 hH1⟩
-
 abbrev FullProductL2 (d : ℕ) :=
   Lp ℝ 2 (Measure.pi (fun _ : Fin d => (volume : Measure ℝ)))
 
@@ -75,7 +71,6 @@ theorem fractionalSheetFeature_gram {d : ℕ} (H : Fin d → ℝ)
   apply Finset.prod_congr rfl
   intro i hi
   exact normalizedAxis_inner (H i) (hH i).1 (hH i).2 _ _
-
 
 theorem normalizedAxis_norm_sq (H : ℝ) (hH0 : 0 < H) (hH1 : H < 1)
     (t : UnitInterval) :
@@ -110,14 +105,6 @@ theorem normalizedAxis_holder (H : ℝ) (hH0 : 0 < H) (hH1 : H < 1)
   rw [← normalizedAxis_norm_sub_sq H hH0 hH1 s t, ← hsquare] at hpow
   have hn := Real.rpow_nonneg (abs_nonneg (s.val-t.val)) h
   nlinarith [norm_nonneg (normalizedAxis H hH0 hH1 s-normalizedAxis H hH0 hH1 t)]
-
-theorem fractionalSheetFeature_norm_le_one {d : ℕ} (H : Fin d → ℝ)
-    (hH : ∀ i, 0<H i ∧ H i<1) (t : BrownianCubeAnchor d) :
-    ‖fractionalSheetFeature H hH t‖ ≤ 1 := by
-  change ‖AlignmentSigmaFiniteL2Tensor.productVector _‖ ≤ _
-  rw [AlignmentSigmaFiniteL2Tensor.productVector_norm]
-  exact Finset.prod_le_one₀ (fun i hi => norm_nonneg _) (fun i hi =>
-    normalizedAxis_norm_le_one (H i) (hH i).1 (hH i).2 _)
 
 theorem fractionalSheetFeature_holder {d : ℕ} (H : Fin d → ℝ)
     (hH : ∀ i, 0<H i ∧ H i<1) (h : ℝ) (hh : 0<h)

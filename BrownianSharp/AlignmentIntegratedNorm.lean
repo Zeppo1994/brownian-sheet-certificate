@@ -79,7 +79,6 @@ theorem integrateSheetPath_norm_le_factorials {d : ℕ} (m : Fin d→ℕ)
   have h := fold_integrate_norm_le m Finset.univ.toList f
   simpa only [integrateSheetPath,Finset.prod_map_toList] using h
 
-
 theorem integrateSheetPath_factor_pos {d : ℕ} (m : Fin d→ℕ) :
     0 < ∏ i,((m i).factorial:ℝ)⁻¹ := by
   apply Finset.prod_pos

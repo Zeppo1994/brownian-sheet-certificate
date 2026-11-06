@@ -192,5 +192,4 @@ theorem hasDerivAt_gaussianHeat_directional_of_bounded_deriv
     hF_meas hF_int hF'_meas hbound hbound_int hdiff
   simpa [gaussianHeat, μ, F, F'] using h.2
 
-
 end BrownianSharp

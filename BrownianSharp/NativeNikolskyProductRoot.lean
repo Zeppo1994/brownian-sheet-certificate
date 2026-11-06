@@ -13,7 +13,6 @@ namespace BrownianSharp
 open BrownianSharp.SmoothResolution
 open BrownianSharp.AtomicBlockVariance
 
-
 /-- The dyadic profile factors from the integral estimate have exactly the
 Nikolsky coordinate exponents after multiplication by the block weight. -/
 theorem dyadicShapeWeightedFactor_eq_public {d : ℕ}
@@ -71,7 +70,6 @@ theorem dyadicShapeWeightedFactor_eq_public {d : ℕ}
     rw [← Finset.mul_sum, ← Nat.cast_sum, hsum]
   rw [ht, ← hs']
   exact hprod
-
 
 private theorem finset_prod_rpow_of_nonneg_local {ι : Type*} (s : Finset ι)
     (f : ι → ℝ) (p : ℝ) (hf : ∀ i ∈ s, 0 ≤ f i) :
@@ -320,6 +318,5 @@ theorem fixedShape_weightedBlockNorm_le_nikolskyShape
     rw [← hscale]
     exact hnorm
   exact hnorm'
-
 
 end BrownianSharp

@@ -16,12 +16,6 @@ theorem sum_univ_eq {I V : Type*} [AddCommMonoid V]
     (@Finset.univ I a).sum f = (@Finset.univ I b).sum f := by
   rw [univ_eq a b]
 
-theorem card_eq {I : Type*} (a b : Fintype I) :
-    @Fintype.card I a = @Fintype.card I b := by
-  have hab : a=b := Subsingleton.elim _ _
-  cases hab
-  rfl
-
 theorem projection_fintype_eq {H I : Type*}
     [NormedAddCommGroup H] [InnerProductSpace ℝ H]
     (a b : Fintype I) (e : I → H) (v : H) :

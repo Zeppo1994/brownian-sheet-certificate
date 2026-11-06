@@ -112,9 +112,4 @@ theorem nativeGoodGrid_nonempty {d n : ℕ} (hd : 0 < d) :
     simp at hratio
   exact Fintype.card_pos_iff.mp (by exact_mod_cast hcard)
 
-/-- Every member of the good set satisfies its advertised variance floor. -/
-theorem nativeGoodGrid_variance_floor {d n : ℕ} (q : NativeGoodGrid d n) :
-    nativeVarianceMeanLowerBound d n / 2 ≤ nativeLayerRowVariance q.1 :=
-  q.2
-
 end BrownianSharp

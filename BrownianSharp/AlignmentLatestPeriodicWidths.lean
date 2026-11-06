@@ -71,7 +71,6 @@ theorem periodic_sobolev_twoSided_width {d : ℕ} (hd : 2≤d)
     (sobolev_linf_width_zero_le_of_exponent hp r hr) hEntropy
     (periodic_sobolev_width_upper hd p r hp hr)
 
-
 theorem latest_periodic_sobolev_width {d : ℕ} (hd : 2≤d)
     (p : ENNReal) (hp : 2≤p) (r : ℝ) (hr : 1/2<r) (hptop : p≠⊤) :
     Latest.twoSidedWidthRate

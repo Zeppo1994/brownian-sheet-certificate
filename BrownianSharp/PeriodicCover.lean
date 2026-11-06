@@ -1,10 +1,15 @@
 import BrownianSharp.SmoothAtomMass
-import BrownianSharp.CameronMartinEntropy
+import BrownianSharp.CameronMartin
+import BrownianSharp.NativeProjection
+import Mathlib.MeasureTheory.Integral.Pi
+import Mathlib.MeasureTheory.Integral.Bochner.Set
+import Mathlib.Probability.Distributions.Gaussian.Real
+import Mathlib.Probability.Moments.Variance
+import Mathlib.Tactic
 import BrownianSharp.ProbabilisticCover
 import BrownianSharp.IndependentComparison
 import Mathlib.Analysis.Convex.Basic
 import Mathlib.Topology.MetricSpace.Basic
-import Mathlib.Tactic
 
 /-!
 # Periodized smooth atoms and their Gaussian cover obstruction
@@ -160,55 +165,5 @@ theorem gaussianSynthesis_ball_mass_le {ι d M : ℕ} (hι : 0 < ι)
   apply le_trans (measure_mono ?_) hshift
   intro z hz
   exact synthesisBall_subset_gridCube atoms t ρ ε hρ hρε (le_of_lt hε) f z hz
-
-/-- Actual periodized smooth atoms, driven by independent standard Gaussian
-coefficients, obstruct finite external covers whenever the coefficient cutoff
-is contained in the target class and the centered grid confinement estimate
-holds. -/
-theorem periodizedGaussian_externalCoveringNumber_gt
-    {ι d M k : ℕ} (hι : 0 < ι) (addresses : Fin ι → AtomIndex d)
-    (t : Fin M → UnitAddTorus (Fin d))
-    (K : Set (RealPeriodic d)) (ρ ε : ℝ) (hρ : 0 ≤ ρ) (hρε : ρ ≤ ε) (hε : 0 < ε)
-    (q : ℝ≥0∞)
-    (hclass : ∀ z : Fin ι → ℝ,
-      BrownianSharp.CameronMartinEntropy.coefficientEnergy z ≤
-        4 * (ι : ℝ) → gaussianSynthesis (fun i => periodizedDyadicAtom (addresses i)) z ∈ K)
-    (hconf : (Measure.pi (fun _ : Fin ι => gaussianReal 0 1))
-      {z | ‖synthesisGridMap (fun i => periodizedDyadicAtom (addresses i)) t z‖ ≤ ε} ≤ q)
-    (hmass : ((2 ^ (k - 1) : ℕ) : ℝ≥0∞) * q < (3 / 4 : ℝ≥0∞)) :
-    ((2 ^ (k - 1) : ℕ) : ℕ∞) < Metric.externalCoveringNumber
-      (⟨ρ, hρ⟩ : ℝ≥0) K := by
-  classical
-  let atoms : Fin ι → RealPeriodic d := fun i => periodizedDyadicAtom (addresses i)
-  let P : Measure (Fin ι → ℝ) := Measure.pi fun _ : Fin ι => gaussianReal 0 1
-  let E : Set (Fin ι → ℝ) :=
-    {z | BrownianSharp.CameronMartinEntropy.coefficientEnergy z ≤
-      4 * (ι : ℝ)}
-  letI : Nonempty (Fin ι) := Fin.pos_iff_nonempty.mp hι
-  have hmassE : (3 / 4 : ℝ≥0∞) ≤ P E := by
-    simpa [P, E] using
-      BrownianSharp.CameronMartinEntropy.standardGaussian_coefficientCutoff_mass
-        (Fin ι)
-  have hball : ∀ f : RealPeriodic d,
-      P {z | edist (gaussianSynthesis atoms z) f ≤ ENNReal.ofReal ρ} ≤ q := by
-    intro f
-    simpa only [P] using gaussianSynthesis_ball_mass_le
-      (ι := ι) (d := d) (M := M) hι atoms t ρ ε hρ hρε hε q hconf f
-  have hcover := externalCoveringNumber_gt_of_admissible_mass P
-    (gaussianSynthesis atoms) E K ⟨ρ, hρ⟩ q (2 ^ (k - 1))
-    (by intro z hz; exact hclass z hz)
-    (by
-      intro f
-      change P {ω | edist (gaussianSynthesis atoms ω) f ≤
-        ENNReal.ofNNReal (⟨ρ, hρ⟩ : ℝ≥0)} ≤ q
-      have hrad : ENNReal.ofReal ρ = ENNReal.ofNNReal (⟨ρ, hρ⟩ : ℝ≥0) :=
-        ENNReal.ofReal_eq_coe_nnreal hρ
-      rw [← hrad]
-      exact hball f)
-    (by
-      calc
-        ((2 ^ (k - 1) : ℕ) : ℝ≥0∞) * q < (3 / 4 : ℝ≥0∞) := hmass
-        _ ≤ P E := hmassE)
-  simpa using hcover
 
 end BrownianSharp.PeriodicCover

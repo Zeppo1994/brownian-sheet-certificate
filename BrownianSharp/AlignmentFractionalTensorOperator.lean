@@ -159,16 +159,4 @@ theorem cube_productVector_norm_le {d : ℕ} (v : Fin d → UnitL2) :
     ‖productToCube d (productVector v)‖ ≤ ∏ i, ‖v i‖ := by
   exact (productToCube_norm_le d _).trans_eq (productVector_norm v)
 
-/-- Coordinate preimages tensorize without a dimension-dependent loss in
-the source norm. -/
-theorem tensor_preimage_of_coordinate_preimages {d : ℕ} (a : Fin d → ℝ)
-    (ha : ∀ i,1/2<a i) (F : Fin d → C(UnitInterval, ℝ))
-    (v : Fin d → UnitL2) (hv : ∀ i, fractionalRL (a i) (ha i) (v i) = F i) :
-    ∃ g : CameronMartin.UnitCubeL2 d, ‖g‖ ≤ ∏ i, ‖v i‖ ∧
-      ∀ t, fractionalTensorRL a ha g t = ∏ i, F i (cubeCoordinate i t) := by
-  refine ⟨productToCube d (productVector v), cube_productVector_norm_le v, ?_⟩
-  intro t
-  rw [fractionalTensorRL_product]
-  simp_rw [hv]
-
 end BrownianSharp.AlignmentFractionalTensorOperator

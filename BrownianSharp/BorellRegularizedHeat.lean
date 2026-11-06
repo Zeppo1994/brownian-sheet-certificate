@@ -99,16 +99,6 @@ private theorem continuous_gaussianQuantileHeat_const_add {κ : Type*} [Fintype 
       standardGaussianQuantile (gaussianHeat (fun y => c + p y) w.1 w.2)) u
   exact ContinuousAt.comp_of_eq hQ hm rfl
 
-private theorem hasDerivAt_gaussianHeat_const_add_line
-    {κ : Type*} [Fintype κ] (q : (κ → ℝ) → ℝ) (t : ℝ)
-    (x v : κ → ℝ) (s : ℝ) (hq : ContDiff ℝ 1 q)
-    (hqBound : ∃ C : ℝ, 0 ≤ C ∧ ∀ y, ‖q y‖ ≤ C)
-    (hdBound : ∃ C : ℝ, 0 ≤ C ∧ ∀ y, ‖fderiv ℝ q y‖ ≤ C) :
-    HasDerivAt (fun r : ℝ => gaussianHeat q t (x + r • v))
-      (gaussianHeat (fun y => fderiv ℝ q y v) t (x + s • v)) s :=
-  hasDerivAt_gaussianHeat_directional_line q t x v s hq hqBound hdBound
-
-
 /-- Scalar quantile heat profile satisfies Borell's nonlinear PDE under the
 finite-product Gaussian trace identity. The proof supplies the mass ranges,
 first spatial derivatives, and second-variation formulas from the actual heat

@@ -44,22 +44,4 @@ theorem diagonalFeature_increment_square_sum_le {d : ℕ}
   exact (pow_le_pow_left₀ (norm_nonneg _)
     (diagonalCoordinates_norm_le e he w hw _) 2).trans (hmetric t s)
 
-theorem diagonalFeature_expected_norm {d : ℕ}
-    (K : C(BrownianCubeAnchor d,H)) (e : ι → H) (he : Orthonormal ℝ e)
-    (w : ι → ℝ) (hw : ∀ i, |w i| ≤ 1)
-    (σ R : ℝ) (hσ : 0 ≤ σ) (hR : 0 ≤ R)
-    (hvariance : ∀ t, ‖diagonalCoordinates e w (K t)‖^2 ≤ σ^2)
-    (hmetric : ∀ t s, ‖K t-K s‖^2 ≤ R*dist t s) (n₀ : ℕ) :
-    Integrable (fun z => ‖finiteGaussianFeaturePath (diagonalFeature K e w) z‖)
-      (productStandardGaussian ι) ∧
-    (∫z, ‖finiteGaussianFeaturePath (diagonalFeature K e w) z‖
-      ∂productStandardGaussian ι) ≤
-      AlignmentGaussianChainingRate.chainingConstant d * Real.sqrt ((n₀:ℝ)+1) *
-        (σ+Real.sqrt (2*R)*(2:ℝ)^(-((n₀:ℝ)/2))) := by
-  apply finiteGaussianFeaturePath_expected_norm _ σ R hσ hR
-  · intro t
-    rw [diagonalFeature_square_sum]
-    exact hvariance t
-  · exact diagonalFeature_increment_square_sum_le K e he w hw R hmetric
-
 end BrownianSharp.AlignmentGaussianHilbertFeature

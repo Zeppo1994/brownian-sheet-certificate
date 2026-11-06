@@ -69,16 +69,6 @@ theorem polynomialTensorGradedFrame_orthonormal {d : ℕ}
     (gradedPolynomialFiltration_finite q i)
     (gradedPolynomialFiltration_nested q i) N
 
-/-- Number of coordinate basis vectors in one polynomial grade. -/
-theorem polynomialGradeIndex_card_le {d : ℕ} (q : Fin d → ℕ)
-    (i : Fin d) (g : ℕ) :
-    Fintype.card (GradeIndex (gradedPolynomialFiltration q i) g) ≤ q i * 2^g := by
-  exact gradeIndex_card_le_of_growth (gradedPolynomialFiltration q i)
-    (gradedPolynomialFiltration_finite q i) (gradedPolynomialFiltration_nested q i)
-    (A := q i) (fun n => by
-      change Module.finrank ℝ ↥(piecewisePolynomials (q i) n) ≤ q i * 2^n
-      exact piecewisePolynomials_finrank_le (q i) n) g
-
 /-- Actual tensor RL feature projected coordinatewise onto the graded
 piecewise-polynomial source spaces. -/
 noncomputable def gradedPolynomialTensorProjectedKernel {d : ℕ}
@@ -201,20 +191,3 @@ theorem exists_gradedPolynomialTensorProjectedKernel_depth {d : ℕ}
   rw [gradedPolynomialTensorProjectedKernel_eq_recursive q hq N a ha]
   exact herr t
 
-/-- The graded finite polynomial tensor feature inherits the Hölder modulus
-of the actual anisotropic RL kernel. -/
-theorem gradedPolynomialTensorProjectedKernel_holder {d : ℕ}
-    (hd : 0 < d) (q : Fin d → ℕ) (hq : ∀ i, 0 < q i)
-    (a : Fin d → ℝ) (ha : ∀ i, 1/2 < a i)
-    (r : ℝ) (hr : 1/2 < r) (hra : ∀ i, r ≤ a i) (N : ℕ) :
-    ∃ C : ℝ, 0 < C ∧
-      ∀ x y : BrownianCubeAnchor d,
-        ‖gradedPolynomialTensorProjectedKernel q N a ha x -
-          gradedPolynomialTensorProjectedKernel q N a ha y‖ ≤
-            C * (dist x y)^(tensorHolderExponent r) := by
-  obtain ⟨C,hC,hholder⟩ :=
-    polynomialTensorProjectedKernel_holder hd q hq a ha r hr hra N
-  refine ⟨C,hC,?_⟩
-  intro x y
-  simpa only [gradedPolynomialTensorProjectedKernel_eq_recursive q hq N a ha] using
-    hholder x y

@@ -9,7 +9,6 @@ open scoped BigOperators
 namespace BrownianSharp.AlignmentMaternWindowWeight
 open AlignmentMaternSpectralWindow
 
-
 theorem windowMultiplier_eq_sinc (a t : ℝ) :
     windowMultiplier a t = a * Real.sinc (Real.pi*a*t) := by
   by_cases ht : t=0

@@ -66,7 +66,6 @@ theorem gaussian_max_abs_integrable
     simpa [Real.norm_eq_abs, abs_of_nonneg (norm_nonneg _)] using hdom ω
   exact hsum.mono' hmeas.aestronglyMeasurable hdom'
 
-
 private theorem exp_pi_norm_le_sum
     {ι : Type*} [Fintype ι] [Nonempty ι]
     (x : ι → ℝ) (t : ℝ) :
@@ -210,7 +209,6 @@ theorem expected_max_le_of_variance_parameter
   dsimp [Y] at hleft hdivide ⊢
   rw [hleft, hright] at hdivide
   exact hdivide
-
 
 /-- The expected supremum of a finite family of centered Gaussian variables
 with marginal variances at most `σ²`. The bound makes no independence

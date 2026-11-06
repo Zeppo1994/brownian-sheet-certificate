@@ -200,15 +200,4 @@ theorem grade_scaled_variance_sum_uniform (d N M : ℕ) (hd : 0 < d) :
       _ = ((N + 1 : ℝ) ^ (d - 1)) / (2 : ℝ) ^ N *
           (2 + BrownianSharp.AlignmentGeometricRanks.polynomialBudget (1 / 2) (d - 1)) := by ring
 
-theorem grade_scaled_feature_variance_uniform {d N M : ℕ} (hd : 0 < d)
-    (t : Fin d → ℝ) (ht : ∀ i, 0 ≤ t i ∧ t i ≤ 1) :
-    ‖gradeScaledFeature (N := N) (M := M)
-        (⟨brownianSheetBoxIndicatorLp t,
-          brownianCubeBoxIndicator_mem ⟨t, ht⟩⟩ : brownianCubeBoxSpan d)‖ ^ 2 ≤
-      ((N + 1 : ℝ) ^ (d - 1)) / (2 : ℝ) ^ N *
-        (2 + BrownianSharp.AlignmentGeometricRanks.polynomialBudget (1 / 2) (d - 1)) := by
-  exact (grade_scaled_feature_variance_le hd t ht).trans
-    (grade_scaled_variance_sum_uniform d N M hd)
-
-
 end BrownianSharp.AlignmentGaussianHaarProjection

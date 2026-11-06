@@ -124,7 +124,6 @@ theorem finiteHaarVector_inner_box {d N : ℕ} (a : FiniteHaarIndex d N)
             min (finiteHaarEndpoint (a i) k) (t i) := by
         rw [Fintype.prod_sum]
 
-
 /-- The one-coordinate integrated feature of a father or normalized mother. -/
 theorem finiteHaarAxisIntegratedFeature {N : ℕ} (a : FiniteHaarAxis N)
     (t : ℝ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :

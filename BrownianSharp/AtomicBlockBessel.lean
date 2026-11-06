@@ -20,11 +20,6 @@ open BrownianSharp.SmoothResolution
 open BrownianSharp.AtomicBlockKernelL2
 open UnitAddTorus
 
-def continuousLp {d : ℕ} (f : RealPeriodic d) :
-    Lp ℂ (2 : ℝ≥0∞) (volume : Measure (UnitAddTorus (Fin d))) :=
-  (complexifyContinuous f).toLp (2 : ℝ≥0∞)
-    (volume : Measure (UnitAddTorus (Fin d))) ℂ
-
 /-- Bessel's inequality for a finite orthogonal family with nonzero vectors,
 rescaled by a common upper bound for their squared norms. -/
 theorem sum_inner_sq_le_of_orthogonal_nonzero {ι E : Type*} [Fintype ι] [DecidableEq ι]
@@ -125,48 +120,5 @@ theorem sum_inner_sq_le_of_orthogonal {ι E : Type*} [Fintype ι] [DecidableEq �
   dsimp [f] at hsplit ⊢
   rw [← hsplit, hzero, add_zero]
   exact hB
-
-/-- Pointwise squared block evaluations of a finite orthogonal periodic atom
-family are controlled by the squared L² norm of the actual smooth-block
-evaluation kernel. The atom support and norm hypotheses are explicit inputs. -/
-theorem smoothBlock_atom_sum_sq_le {ι d : ℕ} (s : Fin d → ℕ)
-    (atoms : Fin ι → RealPeriodic d) (x : UnitAddTorus (Fin d))
-    {ρ : ℝ} (hρ : 0 ≤ ρ)
-    (horth : ∀ i j, i ≠ j → inner ℂ (continuousLp (atoms i))
-      (continuousLp (atoms j)) = 0)
-    (hnorm : ∀ i,
-      ‖continuousLp (atoms i)‖ ^ 2 ≤ ρ) :
-    (∑ i : Fin ι, ‖block s (atoms i) x‖ ^ 2) ≤
-      ρ * ‖evaluationKernelLp s x‖ ^ 2 := by
-  let u : Fin ι → Lp ℂ (2 : ℝ≥0∞)
-      (volume : Measure (UnitAddTorus (Fin d))) := fun i => continuousLp (atoms i)
-  have hb := sum_inner_sq_le_of_orthogonal u horth hρ hnorm
-    (evaluationKernelLp s x)
-  calc
-    ∑ i : Fin ι, ‖block s (atoms i) x‖ ^ 2 =
-        ∑ i : Fin ι, ‖inner ℂ (u i) (evaluationKernelLp s x)‖ ^ 2 := by
-          apply Finset.sum_congr rfl
-          intro i hi
-          have h := block_eq_inner_evaluationKernelLp s (atoms i) x
-          have h' : inner ℂ (evaluationKernelLp s x) (continuousLp (atoms i)) =
-              block s (atoms i) x := by simpa [continuousLp] using h
-          dsimp [u]
-          calc
-            ‖block s (atoms i) x‖ ^ 2 =
-                ‖inner ℂ (evaluationKernelLp s x) (continuousLp (atoms i))‖ ^ 2 := by
-                  rw [← h']
-            _ = ‖inner ℂ (continuousLp (atoms i)) (evaluationKernelLp s x)‖ ^ 2 := by
-                  have hc := inner_conj_symm (𝕜 := ℂ) (continuousLp (atoms i))
-                    (evaluationKernelLp s x)
-                  have hnorm :
-                      ‖inner ℂ (evaluationKernelLp s x) (continuousLp (atoms i))‖ =
-                        ‖inner ℂ (continuousLp (atoms i)) (evaluationKernelLp s x)‖ := by
-                    calc
-                      _ = ‖(starRingEnd ℂ) (inner ℂ (evaluationKernelLp s x)
-                          (continuousLp (atoms i)))‖ := by
-                            rw [starRingEnd_apply, norm_star]
-                      _ = _ := congrArg (fun z : ℂ => ‖z‖) hc
-                  rw [hnorm]
-    _ ≤ ρ * ‖evaluationKernelLp s x‖ ^ 2 := hb
 
 end BrownianSharp.AtomicBlockBessel

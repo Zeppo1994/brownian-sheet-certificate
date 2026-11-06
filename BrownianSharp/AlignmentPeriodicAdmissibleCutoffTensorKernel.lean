@@ -65,21 +65,6 @@ theorem admissibleBlockKernel_eq_product {d : ℕ} (φ : AdmissibleCutoff)
     (fun i : Fin d => ScalarAtomVariance.scalarFrequencyBox (s i))
     (fun i n => (scalarBlock φ (s i) (n:ℝ) : ℂ) * fourier n (x i))]
 
-theorem admissibleBlockKernel_integral_le {d : ℕ} (φ : AdmissibleCutoff)
-    (s : Fin d → ℕ) :
-    ∃ L : ℝ, 0 ≤ L ∧
-      (∫ x : UnitAddTorus (Fin d), ‖admissibleBlockKernel φ s x‖
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤ L ^ d := by
-  obtain ⟨L, hL, hscalar⟩ := exists_admissibleScalarBlockKernel_uniform_L1_bound φ
-  refine ⟨L, hL, ?_⟩
-  rw [admissibleBlockKernel_eq_product]
-  have hprod := BrownianSharp.coordinateProductKernel_norm_integral_le
-    (fun i => BrownianSharp.AlignmentPeriodicAdmissibleCutoff.scalarBlockKernel φ (s i))
-    (fun _ => L) (fun _ => hL)
-    (fun i => hscalar (s i))
-  simpa [admissibleBlockKernelProduct, Fintype.card_fin] using hprod
-
-
 theorem exists_admissibleBlockKernel_uniform_L1_bound {d : ℕ}
     (φ : AdmissibleCutoff) :
     ∃ L : ℝ, 0 ≤ L ∧ ∀ s : Fin d → ℕ,

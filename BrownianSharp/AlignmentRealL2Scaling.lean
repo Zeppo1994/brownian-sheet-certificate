@@ -10,18 +10,6 @@ open MeasureTheory
 open scoped RealInnerProductSpace
 namespace BrownianSharp.AlignmentRealL2Scaling
 
-theorem memLp_two_comp_div {f : ℝ → ℝ} (hf : MemLp f 2 volume)
-    (hfm : Measurable f) {a : ℝ} (ha : a ≠ 0) :
-    MemLp (fun u : ℝ => f (u/a)) 2 volume := by
-  apply (memLp_two_iff_integrable_sq
-    ((hfm.comp (measurable_id.div_const a)).aestronglyMeasurable)).2
-  exact ((memLp_two_iff_integrable_sq hf.aestronglyMeasurable).1 hf).comp_div ha
-
-theorem memLp_two_homogeneous_scale {f : ℝ → ℝ} (hf : MemLp f 2 volume)
-    (hfm : Measurable f) {a : ℝ} (ha : a ≠ 0) (p : ℝ) :
-    MemLp (fun u : ℝ => a^p*f (u/a)) 2 volume :=
-  (memLp_two_comp_div hf hfm ha).const_mul _
-
 theorem homogeneous_square_integral_scale (f : ℝ → ℝ) {a : ℝ}
     (ha : 0 < a) (p : ℝ) :
     (∫ u : ℝ, (a^p*f (u/a))^2) =

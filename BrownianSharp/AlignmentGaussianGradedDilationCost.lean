@@ -92,40 +92,4 @@ theorem finite_graded_index_dilation_cost_sum_le
       simpa using low_grade_dilation_cost_sum_le k N
     _ = _ := by ring
 
-/-- Uniform determinant-cost lower bound for diagonal contractions by grade.
-Each coordinate is scaled by `η^(N-grade)`, where `0<η≤1`. -/
-theorem finite_graded_diagonal_dilation_product_ge_exp
-    {ι : Type*} [Fintype ι] [DecidableEq ι]
-    (grade : ι → ℕ) (C η : ℝ) (k N : ℕ)
-    (hC : 0 ≤ C) (hη : 0 < η) (hη1 : η ≤ 1)
-    (hN : ∀ i, grade i ≤ N)
-    (hfiber : ∀ g : Fin (N + 1),
-      (Fintype.card {i : ι // grade i = g.val} : ℝ) ≤
-        C * (2 : ℝ)^g.val * (((g.val + 1 : ℕ) : ℝ)^k)) :
-    ∏ i : ι, η^(N-grade i) ≥
-      Real.exp (-(-Real.log η) *
-        (C * (2 : ℝ)^N * (((N + 1 : ℕ) : ℝ)^k) * polynomialBudget (1/2) 1)) := by
-  have hcost := finite_graded_index_dilation_cost_sum_le grade C k N hC hN hfiber
-  have hproduct :
-      (∏ i : ι, η^(N-grade i)) =
-        Real.exp (Real.log η * (∑ i : ι, ((N-grade i : ℕ) : ℝ))) := by
-    calc
-      (∏ i : ι, η^(N-grade i)) = η^(∑ i : ι, (N-grade i)) :=
-        Finset.prod_pow_eq_pow_sum Finset.univ (fun i => N-grade i) η
-      _ = Real.rpow η ((∑ i : ι, (N-grade i) : ℕ) : ℝ) :=
-        (Real.rpow_natCast η _).symm
-      _ = Real.exp (Real.log η * (∑ i : ι, ((N-grade i : ℕ) : ℝ))) := by
-        exact (Real.rpow_def_of_pos hη _).trans (by
-          congr 1
-          simp only [Nat.cast_sum])
-  have hlog : Real.log η ≤ 0 := Real.log_nonpos hη.le hη1
-  have hexponent :
-      -(-Real.log η) *
-          (C * (2 : ℝ)^N * (((N + 1 : ℕ) : ℝ)^k) * polynomialBudget (1/2) 1) ≤
-        Real.log η * (∑ i : ι, ((N-grade i : ℕ) : ℝ)) := by
-    have hcoef : 0 ≤ -Real.log η := by linarith
-    nlinarith [mul_le_mul_of_nonneg_left hcost hcoef]
-  rw [hproduct]
-  exact Real.exp_le_exp.mpr hexponent
-
 end BrownianSharp.AlignmentGaussianGradedDilationCost

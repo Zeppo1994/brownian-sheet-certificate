@@ -377,26 +377,4 @@ theorem standardGaussian_linear_shift_le
   exact mul_le_mul_of_nonneg_left (gaussianImageDensity_translate_integral_le
     C A shift hconv hsymm hC) (by positivity)
 
-/-- The Anderson bound persists after averaging over an independent residual
-shift. This is the finite-dimensional product-law step used to keep all
-unselected Gaussian modes in the conditioning argument. -/
-theorem standardGaussian_residual_mixture_le
-    {d M : ℕ} (C : Set (Fin M → ℝ))
-    (A : (Fin (d + 1) → ℝ) →ₗ[ℝ] (Fin M → ℝ))
-    (ν : Measure (Fin M → ℝ)) [IsProbabilityMeasure ν]
-    (hconv : Convex ℝ C) (hsymm : ∀ z, z ∈ C → -z ∈ C)
-    (hC : MeasurableSet C) :
-    ∫⁻ z, (Measure.pi (fun _ : Fin (d + 1) =>
-      ProbabilityTheory.gaussianReal 0 1)) {x | A x + z ∈ C} ∂ν ≤
-      (Measure.pi (fun _ : Fin (d + 1) =>
-        ProbabilityTheory.gaussianReal 0 1)) {x | A x ∈ C} := by
-  calc
-    _ ≤ ∫⁻ z, (Measure.pi (fun _ : Fin (d + 1) =>
-        ProbabilityTheory.gaussianReal 0 1)) {x | A x ∈ C} ∂ν :=
-      lintegral_mono fun z => standardGaussian_linear_shift_le
-        C A z hconv hsymm hC
-    _ = (Measure.pi (fun _ : Fin (d + 1) =>
-        ProbabilityTheory.gaussianReal 0 1)) {x | A x ∈ C} := by
-      simp
-
 end BrownianSharp

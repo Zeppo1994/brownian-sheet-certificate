@@ -287,7 +287,6 @@ theorem exists_signed_dictionary_average
   exact exists_maurey_average (signedDictionaryWeight coeff)
     (signedDictionaryAtom coeff v) x R hp hsum hmean hb s hs
 
-
 def jointDictionaryAtom {ι H E : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
     [NormedAddCommGroup E] [InnerProductSpace ℝ E]
     (A : H →L[ℝ] E) (v : ι → H) (i : ι) : WithLp 2 (H × E) :=
@@ -347,7 +346,6 @@ theorem exists_signed_dictionary_joint_average
     rw [mul_pow, Real.sq_sqrt (by norm_num : (0:ℝ) ≤ 5)]
   rw [hscale] at hle
   exact hle
-
 
 private theorem signed_joint_atom_ofLp
     {ι H E : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]

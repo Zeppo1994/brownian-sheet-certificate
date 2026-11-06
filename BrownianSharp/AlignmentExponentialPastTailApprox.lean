@@ -25,23 +25,6 @@ open BrownianSharp.AlignmentGeometricRanks
 
 abbrev PastL2 := Lp ℝ 2 (volume.restrict (Set.Ioi (0:ℝ)))
 
-theorem pieceRight_pos_le_one (J : ℕ) (i : Option (Fin J) × Fin 4) :
-    0 < pieceRight J i ∧ pieceRight J i ≤ 1 := by
-  rcases i with ⟨base,k⟩
-  cases base with
-  | none =>
-      fin_cases k <;> norm_num [pieceRight, coarseRight]
-  | some j =>
-      have hcpos : 0 < shellScale j := by
-        dsimp [shellScale]
-        positivity
-      have hcle : shellScale j ≤ 1 := by
-        dsimp [shellScale]
-        have hpow : 1 ≤ (2:ℝ)^j.val := one_le_pow₀ (by norm_num)
-        exact (div_le_one₀ (by positivity)).2 hpow
-      fin_cases k <;> simp only [pieceRight, shellRight] <;>
-        norm_num at * <;> constructor <;> nlinarith
-
 theorem piece_geometry (J : ℕ) (i : Option (Fin J) × Fin 4) :
     0 < pieceLeft J i ∧ pieceLeft J i ≤ pieceRight J i ∧
       pieceRight J i ≤ 1 ∧ pieceRight J i - pieceLeft J i ≤ pieceLeft J i / 2 := by
@@ -140,11 +123,6 @@ def pastTailCoeffVector (p : ℝ) (hp0 : -(1/2:ℝ) < p)
   (pastTailTaylorCoeff_memLp hp0 hp1
     (permanentCenter_pos_le_one i).1 (permanentCenter_pos_le_one i).2).toLp
       (pastTailTaylorCoeff p k (permanentCenter i))
-
-def pastTailCoeffFamily (p : ℝ) (hp0 : -(1/2:ℝ) < p)
-    (hp1 : p < 1/2) (M : ℕ) :
-    PastTailTaylorIndex → Fin M → PastL2 :=
-  fun z k => pastTailCoeffVector p hp0 hp1 z k.val
 
 def pastTailCenter (J : ℕ) (i : Option (Fin J) × Fin 4) : ℝ :=
   permanentCenter (embedIndex J i)

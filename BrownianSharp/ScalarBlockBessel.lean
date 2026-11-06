@@ -3,8 +3,8 @@ import BrownianSharp.PeriodicAtomDerivatives
 import Mathlib.Analysis.Fourier.AddCircle
 
 /-! Scalar AddCircle Fourier-kernel identities used to prove dyadic block
-variance bounds. This file does not yet identify the truncated kernels with
-the tensor-product operator; that identification is handled separately. -/
+variance bounds. The identification of the truncated kernels with the
+tensor-product operator is made separately. -/
 
 noncomputable section
 open MeasureTheory

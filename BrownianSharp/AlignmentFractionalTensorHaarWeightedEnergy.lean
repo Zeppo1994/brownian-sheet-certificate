@@ -1,6 +1,11 @@
-import BrownianSharp.AlignmentFractionalTensorHaarEnergy
-import BrownianSharp.AlignmentFractionalWeightedGrades
+import BrownianSharp.AlignmentFractionalTensorHaar
+import BrownianSharp.AlignmentFractionalHaarBand
+import BrownianSharp.AlignmentFractionalTranslation
+import BrownianSharp.AlignmentFractionalHaarProjection
+import BrownianSharp.AlignmentGaussianFractionalHaar
+import BrownianSharp.AlignmentFractionalSharpBudgets
 import Mathlib.Tactic
+import BrownianSharp.AlignmentFractionalWeightedGrades
 
 noncomputable section
 open scoped BigOperators RealInnerProductSpace
@@ -8,16 +13,8 @@ namespace BrownianSharp.AlignmentFractionalTensorHaarWeightedEnergy
 
 open BrownianSharp
 open BrownianSharp.AlignmentFractionalTensorHaar
-open BrownianSharp.AlignmentFractionalTensorHaarEnergy
 open BrownianSharp.AlignmentFractionalL2
 open BrownianSharp.AlignmentFractionalWeightedGrades
-
-theorem scalarAxisDecay_eq_rpow_of_le_one {α : ℝ}
-    (hα : 1/2 < α) (hα1 : α ≤ 1) :
-    scalarAxisDecay α = Real.rpow 2 (-(2*α-1)) := by
-  unfold scalarAxisDecay scalarAxisExponent
-  rw [min_eq_left (by linarith : 2*α-1 ≤ 1)]
-  rfl
 
 private theorem rpow_nat_power (β : ℝ) (k : ℕ) :
     (Real.rpow 2 (-β))^k = Real.rpow 2 (-β * (k:ℝ)) := by
@@ -81,28 +78,6 @@ theorem weightedProfile_rate_eq_rpow
             (-((2*r-1)*activeGradeNat a)) (-inactiveEnergyExponent r w b)).symm
         _ = Real.rpow 2 (-((2*r-1)*activeGradeNat a +
             inactiveEnergyExponent r w b)) := by congr 1 <;> ring
-
-/-- For an arbitrary anisotropic fractional RL kernel, energy in a fixed
-coordinatewise Haar-grade profile is bounded by the product of the actual
-one-dimensional scalar grade envelopes. -/
-theorem tensorHaarProfile_energy_le {d N n : ℕ}
-    (α : Fin d → ℝ) (hα : ∀ i, 1/2 < α i)
-    (t : HaarQuarter.BrownianCubeAnchor d)
-    (r : Fin d → ℕ) (hr : ∑ i : Fin d, r i = n) :
-    (∑ a : FiniteHaarProfileFiber (N := N) r,
-      tensorHaarCoefficient α hα t a.1 ^ 2) ≤
-      ∏ i : Fin d,
-        scalarAxisEnvelope (α i) (hα i) * scalarAxisDecay (α i) ^ (r i) := by
-  classical
-  rw [tensorHaarProfile_energy_eq_product α hα t r hr]
-  apply Finset.prod_le_prod₀
-  · intro i hi
-    exact Finset.sum_nonneg fun a ha => sq_nonneg
-      (inner ℝ (kernelVector (α i) (t.val i) (hα i)
-        (t.property i).1 (t.property i).2) (tensorHaarAxis a.1))
-  · intro i hi
-    simpa using scalarAxisGrade_decay_bound (hα i)
-      (t.property i).1 (t.property i).2 N (r i)
 
 /-- The scalar weighted-slab energy estimate remains valid after multiplying
 each feature coefficient by a common product of one-dimensional envelope

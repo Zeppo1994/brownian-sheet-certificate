@@ -80,9 +80,4 @@ theorem periodic_nikolsky_twoSided_width {d : ℕ} (hd : 2≤d)
     (nikolsky_linf_width_zero_le_of_exponent hp r hr) hEntropy
     (periodic_nikolsky_width_upper hd p hp r hr)
 
-theorem latest_periodicWidth_certified : Latest.PeriodicWidthStatement := by
-  intro d hd p hp r hr
-  exact ⟨fun hptop=>AlignmentLatestPeriodicWidths.latest_periodic_sobolev_width hd p hp r hr hptop,
-    periodic_nikolsky_twoSided_width hd p hp r hr⟩
-
 end BrownianSharp.AlignmentLatestNikolskyWidths

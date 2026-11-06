@@ -20,15 +20,6 @@ def complexPhase (t ξ : ℝ) : ℂ :=
 theorem complexPhase_norm (t ξ : ℝ) : ‖complexPhase t ξ‖ = 1 := by
   simp [complexPhase, Complex.norm_exp]
 
-theorem complexPhase_memLp (κ h t : ℝ) (hκ : 0 < κ) (hh : 0 < h) :
-    MemLp (complexPhase t) 2 (spectralMeasure κ h) := by
-  letI := spectralMeasure_isFinite κ h hκ hh
-  apply MemLp.of_bound
-    (show AEStronglyMeasurable (complexPhase t) (spectralMeasure κ h) from
-      (show Measurable (complexPhase t) by unfold complexPhase; fun_prop).aestronglyMeasurable) 1
-  filter_upwards with ξ
-  rw [complexPhase_norm]
-
 theorem complexPhase_conj_mul (s t ξ : ℝ) :
     star (complexPhase s ξ) * complexPhase t ξ =
       Complex.exp (((2*Real.pi*ξ*(s-t):ℝ):ℂ) * Complex.I) := by
@@ -124,7 +115,6 @@ theorem rawComplexSheetFeature_inner_complex {d : ℕ} (κ : Fin d → ℝ) (h :
       intro i hi
       rw [integral_complexPhase (κ i) h (s i-t i) (hκ i) hh]
       simp [stationaryCovariance]
-
 
 def complexFeatureScale {d : ℕ} (κ : Fin d → ℝ) (h : ℝ)
     (hκ : ∀ i, 0 < κ i) (hh : 0 < h) : ℝ :=

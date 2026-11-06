@@ -215,58 +215,6 @@ theorem polynomialGradedFrame_projection_eq_projectedKernel {d : ℕ}
   rw [finiteOrthonormalProjection,
     gradedPolynomialTensorProjectedKernel_eq_sum q M a ha t]
 
-/-- Polynomial-frame specialization of the actual RL KGG width bridge.
-All order-dependent approximation work is exposed as the uniform actual
-kernel-to-polynomial-projection residual; row and energy hypotheses retain
-their literal graded-coordinate form for the anisotropic estimates. -/
-theorem polynomial_fractional_tensor_RL_partition_KGG_width_bound
-    {d L : ℕ} (q : Fin d → ℕ) (M : ℕ) (a₀ : Fin d → ℝ)
-    (ha₀ : ∀ i, 1/2 < a₀ i) {τ : ℝ} (hτ : 0 ≤ τ)
-    (htrunc : ∀ t : BrownianCubeAnchor d,
-      ‖tensorKernelFamily a₀ ha₀ t -
-        gradedPolynomialTensorProjectedKernel q M a₀ ha₀ t‖ ≤ τ)
-    {G : Type} [Fintype G]
-    (φ : G → C(BrownianCubeAnchor d, ℝ))
-    (anchor : G → BrownianCubeAnchor d)
-    (hφ : ∀ i t, 0 ≤ φ i t) (hsum : ∀ t, ∑ i, φ i t = 1)
-    (σ : (∀ i : Fin d, GradedFrameIndex (fun n =>
-      AlignmentFractionalPolynomialSpaces.piecewisePolynomials (q i) n) M) →
-        Option (Fin L)) (R : Fin L → ℝ)
-    (hR : ∀ j, 0 ≤ R j)
-    (hrow : ∀ j g,
-      ‖coordinateLayerMask σ (some j)
-        (finiteOrthonormalCoordinates
-          (polynomialTensorGradedFrame q M)
-          (tensorKernelFamily a₀ ha₀ (anchor g)))‖ ≤ R j)
-    {A₀ ρ qrate : ℝ} {k : ℕ} (hA₀ : 0 ≤ A₀)
-    (hρ : 0 < ρ) (hqrate : 0 < qrate) (hq1 : qrate < 1)
-    (hρq : ρ < qrate)
-    (henergy : ∀ j, (R j)^2 ≤ A₀*((j.val+1:ℕ):ℝ)^k*ρ^(j.val))
-    (D : ℕ) (hD : 0 < D)
-    (hlow : Fintype.card {i : (∀ i : Fin d, GradedFrameIndex (fun n =>
-      AlignmentFractionalPolynomialSpaces.piecewisePolynomials (q i) n) M) //
-        σ i = none} ≤ D)
-    {δ : ℝ} (hδ : 0 ≤ δ)
-    (hosc : ∀ i t, φ i t ≠ 0 →
-      ‖tensorKernelFamily a₀ ha₀ t -
-        tensorKernelFamily a₀ ha₀ (anchor i)‖ ≤ δ) :
-    kolmogorovWidth (Latest.fractionalIntegrationBall a₀)
-      (D*Nat.ceil (1+(1-qrate)⁻¹)) ≤
-      ENNReal.ofReal (τ + δ + Real.sqrt
-        ((4*(10000:ℝ)^2*A₀*Real.log (2*(Fintype.card G:ℝ)+2)/(D:ℝ)) *
-          polynomialBudget (ρ/qrate) k)) := by
-  have htrunc' : ∀ t : BrownianCubeAnchor d,
-      ‖tensorKernelFamily a₀ ha₀ t -
-        finiteOrthonormalProjection (polynomialTensorGradedFrame q M)
-          (tensorKernelFamily a₀ ha₀ t)‖ ≤ τ := by
-    intro t
-    rw [polynomialGradedFrame_projection_eq_projectedKernel q M a₀ ha₀ t]
-    exact htrunc t
-  exact fractional_tensor_RL_partition_KGG_width_bound a₀ ha₀
-    (polynomialTensorGradedFrame q M)
-    (polynomialTensorGradedFrame_orthonormal q M) hτ htrunc'
-    φ anchor hφ hsum σ R hR hrow hA₀ hρ hqrate hq1 hρq henergy D hD hlow hδ hosc
-
 /-- Actual RL width bound directly from natural-grade coefficient energies.
 The low fibers are grades below `cutoff`; every higher grade is shifted to a
 finite KGG layer. The only analytic inputs are the actual feature truncation,
@@ -402,69 +350,6 @@ theorem fractional_tensor_RL_width_of_grade_energy
   exact fractional_tensor_RL_partition_KGG_width_bound
     a₀ ha₀ e he hτ htrunc
     φ anchor hφ hsum σ R hR hrow hA₀ hρ hq hq1 hρq henergy D hD hlow' hδ hosc
-
-/-- The natural-grade energy bridge specialized to the genuine anisotropic
-piecewise-polynomial tensor frame. The energy input is written in the same
-inner-product coordinates as the weighted tensor-energy theorem; the frame
-projection and the coefficient-coordinate conversion are discharged here. -/
-theorem polynomial_fractional_tensor_RL_width_of_grade_energy
-    {d M L : ℕ} (qdegree : Fin d → ℕ) (a₀ : Fin d → ℝ)
-    (ha₀ : ∀ i, 1/2 < a₀ i) (grade :
-      (∀ i : Fin d, GradedFrameIndex (fun n =>
-        AlignmentFractionalPolynomialSpaces.piecewisePolynomials (qdegree i) n) M) → ℕ)
-    (cutoff : ℕ) (hgradeMax : ∀ z, grade z < cutoff+L)
-    {Cenergy ρ qrate τ : ℝ} {k : ℕ}
-    (hC : 0 ≤ Cenergy) (hρ : 0 < ρ) (hq : 0 < qrate)
-    (hq1 : qrate < 1) (hρq : ρ < qrate) (hτ : 0 ≤ τ)
-    (htrunc : ∀ t : BrownianCubeAnchor d,
-      ‖tensorKernelFamily a₀ ha₀ t -
-        gradedPolynomialTensorProjectedKernel qdegree M a₀ ha₀ t‖ ≤ τ)
-    (hgradeEnergy : ∀ (n : ℕ) (t : BrownianCubeAnchor d),
-      (∑ z : {z : (∀ i : Fin d, GradedFrameIndex (fun m =>
-          AlignmentFractionalPolynomialSpaces.piecewisePolynomials (qdegree i) m) M) //
-            grade z = n},
-        ⟪tensorKernelFamily a₀ ha₀ t,
-          polynomialTensorGradedFrame qdegree M z.1⟫^2) ≤
-        Cenergy*((n+1:ℕ):ℝ)^k*ρ^n)
-    (D : ℕ) (hD : 0 < D)
-    (hlow : Fintype.card {z : (∀ i : Fin d, GradedFrameIndex (fun m =>
-      AlignmentFractionalPolynomialSpaces.piecewisePolynomials (qdegree i) m) M) //
-        grade z < cutoff} ≤ D)
-    {G : Type} [Fintype G]
-    (φ : G → C(BrownianCubeAnchor d, ℝ))
-    (anchor : G → BrownianCubeAnchor d)
-    (hφ : ∀ i t, 0 ≤ φ i t) (hsum : ∀ t, ∑ i, φ i t = 1)
-    {δ : ℝ} (hδ : 0 ≤ δ)
-    (hosc : ∀ i t, φ i t ≠ 0 →
-      ‖tensorKernelFamily a₀ ha₀ t -
-        tensorKernelFamily a₀ ha₀ (anchor i)‖ ≤ δ) :
-    kolmogorovWidth (Latest.fractionalIntegrationBall a₀)
-      (D*Nat.ceil (1+(1-qrate)⁻¹)) ≤
-      ENNReal.ofReal (τ + δ + Real.sqrt
-        ((4*(10000:ℝ)^2*(Cenergy*((cutoff+1:ℕ):ℝ)^k*ρ^cutoff)*
-          Real.log (2*(Fintype.card G:ℝ)+2)/(D:ℝ)) *
-          polynomialBudget (ρ/qrate) k)) := by
-  have hgradeEnergy' : ∀ (n : ℕ) (t : BrownianCubeAnchor d),
-      (∑ z : {z : (∀ i : Fin d, GradedFrameIndex (fun m =>
-          AlignmentFractionalPolynomialSpaces.piecewisePolynomials (qdegree i) m) M) //
-            grade z = n},
-        (finiteOrthonormalCoordinates (polynomialTensorGradedFrame qdegree M)
-          (tensorKernelFamily a₀ ha₀ t) z.1)^2) ≤
-        Cenergy*((n+1:ℕ):ℝ)^k*ρ^n := by
-    intro n t
-    simpa [finiteOrthonormalCoordinates, real_inner_comm] using hgradeEnergy n t
-  have htrunc' : ∀ t : BrownianCubeAnchor d,
-      ‖tensorKernelFamily a₀ ha₀ t -
-        finiteOrthonormalProjection (polynomialTensorGradedFrame qdegree M)
-          (tensorKernelFamily a₀ ha₀ t)‖ ≤ τ := by
-    intro t
-    rw [polynomialGradedFrame_projection_eq_projectedKernel qdegree M a₀ ha₀ t]
-    exact htrunc t
-  exact fractional_tensor_RL_width_of_grade_energy a₀ ha₀
-    (polynomialTensorGradedFrame qdegree M)
-    (polynomialTensorGradedFrame_orthonormal qdegree M)
-    grade cutoff hgradeMax hC hρ hq hq1 hρq hτ htrunc' hgradeEnergy'
-    D hD hlow φ anchor hφ hsum hδ hosc
 
 /-- Concrete cube-grid version of the natural-grade width bridge. The
 partition of unity and its mesh error are constructed internally from the

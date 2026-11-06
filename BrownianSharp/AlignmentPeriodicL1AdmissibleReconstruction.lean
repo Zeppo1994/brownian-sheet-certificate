@@ -49,10 +49,6 @@ private theorem ae_local_to_source {d : ℕ} {f g : UnitAddTorus (Fin d) → ℝ
     (h : f =ᵐ[volume] g) : f =ᵐ[sourceMeasure d] g := by
   simpa [sourceMeasure_eq_volume d] using h
 
-private theorem ae_source_to_local {d : ℕ} {f g : UnitAddTorus (Fin d) → ℝ}
-    (h : f =ᵐ[sourceMeasure d] g) : f =ᵐ[volume] g := by
-  simpa [sourceMeasure_eq_volume d] using h
-
 private theorem ae_ambient_to_source {d : ℕ} {f g : UnitAddTorus (Fin d) → ℝ}
     (h : f =ᵐ[ambientVolume d] g) : f =ᵐ[sourceMeasure d] g := by
   letI : MeasureSpace UnitAddCircle := AddCircle.measureSpace 1

@@ -4,10 +4,10 @@ import BrownianSharp.AlignmentFractionalKernel
 import BrownianSharp.AlignmentContinuousLInfinity
 
 /-!
-# Literal targets for the latest Claude manuscript
-These propositions state the new scope. Defining or checking a target does
-not certify it; completion requires a proof of LatestMainResultsStatement.
-The original three-result certificate remains separately named.
+# Statement targets for the Gaussian-field results
+Small-ball and entropy targets for the sheets and the periodic classes. Defining
+a target does not certify it; the proofs are collected in
+`AlignmentMainBodyCertified`.
 -/
 noncomputable section
 open MeasureTheory HaarQuarter
@@ -74,19 +74,6 @@ def PeriodicWidthStatement : Prop :=
       (periodicLInfinityImage {f : Torus.RealPeriodic d |
         SmoothResolution.NikolskyUnitBall p r f}) r ((r+1/2)*(d-1:ℕ)+1/2)
 
-def FractionalEntropyWidthStatement : Prop :=
-  ∀ d : ℕ, 2 ≤ d → ∀ a : Fin d → ℝ, (∀ i, 1/2 < a i) →
-    ∀ r : ℝ, ∀ ν : ℕ, 2 ≤ ν → minimumMultiplicity a r ν →
-    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧ ∃ k₀ : ℕ, 2 ≤ k₀ ∧ ∀ k : ℕ, k₀ ≤ k →
-      ENNReal.ofReal (c*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k) ≤
-        HaarQuarter.TheoremD.entropyNumber k (fractionalIntegrationBall a) ∧
-      HaarQuarter.TheoremD.entropyNumber k (fractionalIntegrationBall a) ≤
-        ENNReal.ofReal (C*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k) ∧
-      ENNReal.ofReal (c*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k) ≤
-        HaarQuarter.TheoremD.Width.kolmogorovWidth (fractionalIntegrationBall a) k ∧
-      HaarQuarter.TheoremD.Width.kolmogorovWidth (fractionalIntegrationBall a) k ≤
-        ENNReal.ofReal (C*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k)
-
 def smallBallRate (q a ε : ℝ) : ℝ :=
   ε⁻¹ ^ q * (Real.log ε⁻¹) ^ a
 
@@ -122,11 +109,5 @@ def IntegratedSheetStatement : Prop :=
         -Real.log (P.real {ω | ‖integrateSheetPath m (B.path ω)‖≤ε}) ≤
           C*smallBallRate (2/(2*(m₀:ℝ)+1))
             ((ν-1:ℕ)+(ν:ℝ)/(2*(m₀:ℝ)+1)) ε
-
-def LatestMainResultsStatement : Prop :=
-  CameronMartinEntropyWidthStatement ∧
-  PeriodicMixedEntropyStatement ∧ PeriodicWidthStatement ∧
-  FractionalEntropyWidthStatement ∧
-  BrownianTwoSidedStatement ∧ FractionalSheetStatement ∧ IntegratedSheetStatement
 
 end BrownianSharp.Latest

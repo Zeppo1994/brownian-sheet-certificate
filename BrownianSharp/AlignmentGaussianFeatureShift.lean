@@ -13,11 +13,6 @@ open BrownianSharp.AlignmentGaussianShift
 
 namespace BrownianSharp.AlignmentGaussianFeatureShift
 
-private def featureSynthesis {H ι η : Type*} [Fintype ι]
-    [NormedAddCommGroup H] [InnerProductSpace ℝ H]
-    (b : ι → H) (f : η → H) (z : ι → ℝ) : η → ℝ :=
-  fun j => ∑ i, ⟪b i, f j⟫ * z i
-
 private theorem isonormal_eval_memLp {H Ω κ : Type*} [Fintype κ] [Nonempty κ]
     [NormedAddCommGroup H] [InnerProductSpace ℝ H] [MeasurableSpace Ω]
     {P : Measure Ω} [IsProbabilityMeasure P]

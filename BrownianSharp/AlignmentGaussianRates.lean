@@ -17,40 +17,6 @@ open MeasureTheory ProbabilityTheory HaarQuarter
 
 noncomputable section
 
-/-- Every deterministic finite linear combination of sheet evaluations is
-centered Gaussian. This is the finite-dimensional input for Riemann-sum
-approximations to the integrated paths. -/
-theorem BrownianSheetOnCube.eval_weightedSum_gaussian
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    [IsProbabilityMeasure P]
-    (B : BrownianSheetOnCube d Ω P) (I : Finset (BrownianCubeAnchor d))
-    (w : I → ℝ) :
-    HasGaussianLaw
-      (fun ω => ∑ x : I, w x * B.eval x.1 ω) P := by
-  let L : (I → ℝ) →L[ℝ] ℝ :=
-    ∑ x : I, w x • (ContinuousLinearMap.proj x)
-  have hfinite := B.gaussian.hasGaussianLaw I
-  have hcomp : (fun ω => ∑ x : I, w x * B.eval x.1 ω) =
-      L ∘ (fun ω => I.restrict (fun x => B.eval x ω)) := by
-    funext ω
-    simp [L, BrownianSheetOnCube.eval, ContinuousLinearMap.sum_apply,
-      ContinuousLinearMap.proj_apply]
-  rw [hcomp]
-  exact hfinite.map L
-
-theorem BrownianSheetOnCube.eval_weightedSum_mean_zero
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    [IsProbabilityMeasure P]
-    (B : BrownianSheetOnCube d Ω P) (I : Finset (BrownianCubeAnchor d))
-    (w : I → ℝ) :
-    ∫ ω, ∑ x : I, w x * B.eval x.1 ω ∂P = 0 := by
-  have hmem (x : I) : MemLp (B.eval x.1) 2 P :=
-    (B.eval_gaussian x.1).memLp_two
-  have hint (x : I) : Integrable (fun ω => w x * B.eval x.1 ω) P :=
-    ((hmem x).const_mul (w x)).integrable (by norm_num)
-  rw [integral_finsetSum Finset.univ (fun x _ => hint x)]
-  simp only [integral_const_mul, B.eval_mean_zero, mul_zero, Finset.sum_const_zero]
-
 /-- Integrate a continuous cube path once from zero in coordinate `i`.
 The fixed interval substitution `u = x_i * v` keeps the integral over
 `[0,1]`; this representation also handles the face `x_i = 0` directly. -/
@@ -400,15 +366,6 @@ noncomputable def FractionalBrownianSheetOnCube.toBrownian
     (B : BrownianSheetOnCube d Ω P) :
     (FractionalBrownianSheetOnCube.ofBrownian B).path = B.path := rfl
 
-/-- The two sample-path interfaces have exactly the same realizations when
-the fractional Hurst vector is constantly one half. -/
-theorem fractional_half_realization_iff
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    (B : FractionalBrownianSheetOnCube d Ω P)
-    (hhalf : ∀ i, B.H i = 1 / 2) :
-    ∃ W : BrownianSheetOnCube d Ω P, W.path = B.path :=
-  ⟨B.toBrownian hhalf, rfl⟩
-
 /-- Covariance of a one-dimensional Brownian motion integrated `m` times
 from zero. Each recursion integrates once in each covariance argument. -/
 noncomputable def integratedCoordinateCovariance : ℕ → ℝ → ℝ → ℝ
@@ -420,11 +377,6 @@ noncomputable def integratedCoordinateCovariance : ℕ → ℝ → ℝ → ℝ
 @[simp] theorem integratedCoordinateCovariance_zero (s t : ℝ) :
     integratedCoordinateCovariance 0 s t = min s t := rfl
 
-/-- Tensor covariance for the coordinatewise integrated Brownian sheet. -/
-noncomputable def integratedSheetCovariance {d : ℕ}
-    (m : Fin d → ℕ) (s t : BrownianCubeAnchor d) : ℝ :=
-  ∏ i, integratedCoordinateCovariance (m i) (s.val i) (t.val i)
-
 /-- Continuous-path realization interface for the sheet integrated `m_i`
 times in coordinate `i`. The covariance field records repeated integration
 of the Brownian covariance. -/
@@ -432,16 +384,6 @@ structure IntegratedBrownianSheetOnCube (d : ℕ) (Ω : Type*)
     [MeasurableSpace Ω] (P : Measure Ω) where
   m : Fin d → ℕ
   base : BrownianSheetOnCube d Ω P
-
-/-- With zero integrations in every coordinate, the integrated covariance
-kernel is exactly the Brownian-sheet kernel. -/
-theorem integratedSheetCovariance_zero {d : ℕ}
-    (s t : BrownianCubeAnchor d) :
-    integratedSheetCovariance (fun _ => 0) s t = ∏ i, min (s.val i) (t.val i) := by
-  unfold integratedSheetCovariance
-  apply Finset.prod_congr rfl
-  intro i hi
-  rfl
 
 noncomputable def IntegratedBrownianSheetOnCube.ofBrownian
     {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
@@ -466,62 +408,12 @@ theorem IntegratedBrownianSheetOnCube.measurable_path
     Measurable X.path :=
   (integrateSheetPath_continuous X.m).measurable.comp X.base.measurable_path
 
-theorem IntegratedBrownianSheetOnCube.path_continuous
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    (X : IntegratedBrownianSheetOnCube d Ω P) (ω : Ω) :
-    Continuous (fun x => X.path ω x) :=
-  (X.path ω).continuous
-
-theorem IntegratedBrownianSheetOnCube.eval_gaussian_zero
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    (X : IntegratedBrownianSheetOnCube d Ω P)
-    (hm : X.m = fun _ => 0) :
-    IsGaussianProcess (fun x : BrownianCubeAnchor d => fun ω => X.path ω x) P := by
-  have hpath : X.path = X.base.path := by
-    funext ω
-    simp [IntegratedBrownianSheetOnCube.path, integrateBrownianSheetPath, hm,
-      integrateSheetPath_zero]
-  simpa [hpath] using X.base.gaussian
-
-theorem IntegratedBrownianSheetOnCube.eval_mean_zero_of_zero
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    (X : IntegratedBrownianSheetOnCube d Ω P)
-    (hm : X.m = fun _ => 0) (x : BrownianCubeAnchor d) :
-    ∫ ω, X.path ω x ∂P = 0 := by
-  have hpath : X.path = X.base.path := by
-    funext ω
-    simp [IntegratedBrownianSheetOnCube.path, integrateBrownianSheetPath, hm,
-      integrateSheetPath_zero]
-  simpa [hpath] using X.base.mean_zero x
-
-theorem IntegratedBrownianSheetOnCube.eval_covariance_of_zero
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    (X : IntegratedBrownianSheetOnCube d Ω P)
-    (hm : X.m = fun _ => 0) (x y : BrownianCubeAnchor d) :
-    cov[fun ω => X.path ω x, fun ω => X.path ω y; P] =
-      integratedSheetCovariance X.m x y := by
-  have hpath : X.path = X.base.path := by
-    funext ω
-    simp [IntegratedBrownianSheetOnCube.path, integrateBrownianSheetPath, hm,
-      integrateSheetPath_zero]
-  rw [hpath, X.base.covariance]
-  rw [hm]
-  exact (integratedSheetCovariance_zero x y).symm
-
 @[simp] theorem IntegratedBrownianSheetOnCube.ofBrownian_path
     {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
     (B : BrownianSheetOnCube d Ω P) :
     (IntegratedBrownianSheetOnCube.ofBrownian B).path = B.path := by
   funext ω
   exact integrateSheetPath_zero (B.path ω)
-
-theorem IntegratedBrownianSheetOnCube.ofBrownian_gaussian
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    (B : BrownianSheetOnCube d Ω P) :
-    IsGaussianProcess
-      (fun x : BrownianCubeAnchor d => fun ω =>
-        (IntegratedBrownianSheetOnCube.ofBrownian B).path ω x) P := by
-  simpa [IntegratedBrownianSheetOnCube.ofBrownian_path] using B.gaussian
 
 theorem measurable_integrateBrownianSheetPath
     {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
@@ -534,86 +426,5 @@ theorem measurable_integrateBrownianSheetPath
     (B : BrownianSheetOnCube d Ω P) (m : Fin d → ℕ)
     (ω : Ω) (x : BrownianCubeAnchor d) :
     integrateBrownianSheetPath B m ω x = integrateSheetPath m (B.path ω) x := rfl
-
-/-- The power and logarithmic exponents predicted by the entropy
-`k^{-r} (log k)^β` under the Li--Linde correspondence. -/
-noncomputable def smallBallPower (r : ℝ) : ℝ := 1 / (r - 1 / 2)
-
-noncomputable def smallBallLogPower (r β : ℝ) : ℝ := β / (r - 1 / 2)
-
-/-- Generic entropy parameters used for a tensor product with `ν` least
-regular coordinates, with baseline regularity `s`. -/
-noncomputable def tensorEntropyRegularity (s : ℝ) : ℝ := s + 1 / 2
-
-noncomputable def tensorEntropyLogPower (s ν : ℝ) : ℝ :=
-  tensorEntropyRegularity s * (ν - 1) + 1 / 2
-
-/-- For `s > 0`, substituting the tensor entropy parameters into the
-small-ball power yields `1/s`. -/
-theorem tensor_smallBallPower (s : ℝ) (hs : 0 < s) :
-    smallBallPower (tensorEntropyRegularity s) = 1 / s := by
-  unfold smallBallPower tensorEntropyRegularity
-  field_simp
-  <;> ring
-
-/-- The tensor logarithmic exponent simplifies to
-`ν - 1 + ν/(2s)`. -/
-theorem tensor_smallBallLogPower (s ν : ℝ) (hs : 0 < s) :
-    smallBallLogPower (tensorEntropyRegularity s) (tensorEntropyLogPower s ν) =
-      ν - 1 + ν / (2 * s) := by
-  dsimp [smallBallLogPower, tensorEntropyRegularity, tensorEntropyLogPower]
-  have hs0 : s ≠ 0 := ne_of_gt hs
-  field_simp [hs0]
-  <;> ring_nf
-
-/-- The standard Brownian-sheet entropy parameters `r=1`, `β=d-1/2`
-produce the manuscript's `ε⁻² (log(1/ε))^(2d-1)` rate. -/
-theorem brownian_sheet_rate_exponents (d : ℝ) :
-    smallBallPower 1 = 2 ∧
-    smallBallLogPower 1 (d - 1 / 2) = 2 * d - 1 := by
-  unfold smallBallPower smallBallLogPower
-  constructor <;> norm_num <;> ring
-
-/-- Fractional sheet entropy parameters (`s=H_*`) produce the exponents in
-Theorem `thm:main`. This is an algebraic specialization only. -/
-theorem fractional_sheet_rate_exponents
-    (Hstar ν : ℝ) (hH : 0 < Hstar) :
-    smallBallPower (Hstar + 1 / 2) = 1 / Hstar ∧
-    smallBallLogPower (Hstar + 1 / 2)
-      ((Hstar + 1 / 2) * (ν - 1) + 1 / 2) =
-        ν - 1 + ν / (2 * Hstar) := by
-  constructor
-  · simpa [tensorEntropyRegularity] using tensor_smallBallPower Hstar hH
-  · simpa [tensorEntropyRegularity, tensorEntropyLogPower] using
-      tensor_smallBallLogPower Hstar ν hH
-
-/-- Integrated sheet entropy parameters (`s=m_*+1/2`) produce the stated
-power and logarithmic exponents. This does not identify the integrated
-Cameron--Martin ball with a mixed Sobolev ball. -/
-theorem integrated_sheet_rate_exponents
-    (mstar ν : ℝ) (hm : 0 ≤ mstar) :
-    smallBallPower (mstar + 1) = 2 / (2 * mstar + 1) ∧
-    smallBallLogPower (mstar + 1)
-      ((mstar + 1) * (ν - 1) + 1 / 2) =
-        ν - 1 + ν / (2 * mstar + 1) := by
-  have hs : 0 < mstar + 1 / 2 := by linarith
-  have hp := tensor_smallBallPower (mstar + 1 / 2) hs
-  have hq := tensor_smallBallLogPower (mstar + 1 / 2) ν hs
-  constructor
-  · change smallBallPower (mstar + 1) = _
-    rw [show mstar + 1 = tensorEntropyRegularity (mstar + 1 / 2) by
-      unfold tensorEntropyRegularity; ring]
-    rw [hp]
-    field_simp
-    <;> ring
-  · change smallBallLogPower (mstar + 1)
-      ((mstar + 1) * (ν - 1) + 1 / 2) = _
-    rw [show mstar + 1 = tensorEntropyRegularity (mstar + 1 / 2) by
-      unfold tensorEntropyRegularity; ring]
-    unfold tensorEntropyLogPower at hq
-    rw [hq]
-    congr 1
-    field_simp
-    <;> ring
 
 end BrownianSharp.AlignmentGaussianRates

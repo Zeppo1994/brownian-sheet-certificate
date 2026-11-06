@@ -183,7 +183,6 @@ theorem fixedShapeDerivativeSynthesis_abs_le_of_coeff_bound
         intro i hi
         exact mul_nonneg (hC i) (by positivity)
 
-
 /-- Fixed-shape block L∞ bound directly from the coefficient box and the
 actual mixed-kernel L¹ budget. -/
 theorem fixedShapeBlock_pointwise_le_of_coeff_bound
@@ -210,7 +209,6 @@ theorem fixedShapeBlock_pointwise_le_of_coeff_bound
   intro x
   exact fixedShapeBlock_pointwise_le_kernelL1_mul_derivativeSup s t k c hscale
     L (M * ∏ i : Fin d, (C i * (2 : ℝ) ^ (s i * k i))) hL hU hkernel hderivSup x
-
 
 /-- The same coefficient-box estimate controls the literal weighted L∞ block
 norm appearing in `SmoothResolution.BesovUnitBall`. -/
@@ -240,17 +238,5 @@ theorem fixedShape_weightedBlockNorm_top_le_of_coeff_bound
     exact mul_nonneg (hC i) (by positivity)
   · exact fixedShapeBlock_pointwise_le_of_coeff_bound s t k c hscale M hM hcoeff
       C hC hderiv L hL hkernel
-
-
-/-- The derivative envelope used by the fixed-shape L∞ estimate exists for
-any fixed multi-order, from the actual compactly supported smooth atom. -/
-theorem exists_coordinate_smoothAtom_derivative_envelope
-    {d : ℕ} (k : Fin d → ℕ) :
-    ∃ C : Fin d → ℝ, (∀ i, 0 < C i) ∧
-      ∀ i y, |iteratedDeriv (k i) smoothAtom y| ≤ C i := by
-  classical
-  choose C hC hderiv using fun i : Fin d =>
-    exists_smoothAtom_iteratedDeriv_bound (k i)
-  exact ⟨C, hC, hderiv⟩
 
 end BrownianSharp

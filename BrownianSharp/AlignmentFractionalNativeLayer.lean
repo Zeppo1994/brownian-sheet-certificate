@@ -18,17 +18,6 @@ def cubeNativeSynthesisLinear {d n : ℕ} :
   map_add' x y := by simp [add_smul, Finset.sum_add_distrib]
   map_smul' c x := by simp [Finset.smul_sum,smul_smul,mul_comm]
 
-theorem cubeNativeAtom_midpoint {d n : ℕ} (a : LayerIndex d n)
-    (q : MidpointGridIndex d n) :
-    cubeNativeAtom a (nativeMidpointBrownianAnchor q) = smoothLayerAtom smoothAtom q a := rfl
-
-theorem cubeNativeSynthesis_midpoint {d n : ℕ} (x : LayerIndex d n → ℝ)
-    (q : MidpointGridIndex d n) :
-    cubeNativeSynthesisLinear x (nativeMidpointBrownianAnchor q) =
-      ∑ a, smoothLayerAtom smoothAtom q a*x a := by
-  change (∑ a, x a • cubeNativeAtom a) (nativeMidpointBrownianAnchor q) = _
-  simp [cubeNativeAtom_midpoint,mul_comm]
-
 /-- One fixed constant controls the source norms of every native atom at
 every grade. The source family need not be orthogonal. -/
 theorem isotropic_native_preimages (d : ℕ) {r : ℝ} (hr : 1/2<r) :

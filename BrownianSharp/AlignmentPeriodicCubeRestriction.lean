@@ -47,10 +47,4 @@ theorem periodicCubeRestriction_norm {d : ℕ} (f : RealPeriodic d) :
     obtain ⟨t,rfl⟩ := cubeToTorus_surjective d x
     exact (periodicCubeRestriction d f).norm_coe_le_norm t
 
-theorem periodicCubeRestriction_isometry (d : ℕ) :
-    Isometry (periodicCubeRestriction d) := by
-  apply isometry_iff_dist_eq.mpr
-  intro f g
-  rw [dist_eq_norm, ← map_sub, periodicCubeRestriction_norm, dist_eq_norm]
-
 end BrownianSharp.AlignmentPeriodicCubeRestriction

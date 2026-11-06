@@ -583,21 +583,4 @@ theorem causalKernel_polynomialProjection_residual_sq_le_dyadic_rate
       dsimp [Creg,Csing]
       nlinarith [hex, hCreg0, hCsing0, htarget]
 
-/-- Every order above one half admits a finite degree for the sharp dyadic
-source-projection residual rate. -/
-theorem exists_degree_causalKernel_polynomialProjection_dyadic_rate
-    {α : ℝ} (hα : 1/2 < α) :
-    ∃ q : ℕ, ∃ C : ℝ, 0<q ∧ 0<C ∧
-      ∀ n : ℕ, 1≤n → ∀ t : ℝ, (ht0 : 0≤t) → (ht1 : t≤1) →
-        ‖causalKernelUnitVector α t hα ht0 ht1 -
-          polynomialProjection q n (causalKernelUnitVector α t hα ht0 ht1)‖^2 ≤
-          C*(1/(2:ℝ)^n)^(2*α-1) := by
-  obtain ⟨q,hq⟩ := exists_nat_gt (α+1)
-  have hqreal : (0:ℝ)<(q:ℝ) := by linarith
-  have hqpos : 0<q := by exact_mod_cast hqreal
-  have horder : α-1+1/2<(q:ℝ) := by linarith
-  obtain ⟨C,hC,hbound⟩ :=
-    causalKernel_polynomialProjection_residual_sq_le_dyadic_rate hqpos hα horder
-  exact ⟨q,C,hqpos,hC,hbound⟩
-
 end BrownianSharp.AlignmentFractionalPolynomialProjectionRate

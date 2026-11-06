@@ -161,5 +161,4 @@ theorem realPeriodicFourierCoeff_summable {d : ℕ} (r : ℝ) (hr : 1/2 < r)
       _ ≤ Real.sqrt ((∑' k, F k) * (∑' k, G k)) := hroot'
   exact summable_of_sum_le (fun k => norm_nonneg _) hbound
 
-
 end BrownianSharp.AlignmentPeriodicAbsoluteFourier

@@ -34,7 +34,6 @@ theorem entropy_lower_under_isometry {X Y : Type*} [EMetricSpace X] [PseudoEMetr
   have : u ≤ 2*(ρ:ℝ) := by simpa using hreal
   linarith
 
-
 theorem entropyNumber_antitone {X : Type*} [PseudoEMetricSpace X]
     (K : Set X) {m n : ℕ} (hmn : m≤n) :
     entropyNumber n K ≤ entropyNumber m K := by

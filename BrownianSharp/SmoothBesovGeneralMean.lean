@@ -219,41 +219,4 @@ theorem smoothBesov_general_expected_energy_le {d ι : ℕ}
     _ = ∑' s : Fin d → ℕ, ∫⁻ z : Fin ι → ℝ, T s z ∂P := hseries
     _ ≤ M := hsum
 
-/-- Half-mass for the literal finite-theta Besov unit ball, for arbitrary
-finite exponents `p,theta ≥ 1`. This is the mean-to-class bridge for the
-actual finite Gaussian synthesis; its quantitative input is the explicit
-variance-envelope summability bound from
-`smoothBesov_general_expected_energy_le`. -/
-theorem smoothBesov_general_unitBall_mass {d ι : ℕ}
-    (p theta r : ℝ) (hp : 1 ≤ p) (htheta : 1 ≤ theta)
-    (atoms : Fin ι → RealPeriodic d) (V : (Fin d → ℕ) → ℝ)
-    (hV : ∀ s, 0 ≤ V s)
-    (hvariance : ∀ (s : Fin d → ℕ) (x : UnitAddTorus (Fin d)),
-      (∑ i : Fin ι, ‖SmoothResolution.block s (atoms i) x‖ ^ 2) ≤ V s)
-    (hsummable : (∑' s : Fin d → ℕ,
-      ENNReal.ofReal (((2 : ℝ) ^ (r * ∑ i, (s i : ℝ))) ^ theta) *
-        (ENNReal.ofReal (2 ^ max p theta * V s ^ (max p theta / 2) *
-          gaussianAbsoluteMoment (max p theta)) ^ (theta / max p theta))) ≤ 1 / 2) :
-    (1 / 2 : ℝ≥0∞) ≤ (productStandardGaussian (Fin ι))
-      {z | SmoothResolution.BesovUnitBall (ENNReal.ofReal p) r
-        (ENNReal.ofReal theta) (gaussianSynthesis atoms z)} := by
-  have hmean : (∫⁻ z : Fin ι → ℝ,
-      smoothBesovEnergy (ENNReal.ofReal p) r (ENNReal.ofReal theta)
-        (gaussianSynthesis atoms z) ∂productStandardGaussian (Fin ι)) ≤ 1 / 2 :=
-    smoothBesov_general_expected_energy_le p theta r hp htheta atoms V hV
-      hvariance hsummable
-  have hmeas : Measurable (fun z : Fin ι → ℝ =>
-      smoothBesovEnergy (ENNReal.ofReal p) r (ENNReal.ofReal theta)
-        (gaussianSynthesis atoms z)) := by
-    have hpenn0 : ENNReal.ofReal p ≠ 0 := (ENNReal.ofReal_pos.mpr
-      (lt_of_lt_of_le zero_lt_one hp)).ne'
-    exact smoothBesovEnergy_gaussian_measurable atoms (ENNReal.ofReal p)
-      hpenn0
-      (by simp) r (ENNReal.ofReal theta)
-  have hthetaNe : ENNReal.ofReal theta ≠ ∞ := by simp
-  exact smoothBesovUnitBall_mass_of_mean_le_half
-    (productStandardGaussian (Fin ι)) (ENNReal.ofReal p) r
-    (θ := ENNReal.ofReal theta) hthetaNe (fun z => gaussianSynthesis atoms z)
-    hmeas hmean
-
 end BrownianSharp

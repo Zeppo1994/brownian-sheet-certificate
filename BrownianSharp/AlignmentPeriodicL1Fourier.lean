@@ -250,59 +250,6 @@ theorem ae_eq_zero_of_mFourierCoeff_eq_zero {d : ℕ}
       linarith
   exact hfx
 
-/-- An integrable real source and a continuous function with the same torus
-Fourier coefficients represent the same L1 equivalence class. -/
-theorem ae_eq_continuous_of_mFourierCoeff_eq {d : ℕ}
-    (f : UnitAddTorus (Fin d) → ℝ)
-    (hf : Integrable f (volume : Measure (UnitAddTorus (Fin d))))
-    (g : RealPeriodic d)
-    (hg : Integrable (fun x => g x) (volume : Measure (UnitAddTorus (Fin d))))
-    (hcoeff : ∀ k : Fin d → ℤ,
-      mFourierCoeff (fun x => (f x : ℂ)) k = realPeriodicFourierCoeff g k) :
-    f =ᵐ[volume] fun x => g x := by
-  have hfC : Integrable (fun x => (f x : ℂ))
-      (volume : Measure (UnitAddTorus (Fin d))) := Complex.ofRealCLM.integrable_comp hf
-  have hgC : Integrable (fun x => (g x : ℂ))
-      (volume : Measure (UnitAddTorus (Fin d))) := Complex.ofRealCLM.integrable_comp hg
-  have hdiff : Integrable (fun x => f x - g x)
-      (volume : Measure (UnitAddTorus (Fin d))) := hf.sub hg
-  have hdiffCoeff : ∀ k : Fin d → ℤ,
-      mFourierCoeff (fun x => ((f x - g x : ℝ) : ℂ)) k = 0 := by
-    intro k
-    have hcharF : Integrable (fun x => mFourier (-k) x • (f x : ℂ))
-        (volume : Measure (UnitAddTorus (Fin d))) :=
-      hfC.bdd_smul 1 (mFourier (-k)).continuous.aestronglyMeasurable
-        (Filter.Eventually.of_forall fun x => by
-          calc
-            ‖mFourier (-k) x‖ ≤ ‖mFourier (-k)‖ := (mFourier (-k)).norm_coe_le_norm x
-            _ = 1 := mFourier_norm)
-    have hcharG : Integrable (fun x => mFourier (-k) x • (g x : ℂ))
-        (volume : Measure (UnitAddTorus (Fin d))) :=
-      hgC.bdd_smul 1 (mFourier (-k)).continuous.aestronglyMeasurable
-        (Filter.Eventually.of_forall fun x => by
-          calc
-            ‖mFourier (-k) x‖ ≤ ‖mFourier (-k)‖ := (mFourier (-k)).norm_coe_le_norm x
-            _ = 1 := mFourier_norm)
-    change ∫ x, mFourier (-k) x • ((f x - g x : ℝ) : ℂ) ∂
-      (volume : Measure (UnitAddTorus (Fin d))) = 0
-    have hpoint : (fun x => mFourier (-k) x • ((f x - g x : ℝ) : ℂ)) =
-        fun x => mFourier (-k) x • (f x : ℂ) - mFourier (-k) x • (g x : ℂ) := by
-      funext x
-      simp only [Complex.ofReal_sub, smul_sub]
-    rw [hpoint, integral_sub hcharF hcharG]
-    change mFourierCoeff (fun x => (f x : ℂ)) k -
-      mFourierCoeff (fun x => (g x : ℂ)) k = 0
-    rw [hcoeff k]
-    change realPeriodicFourierCoeff g k -
-      mFourierCoeff (fun x => (g x : ℂ)) k = 0
-    change mFourierCoeff (complexifyRealPeriodic g) k -
-      mFourierCoeff (fun x => (g x : ℂ)) k = 0
-    unfold complexifyRealPeriodic
-    exact sub_self _
-  have hzero := ae_eq_zero_of_mFourierCoeff_eq_zero (fun x => f x - g x) hdiff hdiffCoeff
-  filter_upwards [hzero] with x hx
-  exact sub_eq_zero.mp hx
-
 private theorem mFourierCoeff_realPart_formula {d : ℕ}
     (f : UnitAddTorus (Fin d) → ℂ)
     (hf : Integrable f (volume : Measure (UnitAddTorus (Fin d))))

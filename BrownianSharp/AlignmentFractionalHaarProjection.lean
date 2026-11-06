@@ -206,34 +206,6 @@ theorem sourceHaarFamily_orthonormal (n : ℕ) :
             rw [if_neg hne]
             exact sourceDyadicHaarMother_cross_level_inner j k hrs
 
-noncomputable def sourceDyadicCellOrthonormal (n : ℕ) (j : Fin (2^n)) : SourceL2 :=
-  (Real.sqrt 2 ^ n) • sourceDyadicCellIndicator n j
-
-theorem sourceDyadicCellOrthonormal_orthonormal (n : ℕ) :
-    Orthonormal ℝ (sourceDyadicCellOrthonormal n) := by
-  classical
-  rw [orthonormal_iff_ite]
-  intro i j
-  unfold sourceDyadicCellOrthonormal
-  rw [inner_smul_left, inner_smul_right]
-  simp only [starRingEnd_apply, star_trivial]
-  by_cases hij : i=j
-  · subst j
-    rw [sourceDyadicCellIndicator_inner_self]
-    have hscale : (Real.sqrt 2 ^ n)^2 = (2:ℝ)^n := by
-      calc
-        (Real.sqrt 2 ^ n)^2 = Real.sqrt 2 ^ (n*2) := by rw [← pow_mul]
-        _ = Real.sqrt 2 ^ (2*n) := by congr 1 <;> omega
-        _ = (Real.sqrt 2 ^ 2)^n := by rw [pow_mul]
-        _ = (2:ℝ)^n := by rw [Real.sq_sqrt (by norm_num : (0:ℝ)≤2)]
-    rw [if_pos rfl]
-    calc
-      (Real.sqrt 2 ^ n) * ((Real.sqrt 2 ^ n) * (1 / (2:ℝ)^n))
-          = (Real.sqrt 2 ^ n)^2 * (1 / (2:ℝ)^n) := by ring
-      _ = 1 := by rw [hscale]; field_simp
-  · rw [sourceDyadicCellIndicator_orthogonal hij]
-    simp [hij]
-
 /-- The father and all strictly coarser mothers form a basis of the actual
 depth-`n` piecewise-constant source space.  The proof is finite-dimensional:
 the orthonormal family has `2^n` elements, while the cell indicators give an
@@ -256,107 +228,10 @@ theorem sourceHaarSpan_eq_piecewiseConstants (n : ℕ) :
     (sourceHaarFamily_orthonormal n).linearIndependent, sourceHaarIndex_card]
   simpa using hdim
 
-/-- Exact finite Haar expansion of the actual orthogonal source projection. -/
-theorem sourceDyadicOrthogonalProjection_eq_haar_sum (n : ℕ) (g : SourceL2) :
-    sourceDyadicOrthogonalProjection n g =
-      ∑ a : SourceHaarIndex n,
-        ⟪g, sourceHaarFamily n a⟫ • sourceHaarFamily n a := by
-  let e := sourceHaarFamily n
-  have horth : Orthonormal ℝ e := sourceHaarFamily_orthonormal n
-  let q := BrownianSharp.finiteOrthonormalProjection e g
-  have hmem : q ∈ sourceDyadicPiecewiseConstants n := by
-    rw [← sourceHaarSpan_eq_piecewiseConstants n]
-    dsimp [q, BrownianSharp.finiteOrthonormalProjection]
-    apply Submodule.sum_mem
-    intro a ha
-    exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨a, rfl⟩)
-  have hres : g - q ∈ (sourceDyadicPiecewiseConstants n)ᗮ := by
-    rw [Submodule.mem_orthogonal']
-    intro w hw
-    rw [← sourceHaarSpan_eq_piecewiseConstants n] at hw
-    refine Submodule.span_induction ?_ ?_ ?_ ?_ hw
-    · rintro v ⟨a, rfl⟩
-      exact BrownianSharp.finiteProjection_residual_orthogonal e g
-        (orthonormal_iff_ite.mp horth) a
-    · simp
-    · intro x y hx hy hpx hpy
-      rw [inner_add_right, hpx, hpy]
-      simp
-    · intro c x hx hpx
-      rw [inner_smul_right, hpx]
-      simp
-  have hproj := (sourceDyadicPiecewiseConstants n).eq_starProjection_of_mem_orthogonal
-    hmem hres
-  simpa [sourceDyadicOrthogonalProjection, q,
-    BrownianSharp.finiteOrthonormalProjection, e] using hproj
-
-/-- The new Haar mothers at level `n` form the orthogonal increment from
-depth `n` to depth `n+1`. -/
-def sourceHaarLevelSpan (n : ℕ) : Submodule ℝ SourceL2 :=
-  Submodule.span ℝ (Set.range (sourceDyadicHaarMother n))
-
-instance sourceHaarLevelSpan_finiteDimensional (n : ℕ) :
-    FiniteDimensional ℝ (sourceHaarLevelSpan n) := by
-  unfold sourceHaarLevelSpan
-  exact FiniteDimensional.span_of_finite ℝ (Set.finite_range _)
-
-theorem sourceHaarLevelSpan_orthogonal (n : ℕ) :
-    sourceHaarLevelSpan n ≤ (sourceDyadicPiecewiseConstants n)ᗮ := by
-  apply Submodule.span_le.mpr
-  rintro _ ⟨j, rfl⟩
-  exact sourceDyadicHaarMother_mem_orthogonal_piecewise n j
-
-theorem sourceHaarLevelSpan_le_piecewiseConstants_succ (n : ℕ) :
-    sourceHaarLevelSpan n ≤ sourceDyadicPiecewiseConstants (n+1) := by
-  apply Submodule.span_le.mpr
-  rintro _ ⟨j, rfl⟩
-  exact sourceDyadicHaarMother_mem_piecewiseConstants_succ n j
-
-theorem sourceHaarLevelSpan_finrank (n : ℕ) :
-    Module.finrank ℝ (sourceHaarLevelSpan n) = 2^n := by
-  unfold sourceHaarLevelSpan
-  rw [finrank_span_eq_card
-    (sourceDyadicHaarMother_orthonormal n).linearIndependent]
-  simp
-
 theorem sourceDyadicPiecewiseConstants_finrank (n : ℕ) :
     Module.finrank ℝ (sourceDyadicPiecewiseConstants n) = 2^n := by
   rw [← sourceHaarSpan_eq_piecewiseConstants n]
   rw [finrank_span_eq_card
     (sourceHaarFamily_orthonormal n).linearIndependent, sourceHaarIndex_card]
-
-/-- Exact nesting decomposition of the source spaces into the old dyadic
-constants and the newly added Haar level. -/
-theorem sourceDyadicPiecewiseConstants_succ_eq_sup (n : ℕ) :
-    sourceDyadicPiecewiseConstants (n+1) =
-      sourceDyadicPiecewiseConstants n ⊔ sourceHaarLevelSpan n := by
-  let U := sourceDyadicPiecewiseConstants n
-  let V := sourceHaarLevelSpan n
-  have hle : U ⊔ V ≤ sourceDyadicPiecewiseConstants (n+1) := by
-    apply sup_le
-    · exact sourceDyadicPiecewiseConstants_le_succ n
-    · exact sourceHaarLevelSpan_le_piecewiseConstants_succ n
-  have hinf : U ⊓ V = ⊥ := by
-    apply le_antisymm
-    · intro x hx
-      have hxU : x ∈ U := hx.1
-      have hxV : x ∈ V := hx.2
-      have hxorth : x ∈ Uᗮ := sourceHaarLevelSpan_orthogonal n hxV
-      have hxx : inner ℝ x x = 0 :=
-        (Submodule.mem_orthogonal' U x).mp hxorth x hxU
-      exact (inner_self_eq_zero.mp hxx)
-    · exact bot_le
-  have hsupdim : Module.finrank ℝ
-      ↥(sourceDyadicPiecewiseConstants n ⊔ sourceHaarLevelSpan n) =
-        (2^n : ℕ) + 2^n := by
-    have hdim := Submodule.finrank_sup_add_finrank_inf_eq U V
-    rw [hinf, finrank_bot] at hdim
-    rw [sourceDyadicPiecewiseConstants_finrank, sourceHaarLevelSpan_finrank] at hdim
-    simpa [U, V] using hdim
-  symm
-  apply Submodule.eq_of_le_of_finrank_le hle
-  rw [sourceDyadicPiecewiseConstants_finrank, hsupdim]
-  rw [pow_succ]
-  omega
 
 end BrownianSharp.AlignmentFractionalHaarProjection

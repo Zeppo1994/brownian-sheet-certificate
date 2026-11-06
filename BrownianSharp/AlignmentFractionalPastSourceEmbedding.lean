@@ -75,7 +75,6 @@ theorem pastPositiveExtension_norm (g : PastPositiveL2) :
   rw [pastPositiveExtensionFunction]
   rw [eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Ioi]
 
-
 def fullLineReflection : FullLineL2 →ₗᵢ[ℝ] FullLineL2 :=
   Lp.compMeasurePreservingₗᵢ ℝ (fun u : ℝ => -u)
     (Measure.measurePreserving_neg (volume : Measure ℝ))

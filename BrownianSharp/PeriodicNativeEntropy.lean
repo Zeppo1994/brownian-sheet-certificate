@@ -1,4 +1,5 @@
 import BrownianSharp.PeriodicSynthesisScale
+import BrownianSharp.AlignmentPaperConfinementBridge
 
 /-! The full periodic Gaussian cover argument. The sole application input is
 a probability bound for membership in the actual scaled function class. -/
@@ -9,8 +10,9 @@ namespace BrownianSharp
 open Torus
 
 /-- A native class-mass family at the sharp normalization implies the exact
-entropy lower rate. All confinement, Anderson, cover and index steps are
-proved internally, using the certified Gaussian Ehrhard theorem. -/
+entropy lower rate. The confinement input is the manuscript's Theorem 2.1
+(through `AlignmentPaperConfinementBridge`); the Anderson, cover and index
+steps are proved internally. -/
 theorem periodic_entropy_rate_of_scaled_native_class_mass
     {d : ℕ} (hd : 2 ≤ d) (K : Set (RealPeriodic d))
     (r β a : ℝ) (hr : 0 < r) (ha : 0 < a) (N : ℕ)
@@ -22,8 +24,9 @@ theorem periodic_entropy_rate_of_scaled_native_class_mass
       ENNReal.ofReal (c*(k:ℝ)^(-r)*(Real.log (k:ℝ))^
         (r*((d-1:ℕ):ℝ)+(1/2+β*((d-1:ℕ):ℝ)))) ≤
           HaarQuarter.TheoremD.entropyNumber k K := by
-  obtain ⟨b,hb,hconf⟩ := smoothGoodUniform_confinement_all_grades_of_ehrhard
-    productGaussianEhrhard_certified hd
+  obtain ⟨a₀,b,ha₀,hb,hconf⟩ := AlignmentPaperConfinementBridge.norm_confinement_all_grades hd
+    (fun n => periodicNativeSynthesisLinear (d:=d) (n:=n))
+    (fun n z s hs => ⟨_, AlignmentPaperConfinementBridge.periodicNative_cube_eq z s hs⟩)
   let s : ℕ := max 1 ⌈(2/b)⌉₊
   have hs : 1 ≤ s := le_max_left _ _
   have hceil : 2/b ≤ (s:ℝ) := (Nat.le_ceil _).trans (by exact_mod_cast Nat.le_max_right 1 ⌈(2/b)⌉₊)
@@ -32,8 +35,8 @@ theorem periodic_entropy_rate_of_scaled_native_class_mass
     nlinarith
   have htwo : 1 ≤ 2*s := by omega
   obtain ⟨k₀,hk₀,hgrade⟩ := nativeEntropyCrossing_multiple_eventually_ge hd htwo (max N s)
-  let η : ℝ := smoothPeriodicRadiusConstant d (smoothMomentSlope d)
-  have hη : 0 < η := smoothPeriodicRadiusConstant_pos d (smoothMomentSlope_pos d)
+  let η : ℝ := a₀ / 2
+  have hη : 0 < η := half_pos ha₀
   have hcover : ∀ (k : ℕ) (hk : k₀ ≤ k),
       ((2^(k-1):ℕ):ℕ∞) < Metric.externalCoveringNumber
         (NNReal.mk ((a*η)*periodicNativeRadius d
@@ -64,18 +67,21 @@ theorem periodic_entropy_rate_of_scaled_native_class_mass
       exact mul_le_mul_of_nonneg_right hreal (Nat.cast_nonneg _)
     have hbudget := dyadic_exponential_mass_lt_shape_cutoff hk2 hb hbs hDk hDS
     let A : ℝ := a*periodicSynthesisScale d (2*q) r β
-    let ε : ℝ := η*Real.sqrt (((2*q:ℕ):ℝ)*hyperbolicCount d (2*q))
+    let ε : ℝ := a₀*Real.sqrt (((2*q:ℕ):ℝ)*hyperbolicCount d (2*q))
     let ρ : ℝ := (a*η)*periodicNativeRadius d q r β
     have hA : 0 < A := mul_pos ha (periodicSynthesisScale_pos (by omega) r β)
-    have hε : 0 < ε := mul_pos hη (Real.sqrt_pos.2
-      (mul_pos (by exact_mod_cast (by omega : 0<2*q)) (hyperbolicCount_pos (by omega))))
     have hρ : 0 < ρ := mul_pos (mul_pos ha hη) (periodicNativeRadius_pos hq)
-    have hρε : ρ ≤ A*ε := by
+    have hρε : 2 * ρ ≤ A*ε := by
       have heq := periodicSynthesisScale_mul_confinement (d:=d) (q:=q) (by omega) a η r β
-      exact le_of_eq heq.symm
+      have h2 : 2 * η = a₀ := by dsimp [η]; ring
+      refine le_of_eq ?_
+      calc 2 * ρ = A * ((2 * η) * Real.sqrt (((2*q:ℕ):ℝ)*hyperbolicCount d (2*q))) := by
+            rw [show ρ = A * (η * Real.sqrt (((2*q:ℕ):ℝ)*hyperbolicCount d (2*q))) from heq.symm]
+            ring
+        _ = A*ε := by rw [h2]
     let Q := ENNReal.ofReal (Real.exp (-b*D))
     have hconfQ : productStandardGaussian (LayerIndex d (2*q))
-        (smoothGoodUniformEvent d (2*q) ε) ≤ Q := by
+        {x | ‖periodicNativeSynthesisLinear x‖ ≤ ε} ≤ Q := by
       have h := ENNReal.ofReal_le_ofReal (hconf (2*q) (by omega))
       rw [measureReal_def, ENNReal.ofReal_toReal (measure_ne_top _ _)] at h
       exact h
@@ -83,7 +89,9 @@ theorem periodic_entropy_rate_of_scaled_native_class_mass
       {x | A • periodicNativeSynthesisLinear x ∈ K}
     have hmass : ((2^(k-1):ℕ):ℝ≥0∞)*Q < productStandardGaussian (LayerIndex d (2*q)) E :=
       hbudget.trans_le (hclass (2*q) (by omega))
-    exact periodicNative_externalCover_gt_of_class_mass (by omega) hA hε hρ.le hρε K E Q
+    have : Nonempty (LayerIndex d (2*q)) := nativeLayerIndex_nonempty d (2*q) (by omega)
+    exact AlignmentPaperConfinementBridge.scaled_externalCover_gt
+      (periodicNativeSynthesisLinear (d:=d) (n:=2*q)) hA ⟨ρ, hρ.le⟩ hρε E K Q _
       (fun x hx => hx) hconfQ hmass
   obtain ⟨c,hc,hentropy⟩ := periodic_entropy_rate_of_cover_at_multiple K hd htwo hk₀
     r β (a*η) hr (mul_pos ha hη) hcover

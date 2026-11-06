@@ -9,7 +9,7 @@ open scoped ENNReal
 namespace BrownianSharp.AlignmentLatestPeriodicEntropy
 open BrownianSharp.Latest
 
-/-- The new ENNReal target agrees with the legacy certified statement at
+/-- The `ENNReal` target agrees with the real-exponent statement at
 every finite spatial exponent. -/
 theorem periodicMixedEntropy_finite_exponent
     {d : ℕ} (hd : 2≤d) (p : ENNReal) (hp : 1<p) (hptop : p≠⊤)
@@ -38,7 +38,6 @@ theorem periodicMixedEntropy_finite_exponent
   · simpa only [ENNReal.ofReal_toReal hptop] using hb
   · simpa only [ENNReal.ofReal_toReal hptop] using hn
 
-
 open MeasureTheory
 local instance : Measure.IsAddHaarMeasure (volume : Measure UnitAddCircle) := by
   rw [unitAddCircle_volume_eq_haar]
@@ -55,9 +54,8 @@ theorem periodic_entropy_lower_to_LInfinity {d : ℕ}
     f f.isometry K k u hu
   exact h
 
-
-/-- The complete periodic entropy assertion of the latest manuscript,
-including the newly certified infinite spatial exponent. -/
+/-- The complete periodic entropy assertion of Theorem 1.3,
+including the infinite spatial exponent. -/
 theorem latest_periodicMixedEntropy_certified : Latest.PeriodicMixedEntropyStatement := by
   intro d hd p hp r hpr θ hθ
   by_cases hptop : p=⊤

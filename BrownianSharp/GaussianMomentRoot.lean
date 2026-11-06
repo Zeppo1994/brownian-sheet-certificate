@@ -77,18 +77,11 @@ theorem standardGaussian_evenMoment_root_lower (k : ℕ) (hk : 1 ≤ k) :
       exact (Real.rpow_rpow_inv hB0 hy).symm
     _ ≤ _ := hmon
 
-
 /-- Every even standard Gaussian moment is strictly positive. -/
 theorem standardGaussianMoment_even_pos (k : ℕ) :
     0 < standardGaussianMoment (2 * k) := by
   rw [standardGaussianMoment, standardGaussian_evenMoment]
   positivity
-
-/-- The root lower bound in the notation used by the native-grid statistic. -/
-theorem standardGaussianMoment_even_root_lower (k : ℕ) (hk : 1 ≤ k) :
-    Real.rpow (standardGaussianMoment (2 * k)) ((2 * (k : ℝ))⁻¹) ≥
-      Real.sqrt (2 * (k : ℝ)) / 2 := by
-  simpa [standardGaussianMoment] using standardGaussian_evenMoment_root_lower k hk
 
 /-- Root growth for any positive even order `p`, stated directly for the
 moment function consumed by the native power statistic. -/

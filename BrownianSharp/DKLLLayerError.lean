@@ -224,6 +224,5 @@ theorem native_haar_allocated_layer_error_squared_le
   rw [hcoeff] at hperEq
   simpa only [D, S, Snext, mul_assoc, mul_left_comm, mul_comm] using hperEq
 
-
 end
 end BrownianSharp.DKLLLayerError

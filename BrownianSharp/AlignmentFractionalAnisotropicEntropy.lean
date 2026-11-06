@@ -106,7 +106,6 @@ theorem fractional_entropy_lower_of_minimum_multiplicity
     simpa using hfull'
   simpa [rate, mul_assoc] using hfull
 
-
 /-- The same lower bound stated without assuming in advance that the ambient
 dimension is written as an active-plus-inactive sum. -/
 theorem fractional_entropy_lower_general

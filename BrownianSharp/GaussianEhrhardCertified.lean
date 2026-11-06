@@ -1,5 +1,19 @@
 import BrownianSharp.BorellRegularizedHeat
-import BrownianSharp.NativeConditional
+import BrownianSharp.NativeVarianceBound
+import BrownianSharp.NativeStatisticProperties
+import BrownianSharp.NativeScale
+import BrownianSharp.EventualRates
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Sqrt
+import Mathlib.Tactic
+import Mathlib.Analysis.Calculus.MeanValue
+import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Probability.Moments.Variance
+import Mathlib.MeasureTheory.Function.L2Space
+import Mathlib.MeasureTheory.Integral.Bochner.Set
+import BrownianSharp.Statement
+import BrownianSharp.Interpolation
 
 /-!
 # Certified finite-product Gaussian Ehrhard inequality
@@ -21,12 +35,5 @@ theorem finiteProductGaussianEhrhard_certified
     Concentration.GaussianEhrhard (κ → ℝ) (productStandardGaussian κ) := by
   classical
   exact gaussianEhrhard_of_gaussianHeatTrace (κ := κ)
-
-/-- Generic certified input satisfying the existing product-Gaussian property
-used by the conditional Brownian concentration assembly. -/
-theorem productGaussianEhrhard_certified : ProductGaussianEhrhard := by
-  intro κ hκ
-  letI := hκ
-  exact finiteProductGaussianEhrhard_certified (κ := κ)
 
 end BrownianSharp

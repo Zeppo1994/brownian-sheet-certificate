@@ -194,7 +194,6 @@ theorem exists_ball_cover (R ε : ℝ) (hR : 0 ≤ R) (hε : 0 < ε)
   rw [Metric.encard_minimalCover hne]
   exact hcover
 
-
 /-- The image in the ambient space of a closed ball in a subspace. -/
 def submoduleBallImage {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
     (W : Submodule ℝ X) (R : ℝ) : Set X :=
@@ -227,7 +226,5 @@ theorem exists_submodule_ball_cover
     exact ⟨v, ⟨v, hv, rfl⟩,
       by simpa only [edist_nndist, Subtype.nndist_eq] using hwv'⟩
   · exact (Set.encard_image_le Subtype.val C₀).trans hcard₀
-
-
 
 end HaarQuarter.TheoremF.FiniteDimensionalCovering

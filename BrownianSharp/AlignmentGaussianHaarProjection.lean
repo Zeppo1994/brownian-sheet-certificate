@@ -32,11 +32,6 @@ def gradeScaledFeature {d N M : ℕ} (x : brownianCubeBoxSpan d) :
     (gradeScale N (finiteHaarGrade a) * ⟪x, finiteHaarVector a⟫) •
       finiteHaarVector a
 
-def gradeScaledBoxFeature {d N M : ℕ} (t : Fin d → ℝ)
-    (ht : ∀ i, 0 ≤ t i ∧ t i ≤ 1) : brownianCubeBoxSpan d :=
-  gradeScaledFeature (N := N) (M := M)
-    ⟨brownianSheetBoxIndicatorLp t, brownianCubeBoxIndicator_mem ⟨t, ht⟩⟩
-
 theorem gradeScaledFeature_norm_sq {d N M : ℕ}
     (x : brownianCubeBoxSpan d) :
     ‖gradeScaledFeature (N := N) (M := M) x‖ ^ 2 =
@@ -189,11 +184,6 @@ theorem gradeScaledFeature_sub_norm_le {d N M : ℕ}
     module
   rw [hlinear]
   exact gradeScaledFeature_norm_le (N := N) (M := M) (x-y)
-
-theorem gradeScaledFeature_continuous {d N M : ℕ} :
-    Continuous (gradeScaledFeature (d := d) (N := N) (M := M)) := by
-  unfold gradeScaledFeature
-  fun_prop
 
 end
 end BrownianSharp.AlignmentGaussianHaarProjection

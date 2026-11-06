@@ -90,44 +90,4 @@ theorem fixedShapeMixedKernel_integral_le {d : ℕ}
     · simpa [fixedShapeMixedKernel, hk] using hscalar (t i)
     · simpa [fixedShapeMixedKernel, hk] using (hhigh i hk).2.2
 
-/-- The exact torus Young bound for a fixed-shape mixed kernel acting on its
-derivative synthesis. -/
-theorem fixedShapeMixedConvolution_rpow_integral_le {d : ℕ}
-    (t k : Fin d → ℕ) (c : DyadicShapeCell d t → ℝ)
-    (p : ℝ) (hp : 1 ≤ p) :
-    (∫ x : UnitAddTorus (Fin d),
-      ‖∫ y : UnitAddTorus (Fin d),
-        coordinateProductKernel (fixedShapeMixedKernel t k) y *
-          ((fixedShapeDerivativeSynthesis t k c (x-y) : ℝ) : ℂ)
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)‖ ^ p
-      ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤
-      (∫ y : UnitAddTorus (Fin d),
-        ‖coordinateProductKernel (fixedShapeMixedKernel t k) y‖
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ^ p *
-      ∫ x : UnitAddTorus (Fin d),
-        |fixedShapeDerivativeSynthesis t k c x| ^ p
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle) := by
-  let K := coordinateProductKernel (fixedShapeMixedKernel t k)
-  let u : C(UnitAddTorus (Fin d), ℂ) :=
-    ⟨fun x => (fixedShapeDerivativeSynthesis t k c x : ℂ),
-      Complex.continuous_ofReal.comp (fixedShapeDerivativeSynthesis t k c).continuous⟩
-  have hy := unitAddTorus_complex_convolution_rpow_le K u p hp
-  calc
-    _ = ∫ x : UnitAddTorus (Fin d),
-        ‖∫ y : UnitAddTorus (Fin d), K y * u (x-y)
-          ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)‖ ^ p
-          ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle) := by
-      apply integral_congr_ae
-      filter_upwards [] with x
-      simp [K, u, Complex.norm_real, Real.norm_eq_abs]
-    _ ≤ (∫ y : UnitAddTorus (Fin d), ‖K y‖
-          ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ^ p *
-        ∫ x : UnitAddTorus (Fin d), ‖u x‖ ^ p
-          ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle) := hy
-    _ = _ := by
-      congr 1
-      apply integral_congr_ae
-      filter_upwards [] with x
-      simp [u, Complex.norm_real, Real.norm_eq_abs]
-
 end BrownianSharp

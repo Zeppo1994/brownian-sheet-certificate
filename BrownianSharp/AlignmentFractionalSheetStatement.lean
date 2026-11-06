@@ -14,7 +14,7 @@ open BrownianSharp.AlignmentGaussianActualFractionalUpperLog
 open BrownianSharp.AlignmentGaussianRates
 open BrownianSharp.Latest
 
-/-- The latest two-sided logarithmic small-ball statement for actual
+/-- The two-sided logarithmic small-ball statement for actual
 fractional Brownian sheets. The MvN filtration supplies the upper bound and
 small-ball positivity; the RL feature-ball entropy lower bound supplies the
 opposite inequality. -/

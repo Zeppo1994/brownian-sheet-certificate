@@ -56,7 +56,6 @@ theorem beta_power_integral {a α β : ℝ} (ha : 0 < a)
     ring
   exact Complex.ofReal_injective hfinal.symm
 
-
 /-- Riemann--Liouville integration of a positive power. -/
 theorem rlIntegral_rpow {a γ t : ℝ} (ha : 0 < a) (hγ : 0 < γ) (ht : 0 < t) :
     rlIntegral a (fun u => u ^ (γ-1)) t =
@@ -78,7 +77,6 @@ theorem rlIntegral_rpow {a γ t : ℝ} (ha : 0 < a) (hγ : 0 < γ) (ht : 0 < t) 
       rw [beta_power_integral ht ha hγ]
     _ = Real.Gamma γ / Real.Gamma (a+γ) * t^(a+γ-1) := by
       field_simp [hGa, hGsum]
-
 
 /-- Semigroup identity on polynomial monomial atoms. This is an actual
 Riemann--Liouville composition theorem, not merely a rate-level interface. -/

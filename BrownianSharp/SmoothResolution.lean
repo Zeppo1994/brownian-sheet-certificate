@@ -43,11 +43,6 @@ def scalarBlock (s : ℕ) (ξ : ℝ) : ℝ :=
   if s = 0 then cutoff ξ else
     cutoff (ξ / (2 : ℝ) ^ s) - cutoff (ξ / (2 : ℝ) ^ (s - 1))
 
-theorem scalarBlock_smooth (s : ℕ) :
-    ContDiff ℝ (⊤ : ℕ∞) (scalarBlock s) := by
-  unfold scalarBlock cutoff
-  split_ifs <;> fun_prop
-
 /-- The scalar dyadic resolution telescopes exactly at every finite cutoff. -/
 theorem scalarBlock_sum (N : ℕ) (ξ : ℝ) :
     (∑ s ∈ Finset.range (N + 1), scalarBlock s ξ) = cutoff (ξ / (2 : ℝ) ^ N) := by

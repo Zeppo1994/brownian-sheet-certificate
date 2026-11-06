@@ -25,11 +25,6 @@ def nativeRowCorrelation {d n : ℕ} (q q' : MidpointGridIndex d n) : ℝ :=
 theorem nativeLayerRowVariance_nonneg {d n : ℕ} (q : MidpointGridIndex d n) :
     0 ≤ nativeLayerRowVariance q := Finset.sum_nonneg fun a _ => sq_nonneg _
 
-theorem nativeLayerEvaluation_midpoint_eq {d n : ℕ} {Ω : Type*}
-    (G : LayerIndex d n → Ω → ℝ) (q : MidpointGridIndex d n) (ω : Ω) :
-    nativeLayerEvaluation G (nativeMidpointBrownianAnchor q) ω =
-      GaussianRows.row G (nativeLayerRowCoefficient q) ω := rfl
-
 section Probability
 variable {d n : ℕ} {Ω : Type*} [MeasurableSpace Ω]
     {P : Measure Ω} [IsProbabilityMeasure P]
@@ -37,23 +32,6 @@ variable {d n : ℕ} {Ω : Type*} [MeasurableSpace Ω]
     (hIndep : iIndepFun G P) (hLaw : ∀ a, P.map (G a) = gaussianReal 0 1)
 include hG hIndep hLaw
 
-theorem nativeLayerEvaluation_variance (q : MidpointGridIndex d n) :
-    ProbabilityTheory.variance (nativeLayerEvaluation G (nativeMidpointBrownianAnchor q)) P =
-      nativeLayerRowVariance q := by
-  exact GaussianRows.row_variance G hG hLaw hIndep (nativeLayerRowCoefficient q)
-
-theorem standardizedNativeRow_law (q : MidpointGridIndex d n)
-    (hv : 0 < nativeLayerRowVariance q) :
-    P.map (standardizedNativeRow G q) = gaussianReal 0 1 := by
-  exact GaussianRows.normalized_row_law G hG hLaw hIndep (nativeLayerRowCoefficient q) hv
-
-theorem standardizedNativeRow_covariance (q q' : MidpointGridIndex d n) :
-    cov[standardizedNativeRow G q, standardizedNativeRow G q'; P] =
-      nativeRowCorrelation q q' := by
-  unfold standardizedNativeRow nativeRowCorrelation
-  rw [covariance_fun_div_left, covariance_fun_div_right,
-    GaussianRows.row_covariance G hG hLaw hIndep]
-  ring
 end Probability
 
 theorem nativeRowCorrelation_nonneg {d n : ℕ} (q q' : MidpointGridIndex d n) :

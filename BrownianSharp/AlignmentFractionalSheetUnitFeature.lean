@@ -31,13 +31,4 @@ theorem fractionalSheetFeature_one_norm {d : ℕ} (H : Fin d → ℝ)
   rw [real_inner_self_eq_norm_sq] at he
   nlinarith [norm_nonneg (fractionalSheetFeature H hH (cubeOne d))]
 
-theorem fractionalSheetFeature_one_orthonormal {d : ℕ} (H : Fin d → ℝ)
-    (hH : ∀ i, 0<H i ∧ H i<1) :
-    Orthonormal ℝ (fun _ : Fin 1 => fractionalSheetFeature H hH (cubeOne d)) := by
-  rw [orthonormal_iff_ite]
-  intro i j
-  have hij : i=j := Subsingleton.elim i j
-  subst j
-  simpa using fractionalSheetFeature_one_inner H hH
-
 end BrownianSharp.AlignmentFractionalSheetUnitFeature

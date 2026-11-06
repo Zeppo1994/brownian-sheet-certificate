@@ -81,12 +81,6 @@ theorem partitionWeight_nonneg {J : ℕ} {t : ℝ} (ht : 0 ≤ t)
   | none => exact coarseWeight_nonneg t
   | some j => exact shellWeight_nonneg ht
 
-theorem shellWeight_le_one (j : ℕ) (t : ℝ) : shellWeight j t ≤ 1 := by
-  unfold shellWeight
-  have h1 := cutoff_le_one (t*(2:ℝ)^(j+1))
-  have h0 := cutoff_nonneg (t*(2:ℝ)^j)
-  linarith
-
 /-- The shell is supported on `[2^(-j)/4, 2^(-j)]`. -/
 theorem shellWeight_support {j : ℕ} {t : ℝ} (ht : 0 ≤ t)
     (hwt : shellWeight j t ≠ 0) :
@@ -146,16 +140,6 @@ theorem partitionWeight_sum (J : ℕ) (t : ℝ) :
   rw [Fin.sum_univ_eq_sum_range (fun j : ℕ => shellWeight j t) J]
   exact geometricPartition_sum J t
 
-theorem geometricPartition_sum_le_one {J : ℕ} {t : ℝ} (ht : 0 ≤ t) :
-    coarseWeight t + ∑ j ∈ Finset.range J, shellWeight j t ≤ 1 := by
-  rw [geometricPartition_sum]
-  exact cutoff_le_one _
-
-theorem geometricPartition_sum_nonneg {J : ℕ} {t : ℝ} (ht : 0 ≤ t) :
-    0 ≤ coarseWeight t + ∑ j ∈ Finset.range J, shellWeight j t := by
-  rw [geometricPartition_sum]
-  exact cutoff_nonneg _
-
 theorem remainder_nonneg (J : ℕ) (t : ℝ) :
     0 ≤ 1-cutoff (t*(2:ℝ)^J) := by
   linarith [cutoff_le_one (t*(2:ℝ)^J)]
@@ -174,66 +158,5 @@ theorem remainder_support {J : ℕ} {t : ℝ} (ht0 : 0 ≤ t) (ht1 : t ≤ 1)
   by_contra ht
   have hz := remainder_eq_zero_of_scale_le (le_of_not_ge ht)
   exact hrem hz
-
-/-- The nominal center and radius of a dyadic shell. -/
-def shellCenter (j : ℕ) : ℝ := (5/8:ℝ)/(2:ℝ)^j
-
-def partitionCenter (i : Option (Fin J)) : ℝ :=
-  match i with
-  | none => 3/4
-  | some j => shellCenter j
-
-def partitionSupport (i : Option (Fin J)) : Set ℝ :=
-  match i with
-  | none => Set.Icc (1/2:ℝ) 1
-  | some j => Set.Icc ((1/(2:ℝ)^j.val)/4) (1/(2:ℝ)^j.val)
-
-theorem partitionWeight_support {J : ℕ} {t : ℝ} (ht : 0 ≤ t) (ht1 : t ≤ 1)
-    (i : Option (Fin J)) (hwt : partitionWeight J i t ≠ 0) :
-    t ∈ partitionSupport i := by
-  cases i with
-  | none => exact coarseWeight_support ht ht1 hwt
-  | some j => exact shellWeight_support ht hwt
-
-theorem shell_center_ratio_bound {j : ℕ} {t x : ℝ}
-    (ht : t ∈ Set.Icc ((1/(2:ℝ)^j)/4) (1/(2:ℝ)^j))
-    (hx : 0 ≤ x) :
-    |t-shellCenter j|/(x+shellCenter j) ≤ 3/5 := by
-  have hp : 0 < (2:ℝ)^j := by positivity
-  let c : ℝ := 1/(2:ℝ)^j
-  have hcpos : 0 < c := by dsimp [c]; positivity
-  have hcs : 0 < shellCenter j := by
-    dsimp [shellCenter]
-    positivity
-  have hcenter : shellCenter j = (5/8:ℝ)*c := by
-    dsimp [shellCenter,c]
-    ring
-  have hrad : |t-shellCenter j| ≤ (3/8:ℝ)*c := by
-    rw [abs_le]
-    constructor <;> rw [hcenter] <;> nlinarith [ht.1, ht.2]
-  have hden : 0 < x+shellCenter j := by linarith
-  apply (div_le_iff₀ hden).2
-  rw [hcenter]
-  rw [hcenter] at hrad
-  nlinarith [mul_nonneg hx (by norm_num : (0:ℝ)≤(3/5:ℝ))]
-
-theorem partition_center_ratio_bound {J : ℕ} {t x : ℝ}
-    (ht0 : 0 ≤ t) (ht1 : t ≤ 1) (hx : 0 ≤ x)
-    (i : Option (Fin J)) (hwt : partitionWeight J i t ≠ 0) :
-    |t-partitionCenter i|/(x+partitionCenter i) ≤ 3/5 := by
-  cases i with
-  | none =>
-      have htop := coarseWeight_support ht0 ht1 hwt
-      have hc : 0 < (3/4:ℝ) := by norm_num
-      have hden : 0 < x+3/4 := by linarith
-      apply (div_le_iff₀ hden).2
-      have habs : |t-3/4| ≤ 1/4 := by
-        rw [abs_le]
-        constructor <;> linarith [htop.1,htop.2]
-      dsimp [partitionCenter]
-      nlinarith [mul_nonneg hx (by norm_num : (0:ℝ)≤(3/5:ℝ))]
-  | some j =>
-      have hs := shellWeight_support ht0 hwt
-      simpa [partitionCenter] using shell_center_ratio_bound hs hx
 
 end BrownianSharp.AlignmentFractionalGeometricPartition

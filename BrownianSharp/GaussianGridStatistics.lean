@@ -1,6 +1,8 @@
 import BrownianSharp.GaussianRows
 import BrownianSharp.Statistics
-import BrownianSharp.PowerVariance
+import Mathlib.Probability.Moments.Covariance
+import Mathlib.Probability.Moments.Variance
+import Mathlib.Tactic
 import Mathlib.Probability.Moments.MGFAnalytic
 
 /-!
@@ -58,37 +60,5 @@ theorem normalized_matrix_row_power_memLp_two {κ ι : Type*} [Fintype κ]
   apply (memLp_two_iff_integrable_sq
     (by fun_prop : Measurable (fun x : κ → ℝ => (∑ k, A i k * x k) ^ p)).aestronglyMeasurable).2
   simpa only [← pow_mul] using normalized_matrix_row_power_integrable A hnorm i (p * 2)
-
-theorem normalized_matrix_row_power_mean {κ ι : Type*} [Fintype κ]
-    (A : ι → κ → ℝ) (hnorm : ∀ i, ∑ k, A i k ^ 2 = 1) (i : ι) (p : ℕ) :
-    (∫ x : κ → ℝ, (∑ k, A i k * x k) ^ p ∂productStandardGaussian κ) =
-      standardGaussianMoment p := by
-  exact (normalized_matrix_row_hasLaw A hnorm i).integral_comp
-    (by fun_prop : Measurable (fun x : ℝ => x ^ p)).aestronglyMeasurable
-
-/-- The normalized high-power statistic has its actual unit expectation. -/
-theorem normalized_matrix_power_average_mean {κ ι : Type*}
-    [Fintype κ] [Fintype ι] [Nonempty ι]
-    (A : ι → κ → ℝ) (hnorm : ∀ i, ∑ k, A i k ^ 2 = 1)
-    (p : ℕ) (hM : standardGaussianMoment p ≠ 0) :
-    (∫ x : κ → ℝ, normalizedPowerAverage
-      (fun i x => ∑ k, A i k * x k) p (standardGaussianMoment p) x
-      ∂productStandardGaussian κ) = 1 := by
-  apply normalizedPowerAverage_mean _ p _ hM
-  · exact fun i => normalized_matrix_row_power_integrable A hnorm i p
-  · exact fun i => normalized_matrix_row_power_mean A hnorm i p
-
-/-- Even powers give the same actual matrix statistic as the finite Lp norm. -/
-theorem normalized_matrix_power_average_eq_moment {κ ι : Type*}
-    [Fintype κ] [Fintype ι] [Nonempty ι]
-    (A : ι → κ → ℝ) (p : ℕ) (hp : Even p) (x : κ → ℝ) :
-    normalizedPowerAverage (fun i x => ∑ k, A i k * x k)
-      p (standardGaussianMoment p) x =
-        finiteGridMoment p A x / standardGaussianMoment p := by
-  rw [finiteGridMoment_eq_raw_average_of_even p hp]
-  change (∑ i, (∑ k, A i k * x k) ^ p) /
-      ((Fintype.card ι : ℝ) * standardGaussianMoment p) =
-    ((∑ i, (∑ k, A i k * x k) ^ p) / (Fintype.card ι : ℝ)) / standardGaussianMoment p
-  ring
 
 end BrownianSharp

@@ -40,18 +40,6 @@ private theorem polynomialFiltration_nested {d : ℕ} (degree : Fin d → ℕ) :
   intro i n
   exact piecewisePolynomials_le_succ (degree i) n
 
-theorem polynomialTensor_frame_orthonormal {d M : ℕ}
-    (degree : Fin d → ℕ) :
-    Orthonormal ℝ (fun a : (∀ i, GradedFrameIndex
-      (polynomialFiltration degree i) M) =>
-      tensorFrame (fun i => gradedFrame (polynomialFiltration degree i)
-        (polynomialFiltration_finite degree i) M) a) := by
-  apply tensorFrame_orthonormal
-  intro i
-  exact gradedFrame_orthonormal (polynomialFiltration degree i)
-    (polynomialFiltration_finite degree i)
-    (polynomialFiltration_nested degree i) M
-
 /-- For integer integrated orders, the actual tensor feature has squared
 L² increments bounded linearly by the anchor distance.  This is the metric
 input used by the Gaussian chaining estimate. -/

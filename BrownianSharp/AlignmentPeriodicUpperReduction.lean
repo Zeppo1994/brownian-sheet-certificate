@@ -88,14 +88,4 @@ theorem kolmogorovWidth_mono_set {X : Type*} [NormedAddCommGroup X]
   unfold kolmogorovWidth
   exact iInf_mono fun V => approximationError_mono_set hKL V.val
 
-theorem sobolev_width_le_two {d : ℕ} {p : ℝ} (hp : 2≤p) (r : ℝ) (m : ℕ) :
-    kolmogorovWidth {f : Torus.RealPeriodic d | SobolevUnitBall p r f} m ≤
-    kolmogorovWidth {f : Torus.RealPeriodic d | SobolevUnitBall 2 r f} m :=
-  kolmogorovWidth_mono_set (fun f hf => sobolevUnitBall_two_of_two_le hp r f hf) m
-
-theorem nikolsky_width_le_two {d : ℕ} {p : ENNReal} (hp : 2≤p) (r : ℝ) (m : ℕ) :
-    kolmogorovWidth {f : Torus.RealPeriodic d | NikolskyUnitBall p r f} m ≤
-    kolmogorovWidth {f : Torus.RealPeriodic d | NikolskyUnitBall 2 r f} m :=
-  kolmogorovWidth_mono_set (fun f hf => nikolskyUnitBall_mono_exponent hp r f hf) m
-
 end BrownianSharp.AlignmentPeriodicUpperReduction

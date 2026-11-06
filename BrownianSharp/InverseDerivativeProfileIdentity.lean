@@ -366,53 +366,6 @@ theorem exists_inverseMultiplierKernel_uniform_L1_bound {K : ℕ}
   intro n
   rw [inverseMultiplierKernel_coefficient t K ht n]
 
-/-- The actual scalar block kernel is a finite Fejer mixture whose coefficient
-sequence is sampled from one of the two compact profiles above. This exact
-representation can be consumed by pointwise convolution inequalities. -/
-theorem scalarBlockKernel_eq_fejerMixture (t : ℕ) :
-    ∃ J : ℕ, ∃ c : ℕ → ℂ,
-      c = (fun k =>
-        ((scalarProfileSample (if t = 0 then cutoff else profile 0)
-          (if t = 0 then 1 else 2 ^ t) k : ℝ) : ℂ)) ∧
-      ScalarKernelL1.scalarBlockKernel t = ScalarKernelL1.fejerMixture J c := by
-  let f : ℝ → ℝ := if t = 0 then cutoff else profile 0
-  let N : ℕ := if t = 0 then 1 else 2 ^ t
-  have hN : 1 ≤ N := by
-    dsimp [N]
-    split_ifs with ht
-    · norm_num
-    · exact Nat.one_le_pow t 2 (by omega)
-  have hSupport : ∀ y : ℝ, 2 < |y| → f y = 0 := by
-    intro y hy
-    dsimp [f]
-    split_ifs with ht
-    · exact cutoff_eq_zero (by linarith)
-    · exact profile_eq_zero_of_two_le_abs 0 (by linarith)
-  obtain ⟨J, hJlo, hJhi⟩ := exists_scalarProfile_cutoffIndex
-    (by norm_num : 0 ≤ (2 : ℝ)) N hN
-  let c : ℕ → ℂ := fun k => (scalarProfileSample f N k : ℂ)
-  have htail : ∀ k, J ≤ k → c k = 0 := by
-    intro k hk
-    have hJk : (J : ℝ) ≤ (k : ℝ) := by exact_mod_cast hk
-    have hz := scalarProfileSample_eq_zero_of_outside hSupport N
-      (by exact_mod_cast hN) (lt_of_lt_of_le hJlo hJk)
-    simp [c, hz]
-  have hcoeff : ∀ k : ℤ,
-      fourierCoeff (ScalarKernelL1.scalarBlockKernel t) k = c k.natAbs := by
-    intro k
-    by_cases ht : t = 0
-    · subst t
-      rw [ScalarKernelL1.scalarBlockKernel_coefficient, scalarBlock_zero_eq_cutoff_sample]
-      simp [c, f, N]
-    · have htpos : 0 < t := Nat.pos_of_ne_zero ht
-      rw [ScalarKernelL1.scalarBlockKernel_coefficient, scalarBlock_eq_profile_sample _ htpos]
-      simp [c, f, N, ht]
-  refine ⟨J, c, ?_, ?_⟩
-  · funext k
-    simp [c, f, N]
-  · exact ScalarKernelL1.continuous_eq_fejerMixture
-      (ScalarKernelL1.scalarBlockKernel t) J c hcoeff htail
-
 end BrownianSharp
 
 end

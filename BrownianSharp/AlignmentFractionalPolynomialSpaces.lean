@@ -87,24 +87,7 @@ theorem piecewisePolynomials_le_succ (q n : ℕ) :
   exact add_mem (Submodule.subset_span ⟨(sourceDyadicLeftChild j,ell),rfl⟩)
     (Submodule.subset_span ⟨(sourceDyadicRightChild j,ell),rfl⟩)
 
-theorem piecewisePolynomials_mono (q : ℕ) : Monotone (piecewisePolynomials q) :=
-  monotone_nat_of_le_succ (piecewisePolynomials_le_succ q)
-
 def polynomialProjection (q n : ℕ) : SourceL2 →L[ℝ] SourceL2 :=
   (piecewisePolynomials q n).starProjection
-
-def cellPolynomialApproximation (q n : ℕ)
-    (c : Fin (2^n) → Fin q → ℝ) : SourceL2 :=
-  ∑ j : Fin (2^n), ∑ ell : Fin q, c j ell • cellMonomial n j ell.val
-
-theorem cellPolynomialApproximation_mem (q n : ℕ)
-    (c : Fin (2^n) → Fin q → ℝ) :
-    cellPolynomialApproximation q n c ∈ piecewisePolynomials q n := by
-  apply Submodule.sum_mem
-  intro j hj
-  apply Submodule.sum_mem
-  intro ell hell
-  apply Submodule.smul_mem
-  exact Submodule.subset_span ⟨(j,ell),rfl⟩
 
 end BrownianSharp.AlignmentFractionalPolynomialSpaces

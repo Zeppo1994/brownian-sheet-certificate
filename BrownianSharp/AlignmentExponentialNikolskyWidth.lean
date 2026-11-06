@@ -298,30 +298,6 @@ theorem periodic_nikolsky_grid_oscillation_of_support
           _ = _ := by simp
   exact (periodicFeature_dist_bound S r t (a i)).trans hbound
 
-theorem periodic_nikolsky_grid_oscillation
-    {d T H K : ℕ} (hd : 0 < d) (r : ℝ) (hr : 0 ≤ r)
-    (hK : 0 < K)
-    (hKC : 2*AlignmentTorusSampling.samplingConstant d ≤ (K:ℝ))
-    (S : Finset (Fin d → ℕ))
-    (hSgrade : ∀ s ∈ S, (∑ i, s i) ≤ T) :
-    ∃ φ : (Fin d → Fin (AlignmentTorusSampling.samplingGridSize d K T H+1)) →
-        C(UnitAddTorus (Fin d),ℝ),
-      (∀ i t, 0 ≤ φ i t) ∧ (∀ t, ∑ i, φ i t = 1) ∧
-      (∀ i t, φ i t ≠ 0 →
-        dist t (AlignmentTorusSampling.torusGridPoint i) <
-          2/((AlignmentTorusSampling.samplingGridSize d K T H:ℕ):ℝ)) ∧
-      ∀ i t, φ i t ≠ 0 →
-        ‖periodicFeatureVector S r t - periodicFeatureVector S r
-          (AlignmentTorusSampling.torusGridPoint i)‖ ≤ ((2:ℝ)^H)⁻¹ := by
-  classical
-  let N := AlignmentTorusSampling.samplingGridSize d K T H
-  have hN : 0 < N := AlignmentTorusSampling.samplingGridSize_pos hK
-  obtain ⟨φ,hφ,hsum,hsupport⟩ :=
-    AlignmentTorusSampling.torus_grid_partition (d:=d) N hN
-  have hosc := periodic_nikolsky_grid_oscillation_of_support r hr hK hKC
-    hSgrade φ AlignmentTorusSampling.torusGridPoint hsupport
-  exact ⟨φ,hφ,hsum,hsupport,hosc⟩
-
 /-- Continuous-function KGG approximation for one exact Nikolsky-2 shape
 grade.  The source norm contribution is the square root of the grade's shape
 count, which is the factor needed in the sharp all-grade logarithmic rate. -/
@@ -436,47 +412,6 @@ theorem rank_finset_sup_le_sum
         by gcongr
       _ = Module.rank ℝ (W i) + ∑ j ∈ F, Module.rank ℝ (W j) := by rw [add_comm]
       _ = ∑ j ∈ insert i F, Module.rank ℝ (W j) := by simp [hi]
-
-/-- Assemble finitely many continuous-function approximants by summing both
-their subspaces and their errors. This is the finite-sum step used to combine
-the exact Nikolsky shape grades. -/
-theorem finite_subspace_approximation_sum
-    {α J : Type} [TopologicalSpace α] [Fintype J]
-    (F : Finset J) (f : J → C(α,ℝ)) (W : J → Submodule ℝ C(α,ℝ))
-    (ε : J → ℝ)
-    (happrox : ∀ j ∈ F, ∃ y ∈ W j, ∀ t, |f j t-y t| ≤ ε j) :
-    ∃ Wsum : Submodule ℝ C(α,ℝ),
-      Module.rank ℝ Wsum ≤ ∑ j ∈ F, Module.rank ℝ (W j) ∧
-      ∃ y ∈ Wsum, ∀ t,
-        |(∑ j : {j : J // j ∈ F}, f j.1) t-y t| ≤
-          ∑ j : {j : J // j ∈ F}, ε j.1 := by
-  classical
-  let Wsum : Submodule ℝ C(α,ℝ) := Finset.sup F W
-  have hrank := rank_finset_sup_le_sum F W
-  let JF := {j : J // j ∈ F}
-  have happrox' : ∀ j : JF, ∃ y ∈ W j.1, ∀ t, |f j.1 t-y t| ≤ ε j.1 :=
-    fun j => happrox j.1 j.2
-  choose y hy herr using happrox'
-  let ysum : C(α,ℝ) := ∑ j : JF, y j
-  have hle : ∀ j ∈ F, W j ≤ Wsum := by
-    intro j hj
-    exact Finset.le_sup hj
-  have hysum : ysum ∈ Wsum := by
-    apply Submodule.sum_mem Wsum
-    intro j hj
-    exact hle j.1 j.2 (hy j)
-  refine ⟨Wsum, hrank, ysum, hysum, ?_⟩
-  intro t
-  change |(∑ j : JF, f j.1) t - ysum t| ≤ ∑ j : JF, ε j.1
-  simp only [ysum, ContinuousMap.sum_apply]
-  rw [← Finset.sum_sub_distrib]
-  calc
-    |∑ j : JF, (f j.1 t-(y j) t)| ≤ ∑ j : JF, |f j.1 t-(y j) t| :=
-      Finset.abs_sum_le_sum_abs _ _
-    _ ≤ ∑ j : JF, ε j.1 := by
-      apply Finset.sum_le_sum
-      intro j hj
-      exact herr j t
 
 /-- The real continuous component of the finite block sum on one exact grade. -/
 noncomputable def periodicGradeBlockComponent
@@ -718,60 +653,6 @@ theorem nikolsky_block_tail_pointwise {d : ℕ} (r : ℝ) (hr : 1/2 < r)
     _ ≤ ‖∑' s : (Sᶜ : Set (Fin d → ℕ)), block s.1 f‖ :=
       ContinuousMap.norm_coe_le_norm _ t
     _ ≤ ε := htailnorm
-
-/-- Uniform KGG approximation for the actual Nikolsky-2 ball, once a uniform
-tail estimate is supplied.  Crucially the subspace is selected before the
-source function. -/
-theorem periodic_nikolsky_full_block_KGG_uniform
-    {d L : ℕ} (hd : 0 < d) (hL : 0 < L) (S : Finset (Fin d → ℕ))
-    (r : ℝ) (hr : 1/2 < r)
-    (hSgrade : ∀ s ∈ S, (∑ i, s i) < L)
-    {G : Type} [Fintype G]
-    (φ : G → C(UnitAddTorus (Fin d),ℝ)) (a : G → UnitAddTorus (Fin d))
-    (hφ : ∀ i t, 0 ≤ φ i t) (hsum : ∀ t, ∑ i, φ i t = 1)
-    {δ : ℝ} (hδ : 0 ≤ δ)
-    (hosc : ∀ j : Fin L, ∀ i t, φ i t ≠ 0 →
-      ‖periodicFeatureVector
-        (S.filter (fun s => (∑ k, s k)=j.val)) r t -
-        periodicFeatureVector
-          (S.filter (fun s => (∑ k, s k)=j.val)) r (a i)‖ ≤ δ)
-    {q ρ : ℝ} (hρ : 0 < ρ) (hq : 0 < q) (hq1 : q < 1)
-    (hρq : ρ < q) (hρeq : ρ = (2:ℝ)^(1-2*r))
-    (D : Fin L → ℕ) (hD : ∀ j, 0 < D j)
-    {ε : ℝ}
-    (htail : ∀ f : RealPeriodic d, NikolskyUnitBall (2:ENNReal) r f →
-      (∑' s : (Sᶜ : Set (Fin d → ℕ)), ‖block s.1 f‖) ≤ ε) :
-    ∃ W : Submodule ℝ C(UnitAddTorus (Fin d),ℝ),
-      Module.rank ℝ W ≤ ∑ j : Fin L,
-        D j * Nat.ceil (1+(1-q)⁻¹) ∧
-      ∀ f : RealPeriodic d, NikolskyUnitBall (2:ENNReal) r f →
-      ∃ y ∈ W, ∀ t,
-        |f t-y t| ≤ ε + ∑ j : Fin L,
-          if S.filter (fun s => (∑ k, s k)=j.val) = ∅ then 0 else
-            Real.sqrt (((j.val+1:ℕ):ℝ)^(d-1)) *
-              (δ + Real.sqrt ((4*(10000:ℝ)^2 *
-                (2*(5:ℝ)^d*((j.val+1:ℕ):ℝ)^(d-1)*ρ^(j.val)) *
-                Real.log (2*(Fintype.card G:ℝ)+2)/(D j:ℝ)) *
-                polynomialBudget (ρ/q) (d-1))) := by
-  obtain ⟨W,hWrank,hUniform⟩ := periodic_nikolsky_finite_block_KGG
-    hd hL S r hSgrade φ a hφ hsum hδ hosc hρ hq hq1 hρq hρeq D hD
-  refine ⟨W,hWrank,?_⟩
-  intro f hf
-  obtain ⟨y,hy,hyerr⟩ := hUniform f hf
-  refine ⟨y,hy,?_⟩
-  intro t
-  have htail' := nikolsky_block_tail_pointwise r hr f hf S (htail f hf) t
-  have hfinite := hyerr t
-  calc
-    |f t-y t| ≤ |f t-∑ s ∈ S, (block s f t).re| +
-        |(∑ s ∈ S, (block s f t).re)-y t| := abs_sub_le _ _ _
-    _ ≤ ε + ∑ j : Fin L,
-          if S.filter (fun s => (∑ k, s k)=j.val) = ∅ then 0 else
-            Real.sqrt (((j.val+1:ℕ):ℝ)^(d-1)) *
-              (δ + Real.sqrt ((4*(10000:ℝ)^2 *
-                (2*(5:ℝ)^d*((j.val+1:ℕ):ℝ)^(d-1)*ρ^(j.val)) *
-                Real.log (2*(Fintype.card G:ℝ)+2)/(D j:ℝ)) *
-                polynomialBudget (ρ/q) (d-1))) := add_le_add htail' hfinite
 
 /-- Actual uniform-in-source finite-dimensional approximation for the
 Nikolsky-2 ball: retain all grades below `M` through the exact-coordinate part

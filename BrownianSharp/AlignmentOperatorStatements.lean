@@ -2,7 +2,7 @@ import BrownianSharp.AlignmentLatestStatements
 import BrownianSharp.AlignmentOperatorNumbers
 
 /-!
-Literal main targets for the externally revised operator-number manuscript.
+Literal operator-number targets of the manuscript.
 Operator Kolmogorov numbers allow dimension strictly less than their index;
 periodic entropy is measured in the actual L-infinity ambient space.
 The actual image balls and concrete smooth resolution are retained.
@@ -17,19 +17,6 @@ open BrownianSharp.Latest (minimumMultiplicity fractionalIntegrationBall periodi
 
 def periodicEmbeddingEntropy {d : ℕ} (k : ℕ) (K : Set (Torus.RealPeriodic d)) : ℝ≥0∞ :=
   HaarQuarter.TheoremD.entropyNumber k (Latest.periodicLInfinityImage K)
-
-def CameronMartinEntropyWidthStatement : Prop :=
-  ∀ d : ℕ, 2 ≤ d → ∃ c C t₀ : ℝ, 0 < c ∧ 0 < C ∧
-    0 < t₀ ∧ t₀ < Real.exp (-1) ∧
-    (∀ t : ℝ, 0 < t → t ≤ t₀ →
-      Metric.externalCoveringNumber t.toNNReal (CameronMartin.KdUnitCube d) ≠ ⊤ ∧
-      c * cmCoveringRate d t ≤ logCoveringNumber (CameronMartin.KdUnitCube d) t ∧
-      logCoveringNumber (CameronMartin.KdUnitCube d) t ≤ C * cmCoveringRate d t) ∧
-    ∃ k₀ : ℕ, 2 ≤ k₀ ∧ ∀ k : ℕ, k₀ ≤ k →
-      ENNReal.ofReal (c * cmIndexRate d k) ≤ entropyNumber k (CameronMartin.KdUnitCube d) ∧
-      entropyNumber k (CameronMartin.KdUnitCube d) ≤ ENNReal.ofReal (C * cmIndexRate d k) ∧
-      ENNReal.ofReal (c * cmIndexRate d k) ≤ AlignmentOperatorNumbers.operatorKolmogorovNumber (CameronMartin.KdUnitCube d) k ∧
-      AlignmentOperatorNumbers.operatorKolmogorovNumber (CameronMartin.KdUnitCube d) k ≤ ENNReal.ofReal (C * cmIndexRate d k)
 
 /-- Theorem 4.1: all three mixed-smoothness entropy lower bounds, with one
 common constant and threshold for each displayed parameter tuple. -/
@@ -66,25 +53,5 @@ def PeriodicWidthStatement : Prop :=
     twoSidedWidthRate
       (periodicLInfinityImage {f : Torus.RealPeriodic d |
         SmoothResolution.NikolskyUnitBall p r f}) r ((r+1/2)*(d-1:ℕ)+1/2)
-
-def FractionalEntropyWidthStatement : Prop :=
-  ∀ d : ℕ, 2 ≤ d → ∀ a : Fin d → ℝ, (∀ i, 1/2 < a i) →
-    ∀ r : ℝ, ∀ ν : ℕ, 2 ≤ ν → minimumMultiplicity a r ν →
-    ∃ c C : ℝ, 0 < c ∧ 0 < C ∧ ∃ k₀ : ℕ, 2 ≤ k₀ ∧ ∀ k : ℕ, k₀ ≤ k →
-      ENNReal.ofReal (c*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k) ≤
-        HaarQuarter.TheoremD.entropyNumber k (fractionalIntegrationBall a) ∧
-      HaarQuarter.TheoremD.entropyNumber k (fractionalIntegrationBall a) ≤
-        ENNReal.ofReal (C*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k) ∧
-      ENNReal.ofReal (c*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k) ≤
-        AlignmentOperatorNumbers.operatorKolmogorovNumber (fractionalIntegrationBall a) k ∧
-      AlignmentOperatorNumbers.operatorKolmogorovNumber (fractionalIntegrationBall a) k ≤
-        ENNReal.ofReal (C*logarithmicIndexRate r (r*(ν-1:ℕ)+1/2) k)
-
-def LatestMainResultsStatement : Prop :=
-  CameronMartinEntropyWidthStatement ∧
-  PeriodicMixedEntropyStatement ∧ PeriodicWidthStatement ∧
-  FractionalEntropyWidthStatement ∧
-  Latest.BrownianTwoSidedStatement ∧ Latest.FractionalSheetStatement ∧
-  Latest.IntegratedSheetStatement
 
 end BrownianSharp.AlignmentOperatorStatements

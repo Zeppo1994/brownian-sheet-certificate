@@ -1,5 +1,6 @@
 import BrownianSharp.PeriodicCoverRate
-import BrownianSharp.SharpCertified
+import BrownianSharp.GaussianEhrhardCertified
+import BrownianSharp.CameronMartinNativeConfinement
 
 /-! Numerical confinement budgets for the actual periodic Gaussian layers. -/
 noncomputable section

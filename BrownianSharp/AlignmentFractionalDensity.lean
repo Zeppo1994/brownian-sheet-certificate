@@ -80,8 +80,6 @@ theorem fractionalRL_profile (α : ℝ) (hα : 1/2 < α)
     _ = rlIntegral α (fun u => f (clipUnit u)) t :=
       causal_integral_eq_interval ht0 ht1 (fun u => f (clipUnit u))
 
-
-
 /-- The bounded RL operator on continuous profiles. -/
 noncomputable def fractionalOnC (α : ℝ) (hα : 1/2 < α) :
     C(UnitInterval, ℝ) →L[ℝ] C(UnitInterval, ℝ) :=
@@ -161,7 +159,6 @@ theorem fractionalOnC_semigroup_monomial {a b : ℝ} (ha : 1/2 < a)
       0 le_rfl (by norm_num)]
     rw [fractionalOnC_monomial (a+b) (by linarith) m 0 le_rfl (by norm_num)]
     simp [rlIntegral]
-
 
 /-- The linear span of the monomial profiles is dense, by the Weierstrass
 approximation theorem and the polynomial coefficient expansion. -/
@@ -356,7 +353,5 @@ theorem smooth_atom_fractional_preimage_L2 (α : ℝ) (hα : 1/2 < α) (q : ℕ)
   change fractionalOnC α hα
       (fractionalOnC ((q:ℝ)-α) hqβ (derivativeProfile q F hF)) = _
   exact smooth_atom_fractional_preimage α hα q hqα hqβ F hF hzero
-
-
 
 end BrownianSharp.AlignmentFractionalDensity

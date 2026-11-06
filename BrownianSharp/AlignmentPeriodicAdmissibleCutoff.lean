@@ -71,10 +71,6 @@ theorem differenceProfile_smooth (φ : AdmissibleCutoff) :
   unfold differenceProfile
   exact φ.smooth.sub (φ.smooth.comp (by fun_prop))
 
-theorem differenceProfile_even (φ : AdmissibleCutoff) (ξ : ℝ) :
-    differenceProfile φ (-ξ) = differenceProfile φ ξ := by
-  simp [differenceProfile, φ.even]
-
 theorem differenceProfile_eq_zero_of_four_le_abs (φ : AdmissibleCutoff)
     {ξ : ℝ} (hξ : 4 ≤ |ξ|) : differenceProfile φ ξ = 0 := by
   have h1 : φ.value ξ = 0 := φ.zero_of_two_le_abs ξ (by linarith)
@@ -83,22 +79,6 @@ theorem differenceProfile_eq_zero_of_four_le_abs (φ : AdmissibleCutoff)
     rw [abs_mul, abs_of_pos (by norm_num : (0:ℝ)<2)]
     nlinarith [hξ]
   simp [differenceProfile, h1, h2]
-
-theorem differenceProfile_rescale_hasCompactSupport (φ : AdmissibleCutoff)
-    (δ : ℕ) : HasCompactSupport (fun ξ => differenceProfile φ (ξ/(2:ℝ)^δ)) := by
-  apply HasCompactSupport.of_support_subset_isCompact
-    (isCompact_closedBall (0:ℝ) (4*(2:ℝ)^δ))
-  intro ξ hξ
-  change differenceProfile φ (ξ/(2:ℝ)^δ) ≠ 0 at hξ
-  have hc : 0 < (2:ℝ)^δ := by positivity
-  have hball : |ξ| ≤ 4*(2:ℝ)^δ := by
-    by_contra hout
-    have hout : 4*(2:ℝ)^δ < |ξ| := lt_of_not_ge hout
-    have hquot : 4 < |ξ/(2:ℝ)^δ| := by
-      rw [abs_div, abs_of_pos hc]
-      exact (lt_div_iff₀ hc).2 (by simpa [mul_comm] using hout)
-    exact hξ (differenceProfile_eq_zero_of_four_le_abs φ hquot.le)
-  simpa [Metric.mem_closedBall, dist_eq_norm, Real.norm_eq_abs] using hball
 
 theorem differenceProfile_hasCompactSupport (φ : AdmissibleCutoff) :
     HasCompactSupport (differenceProfile φ) := by
@@ -145,23 +125,6 @@ theorem scalarBlock_sum (φ : AdmissibleCutoff) (N : ℕ) (ξ : ℝ) :
     simp only [scalarBlock, Nat.succ_ne_zero, ite_false, Nat.add_sub_cancel]
     ring
 
-theorem scalarBlock_sum_eventually_one (φ : AdmissibleCutoff) (ξ : ℝ) :
-    ∀ᶠ N : ℕ in Filter.atTop,
-      (∑ s ∈ Finset.range (N + 1), scalarBlock φ s ξ) = 1 := by
-  have hpow := tendsto_pow_atTop_atTop_of_one_lt (by norm_num : (1 : ℝ) < 2)
-  filter_upwards [hpow.eventually_ge_atTop |ξ|] with N hN
-  rw [scalarBlock_sum]
-  apply φ.one_of_abs_le_one
-  rw [abs_div, abs_of_pos (by positivity : (0 : ℝ) < 2 ^ N)]
-  exact (div_le_one (by positivity : (0 : ℝ) < 2 ^ N)).2 hN
-
-theorem scalarBlock_smooth (φ : AdmissibleCutoff) (s : ℕ) :
-    ContDiff ℝ (⊤ : ℕ∞) (scalarBlock φ s) := by
-  unfold scalarBlock
-  split_ifs with hs
-  · simpa using φ.smooth
-  · exact (φ.smooth.comp (by fun_prop)).sub (φ.smooth.comp (by fun_prop))
-
 theorem scalarBlock_even (φ : AdmissibleCutoff) (s : ℕ) (ξ : ℝ) :
     scalarBlock φ s (-ξ) = scalarBlock φ s ξ := by
   unfold scalarBlock
@@ -191,18 +154,6 @@ theorem scalarBlock_eq_zero_of_two_pow_le_abs (φ : AdmissibleCutoff)
       have hξ' : 2*(2:ℝ)^s ≤ |ξ| := by simpa [pow_succ, mul_comm] using hξ
       nlinarith
     simp [scalarBlock, hs, hupper, hlower]
-
-theorem scalarBlock_hasCompactSupport (φ : AdmissibleCutoff) (s : ℕ) :
-    HasCompactSupport (scalarBlock φ s) := by
-  apply HasCompactSupport.of_support_subset_isCompact
-    (isCompact_closedBall (0:ℝ) ((2:ℝ)^(s+1)))
-  intro ξ hξ
-  change scalarBlock φ s ξ ≠ 0 at hξ
-  have hball : |ξ| ≤ (2:ℝ)^(s+1) := by
-    by_contra hout
-    have hout : (2:ℝ)^(s+1) < |ξ| := lt_of_not_ge hout
-    exact hξ (scalarBlock_eq_zero_of_two_pow_le_abs φ s hout.le)
-  simpa [Metric.mem_closedBall, dist_eq_norm, Real.norm_eq_abs] using hball
 
 def scalarBlockKernel (φ : AdmissibleCutoff) (s : ℕ) : C(UnitAddCircle, ℂ) :=
   ScalarKernelL1.polynomialKernel (ScalarAtomVariance.scalarFrequencyBox s)
@@ -292,266 +243,10 @@ theorem exists_admissibleScalarBlockKernel_uniform_L1_bound (φ : AdmissibleCuto
     have hb := hprofile N hN (scalarBlockKernel φ s) hcoeff
     exact hb.trans (le_max_left _ _)
 
-/-- The finite set of normalized profiles needed for intersections of blocks
-whose scale labels differ by at most two. -/
-def normalizedCrossProfile (φ ψ : AdmissibleCutoff) (low : Bool)
-    (a b : Fin 3) (ξ : ℝ) : ℝ :=
-  if low then scalarBlock φ a.1 ξ * scalarBlock ψ b.1 ξ
-  else differenceProfile φ (ξ/(2:ℝ)^a.1) *
-    differenceProfile ψ (ξ/(2:ℝ)^b.1)
-
-def normalizedBlockFactor (φ : AdmissibleCutoff) (low : Bool)
-    (a : Fin 3) (ξ : ℝ) : ℝ :=
-  if low then scalarBlock φ a.1 ξ else differenceProfile φ (ξ/(2:ℝ)^a.1)
-
-theorem scalarBlock_normalized_at_scale (φ : AdmissibleCutoff) (q δ : ℕ)
-    (hq : q=0 ∨ 0<q) (hδ : δ≤2) (ξ : ℝ) :
-    scalarBlock φ (q+δ) ((2:ℝ)^q*ξ) =
-      normalizedBlockFactor φ (q=0) ⟨δ, by omega⟩ ξ := by
-  rcases hq with hq | hq
-  · subst q
-    simp [normalizedBlockFactor]
-  · have hres := scalarBlock_rescale φ (q+δ) (by omega)
-      (ξ/(2:ℝ)^δ)
-    have harg : (2:ℝ)^(q+δ)*(ξ/(2:ℝ)^δ) = (2:ℝ)^q*ξ := by
-      rw [pow_add]
-      field_simp
-    rw [harg] at hres
-    simpa [normalizedBlockFactor, hq, Nat.ne_of_gt hq] using hres
-
-theorem crossProduct_normalized_at_scale (φ ψ : AdmissibleCutoff)
-    (q a b : ℕ) (hq : q=0 ∨ 0<q) (ha : a≤2) (hb : b≤2) (ξ : ℝ) :
-    scalarBlock φ (q+a) ((2:ℝ)^q*ξ) *
-        scalarBlock ψ (q+b) ((2:ℝ)^q*ξ) =
-      normalizedCrossProfile φ ψ (q=0) ⟨a, by omega⟩ ⟨b, by omega⟩ ξ := by
-  rw [scalarBlock_normalized_at_scale φ q a hq ha ξ,
-    scalarBlock_normalized_at_scale ψ q b hq hb ξ]
-  by_cases hq0 : q=0
-  · simp [normalizedCrossProfile, normalizedBlockFactor, hq0]
-  · simp [normalizedCrossProfile, normalizedBlockFactor, hq0]
-
-theorem normalizedBlockFactor_even (φ : AdmissibleCutoff) (low : Bool)
-    (a : Fin 3) (ξ : ℝ) :
-    normalizedBlockFactor φ low a (-ξ) = normalizedBlockFactor φ low a ξ := by
-  cases low
-  · simp only [normalizedBlockFactor, Bool.false_eq_true, if_false]
-    rw [show -ξ/(2:ℝ)^a.1 = -(ξ/(2:ℝ)^a.1) by ring,
-      differenceProfile_even]
-  · simp [normalizedBlockFactor, scalarBlock_even]
-
-theorem normalizedCrossProfile_even (φ ψ : AdmissibleCutoff) (low : Bool)
-    (a b : Fin 3) (ξ : ℝ) :
-    normalizedCrossProfile φ ψ low a b (-ξ) =
-      normalizedCrossProfile φ ψ low a b ξ := by
-  unfold normalizedCrossProfile
-  split_ifs with h
-  · rw [scalarBlock_even, scalarBlock_even]
-  · rw [show -ξ/(2:ℝ)^a.1 = -(ξ/(2:ℝ)^a.1) by ring,
-      differenceProfile_even,
-      show -ξ/(2:ℝ)^b.1 = -(ξ/(2:ℝ)^b.1) by ring,
-      differenceProfile_even]
-
-def crossBlockKernel (φ ψ : AdmissibleCutoff) (s j : ℕ) :
-    C(UnitAddCircle, ℂ) :=
-  ScalarKernelL1.polynomialKernel (ScalarAtomVariance.scalarFrequencyBox (max s j))
-    (fun k => (scalarBlock φ s (k:ℝ) : ℂ) * (scalarBlock ψ j (k:ℝ) : ℂ))
-
-theorem crossBlockKernel_coefficient (φ ψ : AdmissibleCutoff) (s j : ℕ)
-    (k : ℤ) :
-    fourierCoeff (crossBlockKernel φ ψ s j) k =
-      (scalarBlock φ s (k:ℝ) : ℂ) * (scalarBlock ψ j (k:ℝ) : ℂ) := by
-  apply ScalarKernelL1.polynomialKernel_coefficient_of_support
-  intro k hk
-  have hout : (2:ℝ)^((max s j)+1) ≤ |(k:ℝ)| := by
-    simp only [ScalarAtomVariance.scalarFrequencyBox, Finset.mem_Icc,
-      not_and_or, not_le] at hk
-    rcases hk with hk | hk
-    · have hcast : (k:ℝ) < -((2:ℝ)^((max s j)+1)) := by exact_mod_cast hk
-      exact le_trans (by linarith) (neg_le_abs _)
-    · have hcast : (2:ℝ)^((max s j)+1) < (k:ℝ) := by exact_mod_cast hk
-      exact hcast.le.trans (le_abs_self _)
-  have hzero : scalarBlock φ s (k:ℝ)=0 ∨ scalarBlock ψ j (k:ℝ)=0 := by
-    by_cases hs : s ≤ j
-    · right
-      apply scalarBlock_eq_zero_of_two_pow_le_abs ψ j
-      simpa [max_eq_right hs] using hout
-    · left
-      apply scalarBlock_eq_zero_of_two_pow_le_abs φ s
-      have : max s j = s := max_eq_left (le_of_not_ge hs)
-      simpa [this] using hout
-  rcases hzero with hzero | hzero <;> simp [hzero]
-
-theorem crossBlockKernel_profile_coefficients (φ ψ : AdmissibleCutoff)
-    (s j : ℕ) (hgap : s ≤ j+2 ∧ j ≤ s+2) :
-    ∀ k : ℤ, fourierCoeff (crossBlockKernel φ ψ s j) k =
-      (scalarProfileSample
-        (normalizedCrossProfile φ ψ (min s j = 0)
-          ⟨s-min s j, by omega⟩ ⟨j-min s j, by omega⟩)
-        (2^(min s j)) k.natAbs : ℂ) := by
-  intro k
-  rw [crossBlockKernel_coefficient]
-  let q := min s j
-  let a := s-q
-  let b := j-q
-  have hs : s=q+a := by dsimp [q,a]; omega
-  have hj : j=q+b := by dsimp [q,b]; omega
-  have ha : a≤2 := by dsimp [a]; omega
-  have hb : b≤2 := by dsimp [b]; omega
-  have hq : q=0 ∨ 0<q := by omega
-  have hNcast : ((2^q:ℕ):ℝ)=(2:ℝ)^q := by norm_cast
-  cases k with
-  | ofNat n =>
-      have harg : (2:ℝ)^q*((n:ℝ)/(2:ℝ)^q)=(n:ℝ) := by field_simp
-      have hp := crossProduct_normalized_at_scale φ ψ q a b hq ha hb
-        ((n:ℝ)/(2:ℝ)^q)
-      rw [harg] at hp
-      rw [←hs, ←hj] at hp
-      rw [scalarProfileSample, hNcast]
-      simpa [q,a,b] using congrArg (fun x : ℝ => (x:ℂ)) hp
-  | negSucc n =>
-      have hm : (Int.negSucc n).natAbs = n+1 := by simp
-      have hcast : (Int.negSucc n:ℝ)=-((n+1:ℕ):ℝ) := by simp
-      rw [hcast, scalarBlock_even φ s, scalarBlock_even ψ j]
-      have harg : (2:ℝ)^q*((((n+1:ℕ):ℝ))/(2:ℝ)^q)=((n+1:ℕ):ℝ) := by field_simp
-      have hp := crossProduct_normalized_at_scale φ ψ q a b hq ha hb
-        ((((n+1:ℕ):ℝ))/(2:ℝ)^q)
-      rw [harg] at hp
-      rw [←hs, ←hj] at hp
-      rw [scalarProfileSample, hm, hNcast]
-      simpa [q,a,b] using congrArg (fun x : ℝ => (x:ℂ)) hp
-
-theorem normalizedCrossProfile_smooth (φ ψ : AdmissibleCutoff)
-    (low : Bool) (a b : Fin 3) :
-    ContDiff ℝ (⊤ : ℕ∞) (normalizedCrossProfile φ ψ low a b) := by
-  unfold normalizedCrossProfile
-  split_ifs with h
-  · exact (scalarBlock_smooth φ a.1).mul (scalarBlock_smooth ψ b.1)
-  · exact (differenceProfile_smooth φ).comp (by fun_prop) |>.mul
-      ((differenceProfile_smooth ψ).comp (by fun_prop))
-
-theorem normalizedCrossProfile_hasCompactSupport (φ ψ : AdmissibleCutoff)
-    (low : Bool) (a b : Fin 3) :
-    HasCompactSupport (normalizedCrossProfile φ ψ low a b) := by
-  unfold normalizedCrossProfile
-  split_ifs with h
-  · exact (scalarBlock_hasCompactSupport φ a.1).mul_right
-  · exact (differenceProfile_rescale_hasCompactSupport φ a.1).mul_right
-
-theorem exists_normalizedCrossKernel_uniform_L1_bound (φ ψ : AdmissibleCutoff) :
-    ∃ L : ℝ, 0 ≤ L ∧ ∀ (low : Bool) (a b : Fin 3) (N : ℕ), 1 ≤ N →
-      ∀ F : C(UnitAddCircle, ℂ),
-        (∀ k : ℤ, fourierCoeff F k =
-          (scalarProfileSample (normalizedCrossProfile φ ψ low a b) N k.natAbs : ℂ)) →
-        (∫ x : UnitAddCircle, ‖F x‖ ∂AddCircle.haarAddCircle) ≤ L := by
-  let Idx := Bool × Fin 3 × Fin 3
-  let bound : Idx → ℝ := fun i => Classical.choose
-    (ScalarKernelL1.exists_uniform_norm_integral_bound
-      ((normalizedCrossProfile_smooth φ ψ i.1 i.2.1 i.2.2).of_le (by simp))
-      (normalizedCrossProfile_hasCompactSupport φ ψ i.1 i.2.1 i.2.2))
-  have hbound : ∀ i : Idx, 0 ≤ bound i ∧ ∀ (N : ℕ), 1 ≤ N →
-      ∀ F : C(UnitAddCircle, ℂ),
-        (∀ k : ℤ, fourierCoeff F k =
-          (scalarProfileSample (normalizedCrossProfile φ ψ i.1 i.2.1 i.2.2)
-            N k.natAbs : ℂ)) →
-        (∫ x : UnitAddCircle, ‖F x‖ ∂AddCircle.haarAddCircle) ≤ bound i := by
-    intro i
-    exact Classical.choose_spec
-      (ScalarKernelL1.exists_uniform_norm_integral_bound
-        ((normalizedCrossProfile_smooth φ ψ i.1 i.2.1 i.2.2).of_le (by simp))
-        (normalizedCrossProfile_hasCompactSupport φ ψ i.1 i.2.1 i.2.2))
-  let L : ℝ := ∑ i : Idx, bound i
-  refine ⟨L, ?_, ?_⟩
-  · dsimp [L]
-    exact Finset.sum_nonneg (fun i hi => (hbound i).1)
-  · intro low a b N hN F hF
-    have hi : (low, a, b) ∈ (Finset.univ : Finset Idx) := Finset.mem_univ _
-    have hle : bound (low, a, b) ≤ L := by
-      dsimp [L]
-      exact Finset.single_le_sum (fun i hi => (hbound i).1) hi
-    exact (hbound (low, a, b)).2 N hN F hF |>.trans hle
-
-theorem crossBlockKernel_uniform_L1 (φ ψ : AdmissibleCutoff) :
-    ∃ L : ℝ, 0 ≤ L ∧ ∀ s j : ℕ, s ≤ j+2 → j ≤ s+2 →
-      (∫ x : UnitAddCircle, ‖crossBlockKernel φ ψ s j x‖
-        ∂AddCircle.haarAddCircle) ≤ L := by
-  obtain ⟨L,hL,hbound⟩ := exists_normalizedCrossKernel_uniform_L1_bound φ ψ
-  refine ⟨L,hL,?_⟩
-  intro s j hsj hjs
-  let a : Fin 3 := ⟨s-min s j, by omega⟩
-  let b : Fin 3 := ⟨j-min s j, by omega⟩
-  have hcoeff : ∀ k : ℤ, fourierCoeff (crossBlockKernel φ ψ s j) k =
-      (scalarProfileSample (normalizedCrossProfile φ ψ (min s j=0) a b)
-        (2^(min s j) : ℕ) k.natAbs : ℂ) := by
-    intro k
-    exact crossBlockKernel_profile_coefficients φ ψ s j ⟨hsj,hjs⟩ k
-  exact hbound (min s j=0) a b (2^(min s j))
-    (Nat.one_le_pow (min s j) 2 (by omega))
-    (crossBlockKernel φ ψ s j) hcoeff
-
-def admissibleCrossTensorKernel {d : ℕ} (φ ψ : AdmissibleCutoff)
-    (s t : Fin d → ℕ) : C(UnitAddTorus (Fin d), ℂ) :=
-  coordinateProductKernel (fun i => crossBlockKernel φ ψ (s i) (t i))
-
 def admissibleCrossTensorSymbol {d : ℕ} (φ ψ : AdmissibleCutoff)
     (s t : Fin d → ℕ) (k : Fin d → ℤ) : ℂ :=
   ∏ i, ((scalarBlock φ (s i) (k i:ℝ) : ℂ) *
     (scalarBlock ψ (t i) (k i:ℝ) : ℂ))
-
-def admissibleCrossTensorSumKernel {d : ℕ} (φ ψ : AdmissibleCutoff)
-    (s t : Fin d → ℕ) : C(UnitAddTorus (Fin d), ℂ) :=
-  BrownianSharp.Torus.torusFourierPolynomial
-    (BrownianSharp.SmoothResolution.frequencyBox (fun i => max (s i) (t i)))
-    (admissibleCrossTensorSymbol φ ψ s t)
-
-theorem admissibleCrossTensorKernel_eq_sum {d : ℕ} (φ ψ : AdmissibleCutoff)
-    (s t : Fin d → ℕ) :
-    admissibleCrossTensorKernel φ ψ s t = admissibleCrossTensorSumKernel φ ψ s t := by
-  classical
-  apply ContinuousMap.ext
-  intro x
-  simp only [admissibleCrossTensorKernel, admissibleCrossTensorSumKernel,
-    coordinateProductKernel, ContinuousMap.coe_mk,
-    BrownianSharp.Torus.torusFourierPolynomial, ContinuousMap.sum_apply,
-    ContinuousMap.smul_apply, smul_eq_mul, crossBlockKernel,
-    ScalarKernelL1.polynomialKernel]
-  simp only [BrownianSharp.SmoothResolution.frequencyBox]
-  have hterm (k : Fin d → ℤ) :
-      admissibleCrossTensorSymbol φ ψ s t k * UnitAddTorus.mFourier k x =
-        ∏ i : Fin d,
-          (fourierCoeff (crossBlockKernel φ ψ (s i) (t i)) (k i) *
-            fourier (k i) (x i)) := by
-    rw [admissibleCrossTensorSymbol, UnitAddTorus.mFourier]
-    simp only [ContinuousMap.coe_mk]
-    rw [← Finset.prod_mul_distrib]
-    apply Finset.prod_congr rfl
-    intro i hi
-    rw [crossBlockKernel_coefficient]
-  have hbox (i : Fin d) :
-      Finset.Icc (-((2:ℤ)^(max (s i) (t i)+1))) ((2:ℤ)^(max (s i) (t i)+1)) =
-        ScalarAtomVariance.scalarFrequencyBox (max (s i) (t i)) := by rfl
-  simp_rw [hbox]
-  have hcoeff (i : Fin d) (n : ℤ) :
-      (scalarBlock φ (s i) (n:ℝ) : ℂ) * (scalarBlock ψ (t i) (n:ℝ) : ℂ) =
-        fourierCoeff (crossBlockKernel φ ψ (s i) (t i)) n :=
-    (crossBlockKernel_coefficient φ ψ (s i) (t i) n).symm
-  simp_rw [hcoeff]
-  simp_rw [hterm]
-  rw [Finset.prod_univ_sum
-    (fun i : Fin d => ScalarAtomVariance.scalarFrequencyBox (max (s i) (t i)))
-    (fun i n => (fourierCoeff (crossBlockKernel φ ψ (s i) (t i)) n) *
-      fourier n (x i))]
-
-theorem admissibleCrossTensorKernel_integral_le {d : ℕ} (φ ψ : AdmissibleCutoff)
-    (s t : Fin d → ℕ) (hgap : ∀ i, s i ≤ t i+2 ∧ t i ≤ s i+2) :
-    ∃ L : ℝ, 0 ≤ L ∧
-      (∫ x : UnitAddTorus (Fin d), ‖admissibleCrossTensorKernel φ ψ s t x‖
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤ L ^ d := by
-  obtain ⟨L,hL,hcross⟩ := crossBlockKernel_uniform_L1 φ ψ
-  refine ⟨L,hL,?_⟩
-  have hprod := coordinateProductKernel_norm_integral_le
-    (fun i => crossBlockKernel φ ψ (s i) (t i)) (fun _ => L)
-    (fun _ => hL) (fun i => hcross (s i) (t i) (hgap i).1 (hgap i).2)
-  simpa [admissibleCrossTensorKernel, Fintype.card_fin] using hprod
 
 /-- The smooth block associated with an arbitrary admissible cutoff. -/
 def admissibleBlock {d : ℕ} (φ : AdmissibleCutoff) (s : Fin d → ℕ)

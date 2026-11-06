@@ -29,11 +29,6 @@ noncomputable def finiteOrthonormalProjection
     [Fintype ι] (e : ι → H) (x : H) : H :=
   ∑ i, ⟪x, e i⟫ • e i
 
-/-- The formal coefficient vector for a finite native Gaussian layer.  The
-function is kept separate from the random variables so that the projection
-identity can be developed before the Brownian isonormal bridge is in place. -/
-def nativeCoefficientVector (ι : Type*) := ι → ℝ
-
 /-- The three anchored endpoints in the expansion
 `1_[a,m) - 1_[m,b) = 2 1_[0,m) - 1_[0,a) - 1_[0,b)`.
 The half-open endpoint convention is immaterial in `L²`. -/
@@ -867,13 +862,6 @@ theorem nativeLayerVector_orthonormal {d n : ℕ} (a b : LayerIndex d n) :
     ⟪nativeLayerVector a, nativeLayerVector b⟫ = if a = b then 1 else 0 := by
   exact nativeLayer_orthonormal a b
 
-/-- The native finite layer is the sum of its Haar coordinates against the
-corresponding tensor Haar vectors. -/
-noncomputable def nativeFiniteLayer
-    {H ι : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
-    [Fintype ι] (e : ι → H) (g : nativeCoefficientVector ι) : H :=
-  ∑ i, g i • e i
-
 /-- If the tensor Haar vectors form an orthonormal family, their finite
 projection has exactly the Haar coefficients and is orthogonal to every
 selected coordinate after subtraction. -/
@@ -885,16 +873,5 @@ theorem finiteProjection_residual_orthogonal
   classical
   simp [finiteOrthonormalProjection, inner_sub_left, sum_inner, inner_smul_left,
     he]
-
-/-- The coefficient of a projected vector along a selected Haar coordinate is
-the original coordinate. -/
-theorem finiteProjection_coefficient
-    {H ι : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
-    [Fintype ι] [DecidableEq ι] (e : ι → H) (x : H)
-    (he : ∀ i j, ⟪e i, e j⟫ = if i = j then 1 else 0) (j : ι) :
-    ⟪finiteOrthonormalProjection e x, e j⟫ = ⟪x, e j⟫ := by
-  have h := finiteProjection_residual_orthogonal e x he j
-  rw [inner_sub_left] at h
-  linarith
 
 end BrownianSharp

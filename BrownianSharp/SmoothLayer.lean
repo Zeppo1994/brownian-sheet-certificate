@@ -257,28 +257,4 @@ theorem smoothLayerPair_abs_sum_le {d n h : ℕ} (hd : 0 < d)
     (by norm_num) hnonneg hbound hsupport hunique
   simpa [f] using hsum
 
-/-- If the common-prefix grade is below the layer grade, no nonzero smooth
-atom product can occur. -/
-theorem smoothLayerPair_zero_of_prefix_lt {d n h : ℕ}
-    (ψ : ℝ → ℝ)
-    (hψsupport : ∀ x, (x ≤ 0 ∨ 1 ≤ x) → ψ x = 0)
-    (q q' : MidpointGridIndex d n) (c : Fin d →₀ ℕ)
-    (hc : c.sum (fun _ x => x) < n)
-    (hp : MidpointCommonPrefixProfile q q' c) :
-    ∀ a : LayerIndex d n,
-      smoothLayerAtom ψ q a * smoothLayerAtom ψ q' a = 0 := by
-  intro a
-  by_contra hne
-  have hpos : 0 < |smoothLayerAtom ψ q a * smoothLayerAtom ψ q' a| :=
-    abs_pos.mpr hne
-  have hs := smoothLayerPair_support (h := h) ψ hψsupport q q' c hp a hpos
-  have hgrade := layerIndexDepth_grade a
-  have hsum : (∑ i : Fin d, layerIndexDepth a i) = n := by
-    simpa [Finsupp.sum_fintype, layerIndexDepth] using hgrade
-  have hle : (∑ i : Fin d, layerIndexDepth a i) ≤ ∑ i : Fin d, c i :=
-    Finset.sum_le_sum (fun i hi => hs i)
-  have hc' : (∑ i : Fin d, c i) < n := by
-    simpa [Finsupp.sum_fintype] using hc
-  omega
-
 end BrownianSharp

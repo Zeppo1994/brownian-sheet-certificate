@@ -55,18 +55,4 @@ theorem unitCube_measure_eq_pi (d : ℕ) :
       Measure.pi (fun _ : Fin d => volume.restrict (Set.Icc (0:ℝ) 1)) := by
   exact Measure.restrict_pi_pi _ _
 
-/-- The actual Gamma-normalized tensor kernel belongs to the source L²
-space for every coordinate order greater than one half. -/
-theorem fractionalTensorKernel_memLp {d : ℕ} (a : Fin d → ℝ)
-    (ha : ∀ i, 1/2<a i) (t : BrownianCubeAnchor d) :
-    MemLp (Latest.fractionalTensorKernel a t) 2
-      ((Measure.pi (fun _ : Fin d => (volume : Measure ℝ))).restrict
-        (CameronMartin.unitCubeSet d)) := by
-  rw [unitCube_measure_eq_pi]
-  have h := memLp_pi_product
-    (fun i => AlignmentFractionalL2.causalKernel (a i) (t.val i))
-    (fun i => AlignmentFractionalL2.causalKernel_memLp_unit (ha i)
-      ((t.property i).1) ((t.property i).2))
-  exact h
-
 end BrownianSharp.AlignmentFractionalTensor

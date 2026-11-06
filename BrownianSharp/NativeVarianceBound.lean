@@ -1,4 +1,7 @@
-import BrownianSharp.NativePowerVariance
+import BrownianSharp.NativeGoodStatistics
+import BrownianSharp.GaussianPairMoments
+import Mathlib.Probability.Moments.Covariance
+import BrownianSharp.ShellVariance
 import BrownianSharp.NativeShellSum
 import BrownianSharp.EventualRates
 
@@ -124,17 +127,5 @@ theorem nativeGoodPairKernel_average_bound {d n p : ℕ}
       apply mul_le_mul_of_nonneg_right _ (sq_nonneg _)
       dsimp [nativeVarianceConstant, C₀]
       linarith
-
-theorem nativeGoodPowerStatistic_variance_bound {d n p : ℕ}
-    (hd : 2 ≤ d) (hn : 0 < n) (heven : Even p)
-    (hp : (p : ℝ) ≤ nativeMomentSlope d * ((n : ℝ) + 1)) :
-    ProbabilityTheory.variance (nativeGoodPowerStatistic d n p)
-      (productStandardGaussian (LayerIndex d n)) ≤
-        nativeVarianceConstant d * (p : ℝ) ^ 2 / nativeDimension d n := by
-  obtain ⟨k, hk⟩ := heven
-  have hpk : p = 2 * k := by omega
-  rw [hpk] at hp ⊢
-  exact (nativeGoodPowerStatistic_variance_le_pairKernel (by omega : 0 < d) k).trans
-    (nativeGoodPairKernel_average_bound hd hn hp)
 
 end BrownianSharp

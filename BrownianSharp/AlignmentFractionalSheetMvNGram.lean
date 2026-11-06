@@ -92,44 +92,6 @@ theorem positiveSourceExtension_norm (g : UnitL2) :
   rw [positiveSourceExtensionFunction]
   rw [eLpNorm_indicator_eq_eLpNorm_restrict measurableSet_Icc]
 
-/-- Pairing a whole-line feature with a zero-extended positive-time source is
-the same as pairing its restriction with that source. -/
-theorem positiveSourceExtension_inner (F : FullLineL2) (g : UnitL2) :
-    ⟪F, positiveSourceExtension g⟫ =
-      ⟪restrictUnitCLM F, g⟫ := by
-  rw [L2.inner_def, L2.inner_def]
-  simp only [Real.inner_apply]
-  have hJ : (positiveSourceExtension g : ℝ → ℝ) =ᵐ[volume]
-      positiveSourceExtensionFunction g := by
-    change ((positiveSourceExtension_memLp g).toLp
-      (positiveSourceExtensionFunction g) : ℝ → ℝ) =ᵐ[volume]
-      positiveSourceExtensionFunction g
-    exact MemLp.coeFn_toLp (positiveSourceExtension_memLp g)
-  calc
-    (∫ u, (F : ℝ → ℝ) u * (positiveSourceExtension g : ℝ → ℝ) u ∂volume) =
-        ∫ u, (Set.Icc (0:ℝ) 1).indicator
-          (fun u => (F : ℝ → ℝ) u * (g : ℝ → ℝ) u) u ∂volume := by
-      apply integral_congr_ae
-      filter_upwards [hJ] with u hu
-      by_cases hs : u ∈ Set.Icc (0:ℝ) 1
-      · rw [hu]
-        simp [positiveSourceExtensionFunction, Set.indicator_of_mem hs]
-      · have hzero : (positiveSourceExtension g : ℝ → ℝ) u = 0 := by
-          rw [hu]
-          simp [positiveSourceExtensionFunction, Set.indicator, hs]
-        simp [Set.indicator, hs, hzero]
-    _ = ∫ u, (F : ℝ → ℝ) u * (g : ℝ → ℝ) u ∂(volume.restrict (Set.Icc (0:ℝ) 1)) := by
-      rw [integral_indicator measurableSet_Icc]
-    _ = ∫ u, (restrictUnitCLM F : ℝ → ℝ) u * (g : ℝ → ℝ) u ∂
-        (volume.restrict (Set.Icc (0:ℝ) 1)) := by
-      apply integral_congr_ae
-      filter_upwards [Lp.coeFn_LpToLpOfMeasureLeSMul (p := 2) (c := 1)
-        (by simp) (by simpa using (Measure.restrict_le_self :
-          volume.restrict (Set.Icc (0:ℝ) 1) ≤ volume)) F] with u hu
-      have hu' : (restrictUnitCLM F : ℝ → ℝ) u = (F : ℝ → ℝ) u := by
-        simpa only [restrictUnitCLM] using hu
-      rw [hu']
-
 /-- An actual MvN feature vector, constructed only from a proved `L²`
 membership certificate for the corresponding full-line kernel. -/
 def mvNFullFeature (p t : ℝ)
@@ -229,26 +191,6 @@ theorem mvNFullFeature_increment_norm_sq (p s t : ℝ)
           rw [hu]
     _ = ‖mvNFullFeature p (t-s) hd‖^2 :=
           (wholeLineL2_norm_sq (mvNFullFeature p (t-s) hd)).symm
-
-/-- The feature at time zero is the zero vector pointwise. -/
-theorem mvNFullKernel_zero (p u : ℝ) : mvNFullKernel p 0 u = 0 := by
-  simp [mvNFullKernel]
-
-/-- Kernel scaling for all nonnegative time parameters, with the zero case
-isolated so no rpow law at a vanishing dilation is needed. -/
-theorem mvNFullKernel_scale_nonneg {p t u : ℝ} (ht : 0 ≤ t) (hp : p ≠ 0) :
-    mvNFullKernel p t (t*u) = t^p * mvNFullKernel p 1 u := by
-  by_cases htz : t=0
-  · subst t
-    simp [mvNFullKernel, hp]
-  · exact mvNFullKernel_scale (lt_of_le_of_ne ht (Ne.symm htz))
-
-/-- The pointwise increment identity in the opposite time ordering is the
-same identity with the two endpoints exchanged. -/
-theorem mvNFullKernel_increment_shift_symm (p s t u : ℝ) :
-    mvNFullKernel p s u - mvNFullKernel p t u =
-      mvNFullKernel p (s-t) (u-t) :=
-  mvNFullKernel_increment_shift p t s u
 
 /-- Exact self-similar `L²` norm scaling of the full MvN feature, derived
 from its actual pointwise homogeneous kernel and Lebesgue dilation. -/
@@ -351,21 +293,6 @@ theorem mvNFullFeature_gram_actual (H : ℝ) (hH0 : 0 < H)
     fun τ hτ0 hτ1 => mvNFullKernel_memLp hH0 hH1 ⟨hτ0,hτ1⟩
   exact mvNFullFeature_gram_eq_covariance H hH0 hH1 hm s t hs0 hs1 ht0 ht1
 
-/-- Pairing the actual causal RL kernel vector against a source vector is the
-same as evaluation of the bounded RL operator. -/
-theorem kernelVector_inner_eq_fractionalRL (α : ℝ) (hα : 1/2 < α)
-    (g : UnitL2) (t : ℝ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
-    ⟪kernelVector α t hα ht0 ht1, g⟫ =
-      fractionalRL α hα g (⟨t, ⟨ht0, ht1⟩⟩ : UnitInterval) := by
-  rw [fractionalRL_apply α hα g t ht0 ht1, L2.inner_def]
-  apply integral_congr_ae
-  filter_upwards [MemLp.coeFn_toLp (causalKernel_memLp_unit hα ht0 ht1)]
-    with u hu
-  simp only [Real.inner_apply]
-  have hu' : (kernelVector α t hα ht0 ht1 : ℝ → ℝ) u = causalKernel α t u := by
-    simpa [kernelVector] using hu
-  rw [hu']
-
 /-- Unit-variance-normalized MvN feature field. Its factor is the actual
 positive norm of the full feature at time one. -/
 noncomputable def mvNNormalizedFeature (H : ℝ) (hH0 : 0 < H)
@@ -373,36 +300,6 @@ noncomputable def mvNNormalizedFeature (H : ℝ) (hH0 : 0 < H)
   ‖mvNFullFeature (H-1/2) 1
     (mvNFullKernel_memLp hH0 hH1 ⟨by norm_num,by norm_num⟩)‖⁻¹ •
     mvNFullFeature (H-1/2) t (mvNFullKernel_memLp hH0 hH1 ⟨ht0,ht1⟩)
-
-/-- On positive-time sources, the normalized MvN feature is exactly the
-Riemann--Liouville evaluation multiplied by the explicit normalization
-constant `Gamma(H+1/2) / ||F_1||`. -/
-theorem mvNNormalizedFeature_positiveSource_factor (H : ℝ) (hH0 : 0 < H)
-    (hH1 : H < 1) (g : UnitL2) (t : ℝ) (ht0 : 0 ≤ t) (ht1 : t ≤ 1) :
-    ⟪mvNNormalizedFeature H hH0 hH1 t ht0 ht1, positiveSourceExtension g⟫ =
-      (Real.Gamma (H+1/2) *
-        ‖mvNFullFeature (H-1/2) 1
-          (mvNFullKernel_memLp hH0 hH1 ⟨by norm_num,by norm_num⟩)‖⁻¹) *
-        fractionalRL (H+1/2) (by linarith) g ⟨t, ⟨ht0,ht1⟩⟩ := by
-  let hmem := mvNFullKernel_memLp hH0 hH1 ⟨ht0,ht1⟩
-  let hmem1 := mvNFullKernel_memLp hH0 hH1
-    (by norm_num : (1:ℝ) ∈ Set.Icc (0:ℝ) 1)
-  let N := ‖mvNFullFeature (H-1/2) 1 hmem1‖
-  have hfactor := restrict_mvNFullKernel_eq_RL (p := H-1/2) (t := t)
-    (by linarith) ht0 ht1 hmem
-  have hfactor' : restrictUnitCLM (mvNFullFeature (H-1/2) t hmem) =
-      Real.Gamma (H-1/2+1) • kernelVector (H-1/2+1) t (by linarith) ht0 ht1 := by
-    simpa [mvNFullFeature] using hfactor
-  have hfactor'' : restrictUnitCLM (mvNFullFeature (H-1/2) t hmem) =
-      Real.Gamma (H+1/2) • kernelVector (H+1/2) t (by linarith) ht0 ht1 := by
-    simpa only [show H-1/2+1 = H+1/2 by ring] using hfactor'
-  change ⟪N⁻¹ • mvNFullFeature (H-1/2) t hmem,
-      positiveSourceExtension g⟫ = _
-  rw [real_inner_smul_left, positiveSourceExtension_inner, hfactor'',
-    real_inner_smul_left,
-    kernelVector_inner_eq_fractionalRL (H+1/2) (by linarith) g t ht0 ht1]
-  dsimp [N, hmem1]
-  ring
 
 /-- After normalization by its nonzero unit-time norm, the actual MvN
 feature's Gram kernel is exactly the fBm covariance, including H below one
@@ -429,6 +326,5 @@ theorem mvNNormalizedFeature_gram_eq_covariance (H : ℝ) (hH0 : 0 < H)
       (mvNFullKernel_memLp hH0 hH1 ⟨by norm_num,by norm_num⟩)‖ = N := rfl
   rw [hN]
   field_simp [ne_of_gt hNpos]
-
 
 end BrownianSharp.AlignmentFractionalSheetMvNGram

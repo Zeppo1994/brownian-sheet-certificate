@@ -129,7 +129,6 @@ theorem translatedUnitKernelFamily_eq_kernelVector (α t : ℝ) (hα : 1/2 < α)
     _ = causalKernel α t u := kernelCut_translate_eq_causal ht0 ht1 hu0 hu1
     _ = kernelVector α t hα ht0 ht1 u := hvu.symm
 
-
 /-- The restricted evaluation kernels have a uniform bound inherited from the
 global translation orbit. -/
 theorem translatedUnitKernelFamily_norm_le (α : ℝ) (hα : 1/2 < α)

@@ -69,17 +69,6 @@ theorem gradedTensorFrame_orthonormal {d : ℕ}
   intro i
   exact gradedFrame_orthonormal (U i) (hfinite i) (hnested i) N
 
-theorem gradedTensorFrame_inner {d : ℕ}
-    (U : Fin d → ℕ → Submodule ℝ AxisL2)
-    (hfinite : ∀ i n, FiniteDimensional ℝ ↥(U i n))
-    (hnested : ∀ i n, U i n ≤ U i (n+1)) (N : ℕ)
-    (a b : ∀ i : Fin d, GradedFrameIndex (U i) N) :
-    ⟪gradedTensorFrame U hfinite hnested N a,
-      gradedTensorFrame U hfinite hnested N b⟫ =
-        ∏ i, ⟪gradedFrame (U i) (hfinite i) N (a i),
-          gradedFrame (U i) (hfinite i) N (b i)⟫ := by
-  exact productVector_inner _ _
-
 /-- The span of the tensor graded frame is the tensor product of the
 coordinate truncations, expressed as the exact projection expansion needed
 for feature approximation. -/
@@ -649,28 +638,6 @@ theorem fractionalSheet_weightedGrade_energy_profile_le_of_minimumMultiplicity
         gradedTensorFrame U hfinite hnested M a.1⟫ ^ 2) ≤ _
   rw [hsum]
   simpa [Cvar, C₀p, Cp, qp] using hpadded
-
-/-- The generic minimum-multiplicity estimate applied to whole-line sheet
-frames.  This cumulative low-fiber count is the form needed by the diagonal
-Gaussian contraction; its constant is independent of the truncation depth. -/
-theorem fractionalSheet_weightedLowFiber_card_le_minimumMultiplicity
-    {ν e M n : ℕ} {r : ℝ} (hr : 0 < r) (hν : 0 < ν)
-    (U : Fin (ν+e) → ℕ → Submodule ℝ AxisL2)
-    (α : Fin (ν+e) → ℝ) (A : Fin (ν+e) → ℕ)
-    (hA : ∀ i g, Fintype.card (GradeIndex (U i) g) ≤ A i * 2^g)
-    (hm : Latest.minimumMultiplicity α r ν) :
-    let hcard : (minimumIndexSet α r).card = ν := by
-      unfold Latest.minimumMultiplicity at hm
-      simpa [minimumIndexSet] using hm.2
-    let ep := minimumCoordinatePermutation α r hcard
-    let w : Fin e → ℝ := fun j => α (ep (Fin.natAdd ν j)) / r
-    (Fintype.card {a : ∀ i, GradedFrameIndex (U i) M //
-      weightedProfileGrade α r (profileNat (fun i => (a i).1)) ≤ n} : ℝ) ≤
-      (∏ i : Fin (ν+e), (A i : ℝ)) *
-        (Real.rpow 2 (n + 2) * (((n+1:ℕ):ℝ)^(ν-1) *
-          ∏ j : Fin e, (1-Real.rpow 2 (-(w j-1)))⁻¹)) := by
-  exact productGrade_weightedLowFiber_card_le_minimumMultiplicity
-    hr hν U α A hA hm
 
 /-- Exact weighted-grade count for the same whole-line frames. -/
 theorem fractionalSheet_weightedFiber_card_le_minimumMultiplicity

@@ -1,5 +1,5 @@
 import BrownianSharp.TheoremDFejerSampling
-import BrownianSharp.FourierExtractionCoefficient
+import BrownianSharp.FourierExtractionKernel
 import BrownianSharp.TrigonometricHaarExtraction
 import Mathlib.Analysis.Fourier.AddCircle
 import Mathlib.Tactic
@@ -381,24 +381,5 @@ theorem deLaValleePoussinCircleKernel_fourierCoeff_of_natAbs_le
       change fourierCoeff (T := (1 : ℝ))
         (deLaValleePoussinPolynomial N) (-(q + 1 : ℕ) : ℤ) = 1
       simpa using deLaValleePoussin_fourierCoeff_neg_nat N (q + 1) hN hq
-
-theorem deLaValleePoussinCircleKernel_reproduces_bandlimited_polynomial
-    (N : ℕ) (hN : 0 < N) (s : Finset ℤ) (a : ℤ → ℂ)
-    (hband : ∀ n ∈ s, n.natAbs ≤ N) (x : UnitAddCircle) :
-    circleConvolution (deLaValleePoussinCircleKernel N)
-        (finiteCircleFourierPolynomial s a) x =
-      finiteCircleFourierPolynomial s a x := by
-  rw [circleConvolution_finiteFourierPolynomial]
-  calc
-    (∑ n ∈ s, (a n * fourierCoeff (deLaValleePoussinCircleKernel N) n) * fourier n x) =
-        ∑ n ∈ s, a n * fourier n x := by
-          apply Finset.sum_congr rfl
-          intro n hn
-          rw [deLaValleePoussinCircleKernel_fourierCoeff_of_natAbs_le N hN n
-            (hband n hn)]
-          ring
-    _ = finiteCircleFourierPolynomial s a x := by
-          simp [finiteCircleFourierPolynomial, ContinuousMap.sum_apply,
-            ContinuousMap.smul_apply, smul_eq_mul]
 
 end HaarQuarter.TheoremD.FejerFourier

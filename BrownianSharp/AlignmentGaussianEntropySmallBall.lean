@@ -80,32 +80,6 @@ theorem smallBall_lowerLog_of_entropy_lower
   rw [Real.log_exp] at hlog
   linarith
 
-
-theorem operator_ball_shift_lower_of_source_shift
-    {H X : Type*} [NormedAddCommGroup H] [NormedSpace ℝ H]
-    [NormedAddCommGroup X] [NormedSpace ℝ X] [MeasurableSpace X]
-    (μ : Measure X) (T : H→L[ℝ] X)
-    (hshift : ∀g : H,∀ε : ℝ,0<ε →
-      ENNReal.ofReal (Real.exp (-(‖g‖^2)/2))*μ (Metric.closedBall 0 ε) ≤
-        μ (Metric.closedBall (T g) ε)) :
-    ∀R : ℝ,0<R → ∀ε : ℝ,0<ε →
-      ∀x∈T '' Metric.closedBall (0:H) 1,
-      ENNReal.ofReal (Real.exp (-(R^2)/2))*μ (Metric.closedBall 0 ε) ≤
-        μ (Metric.closedBall (R • x) ε) := by
-  intro R hR ε hε x hx
-  obtain ⟨g,hg,rfl⟩ := hx
-  have hgn : ‖g‖≤1 := by simpa only [Metric.mem_closedBall,dist_zero_right] using hg
-  have hRgn : ‖R • g‖≤R := by
-    rw [norm_smul,Real.norm_eq_abs,abs_of_pos hR]
-    simpa only [mul_one] using mul_le_mul_of_nonneg_left hgn hR.le
-  have hsq : ‖R • g‖^2≤R^2 := (sq_le_sq₀ (norm_nonneg _) hR.le).2 hRgn
-  have hfactor : ENNReal.ofReal (Real.exp (-(R^2)/2)) ≤
-      ENNReal.ofReal (Real.exp (-(‖R • g‖^2)/2)) :=
-    ENNReal.ofReal_le_ofReal (Real.exp_le_exp.mpr (by linarith))
-  exact (mul_le_mul hfactor le_rfl bot_le bot_le).trans
-    (by simpa only [map_smul] using hshift (R • g) ε hε)
-
-
 /-- The constants depend on the entropy class and its rate, uniformly over
 all probability laws satisfying the displayed Cameron--Martin inequality. -/
 theorem uniform_smallBall_probability_upper_of_entropy_lower

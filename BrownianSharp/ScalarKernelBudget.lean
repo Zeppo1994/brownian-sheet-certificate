@@ -127,14 +127,5 @@ theorem scalarProfileSample_eq_zero_of_outside
     exact (lt_div_iff₀ hNpos).2 hRk
   simp [scalarProfileSample, hSupport _ harg]
 
-theorem scalarProfileSample_tail_zero
-    {f : ℝ → ℝ} {R : ℝ} (hSupport : ∀ y, R < |y| → f y = 0)
-    (N J : ℕ) (hN : 0 < N) (hRNJ : R * (N : ℝ) < (J : ℝ)) :
-    scalarProfileSample f N J = 0 ∧ scalarProfileSample f N (J + 1) = 0 := by
-  constructor
-  · exact scalarProfileSample_eq_zero_of_outside hSupport N hN hRNJ
-  · apply scalarProfileSample_eq_zero_of_outside hSupport N hN
-    exact lt_trans hRNJ (by exact_mod_cast Nat.lt_succ_self J)
-
 end
 end BrownianSharp

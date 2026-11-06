@@ -62,7 +62,7 @@ theorem brownian_upperLog_of_dyadic
     (fun N hN=>hdyad Ω P X N hN) ε hε hεsmall
 
 /-- Completing the constructive dyadic reverse estimate suffices for the
-literal two-sided Brownian clause of the latest manuscript. -/
+literal two-sided Brownian clause of Theorem 1.1. -/
 theorem latest_brownian_twoSided_of_dyadic
     (h : DyadicBrownianReverseStatement) : Latest.BrownianTwoSidedStatement := by
   intro d hd

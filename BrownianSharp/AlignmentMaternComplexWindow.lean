@@ -311,27 +311,6 @@ theorem complexWindowFeature_inner_eq_mode (κ h t : ℝ) (k : ℤ) (a : ℝ) (c
   rw [hwindow, integral_complexExp_window_all]
   ring
 
-theorem complexWindowSource_inner_zero_of_ne (κ h : ℝ) (k l : ℤ) (a : ℝ)
-    (c d : ℂ) (hκ : 0 < κ) (hh : 0 < h) (ha0 : 0 ≤ a) (ha1 : a ≤ 1)
-    (haLt : a < 1) (hkl : k ≠ l) :
-    inner ℂ (complexWindowSource κ h k a c hκ hh ha0 ha1)
-      (complexWindowSource κ h l a d hκ hh ha0 ha1) = 0 := by
-  let μ := AlignmentMaternSpectralFeature.spectralMeasure κ h
-  letI : IsFiniteMeasure μ := AlignmentMaternSpectralFeature.spectralMeasure_isFinite κ h hκ hh
-  classical
-  have hdis := window_disjoint_of_integer_centers k l a haLt hkl
-  have hcoe₁ := complexWindowSource_coeFn κ h k a c hκ hh ha0 ha1
-  have hcoe₂ := complexWindowSource_coeFn κ h l a d hκ hh ha0 ha1
-  rw [L2.inner_def]
-  apply integral_eq_zero_of_ae
-  filter_upwards [hcoe₁, hcoe₂] with ξ hξ₁ hξ₂
-  rw [hξ₁, hξ₂]
-  by_cases hk : ξ ∈ window k a
-  · by_cases hl : ξ ∈ window l a
-    · exact False.elim ((Set.disjoint_left.mp hdis) hk hl)
-    · simp [complexWindowSourceField, hl]
-  · simp [complexWindowSourceField, hk]
-
 /-! ### Product windows on the tensor spectral feature -/
 
 open AlignmentMaternComplexFeature
@@ -422,21 +401,6 @@ theorem complexProductWindowSource_norm {d : ℕ} (κ : Fin d → ℝ) (h : ℝ)
   have hnormsq' := hnormsq
   rw [Finset.prod_pow] at hnormsq'
   exact (sq_eq_sq₀ (norm_nonneg _) hnonneg).mp hnormsq'
-
-theorem complexProductWindowSource_norm_frequency_bound {d : ℕ} (κ : Fin d → ℝ)
-    (h : ℝ) (hκ : ∀ i, 0 < κ i) (hh : 0 < h) (k : Fin d → ℤ) (a : ℝ)
-    (ha0 : 0 ≤ a) (ha1 : a ≤ 1) :
-    ‖complexProductWindowSource κ h k a hκ hh ha0 ha1‖ ≤
-      ∏ i, (Real.rpow (κ i ^ 2 + (|(k i : ℝ)| + 1) ^ 2) (h + 1 / 2) *
-        Real.rpow (a * (Real.rpow (min 1 (κ i ^ 2) / 2) (-(h + 1 / 2)) *
-          Real.rpow (1 + (k i : ℝ) ^ 2) (-(h + 1 / 2))) : ℝ) (1 / 2 : ℝ)) := by
-  rw [complexProductWindowSource_norm]
-  apply Finset.prod_le_prod₀
-  · intro i hi
-    exact norm_nonneg _
-  · intro i hi
-    simpa using complexWindowSource_norm_frequency_bound (κ i) h (k i) a 1
-      (hκ i) hh ha0 ha1
 
 theorem rawComplexSheetFeature_inner_productWindow {d : ℕ} (κ : Fin d → ℝ) (h : ℝ)
     (hκ : ∀ i, 0 < κ i) (hh : 0 < h) (t : Fin d → ℝ)

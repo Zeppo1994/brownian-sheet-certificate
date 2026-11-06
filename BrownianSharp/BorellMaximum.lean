@@ -524,53 +524,6 @@ theorem pairedGaussian_parabolic_minimum_tests
       rw [hinner]
     simpa [pairedCoordinateLaplacian, hsecondEq] using hlap
 
-/-- Uniform coercivity in the space variable makes a continuous function
-attain a global minimum on a finite time slab. This is the compactness step
-that turns a negative value into a spacetime minimum. -/
-theorem exists_global_minOn_Icc_univ_of_uniformCoercive
-    {E : Type*} [PseudoMetricSpace E] [Zero E] [ProperSpace E]
-    (T : ℝ) (U : ℝ → E → ℝ)
-    (hcont : Continuous (fun p : ℝ × E => U p.1 p.2))
-    (hcoercive : ∀ B : ℝ, ∃ R : ℝ, 0 ≤ R ∧
-      ∀ t ∈ Set.Icc (0 : ℝ) T, ∀ x : E, R < dist x 0 → B < U t x)
-    {t : ℝ} (ht : t ∈ Set.Icc (0 : ℝ) T) (x : E) :
-    ∃ t₀ ∈ Set.Icc (0 : ℝ) T, ∃ x₀ : E,
-      ∀ t' ∈ Set.Icc (0 : ℝ) T, ∀ x' : E, U t₀ x₀ ≤ U t' x' := by
-  let B := U t x
-  obtain ⟨R, hR, hRcoercive⟩ := hcoercive B
-  let S : Set (ℝ × E) := Set.Icc (0 : ℝ) T ×ˢ Metric.closedBall (0 : E) R
-  have hScompact : IsCompact S := isCompact_Icc.prod (isCompact_closedBall (0 : E) R)
-  have hSnonempty : S.Nonempty := by
-    refine ⟨(t, 0), ?_, ?_⟩
-    · exact ht
-    · simp [Metric.mem_closedBall, hR]
-  obtain ⟨⟨t₀, x₀⟩, hmem, hmin⟩ :=
-    hScompact.exists_isMinOn hSnonempty hcont.continuousOn
-  have ht₀ : t₀ ∈ Set.Icc (0 : ℝ) T := hmem.1
-  have hx₀ : x₀ ∈ Metric.closedBall (0 : E) R := hmem.2
-  refine ⟨t₀, ht₀, x₀, ?_⟩
-  intro t' ht' x'
-  by_cases hx' : x' ∈ Metric.closedBall (0 : E) R
-  · have hpair : (t', x') ∈ S := by exact ⟨ht', hx'⟩
-    have hm := hmin hpair
-    simpa [S] using hm
-  · have hout : R < dist x' 0 := by
-      simpa [Metric.mem_closedBall] using (lt_of_not_ge hx')
-    have htail := hRcoercive t' ht' x' hout
-    have hwit : x ∈ Metric.closedBall (0 : E) R := by
-      by_contra h
-      have hxout : R < dist x 0 := by
-        simpa [Metric.mem_closedBall] using (lt_of_not_ge h)
-      have hbad := hRcoercive t ht x hxout
-      dsimp [B] at hbad
-      exact (lt_irrefl _) hbad
-    have hwitpair : (t, x) ∈ S := by exact ⟨ht, hwit⟩
-    have hminwit : U t₀ x₀ ≤ U t x := by
-      have hm := hmin hwitpair
-      simpa [S] using hm
-    dsimp [B] at htail hminwit
-    linarith
-
 /-- A lower-tail bound at one level, above the value of a given witness,
 suffices for a global minimum on a finite time slab. Unlike coercivity, this
 allows bounded heat-flow interpolants: it is enough that the spatial liminf

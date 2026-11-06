@@ -65,12 +65,6 @@ noncomputable def finiteHaarGridCoefficient {d N : ℕ}
       brownianCubeBoxIndicator_mem ⟨t, fun i => ⟨(ht i).1, (ht i).2⟩⟩⟩ :
       brownianCubeBoxSpan d)⟫
 
-noncomputable def finiteHaarAxisPointFeature {N : ℕ}
-    (a : FiniteHaarAxis N) (t : ℝ) : ℝ :=
-  match a with
-  | none => t
-  | some ⟨s, j⟩ => Real.sqrt 2 ^ s.val * dyadicHaarTentAt s.val j.val t
-
 private theorem dyadicHaar_interiors_disjoint {r j k : ℕ} {t : ℝ}
     (hjk : j ≠ k)
     (hj : dyadicHaarLeft r j < t ∧ t < dyadicHaarRight r j)

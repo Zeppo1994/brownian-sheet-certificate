@@ -318,48 +318,6 @@ theorem normSq_finset_sum_expand {ι : Type*} (s : Finset ι) (f : ι → ℂ) :
   rw [Complex.normSq_eq_conj_mul_self, map_sum, Finset.sum_mul_sum]
   simp only [starRingEnd_apply]
 
-/-- Parseval on the midpoint grid: the squared norm of the length-N Fourier
-sum has total discrete mass N². -/
-theorem midpoint_character_sum_normSq_total (N : ℕ) (hN : 0 < N) :
-    (↑(∑ j ∈ Finset.range N,
-      Complex.normSq (∑ r ∈ Finset.range N, midpointCharacter N r j)) : ℂ) =
-      (N : ℂ) ^ 2 := by
-  calc
-    _ = ∑ j ∈ Finset.range N,
-        (Complex.normSq (∑ r ∈ Finset.range N, midpointCharacter N r j) : ℂ) := by
-          rw [Complex.ofReal_sum]
-    _ = ∑ j ∈ Finset.range N, ∑ r ∈ Finset.range N, ∑ s ∈ Finset.range N,
-          star (midpointCharacter N r j) * midpointCharacter N s j := by
-          apply Finset.sum_congr rfl
-          intro j hj
-          exact normSq_finset_sum_expand (Finset.range N)
-            (fun r => midpointCharacter N r j)
-    _ = ∑ r ∈ Finset.range N, ∑ s ∈ Finset.range N, ∑ j ∈ Finset.range N,
-          star (midpointCharacter N r j) * midpointCharacter N s j := by
-          rw [Finset.sum_comm]
-          apply Finset.sum_congr rfl
-          intro r hr
-          rw [Finset.sum_comm]
-    _ = ∑ r ∈ Finset.range N, ∑ s ∈ Finset.range N,
-          (if r = s then (N : ℂ) else 0) := by
-          apply Finset.sum_congr rfl
-          intro r hr
-          apply Finset.sum_congr rfl
-          intro s hs
-          exact midpoint_character_inner N r s hN (Finset.mem_range.mp hr)
-            (Finset.mem_range.mp hs)
-    _ = (N : ℂ) ^ 2 := by
-          calc
-            _ = ∑ r ∈ Finset.range N, (N : ℂ) := by
-              apply Finset.sum_congr rfl
-              intro r hr
-              have hrlt : r < N := Finset.mem_range.mp hr
-              simp [Finset.sum_ite_eq', eq_comm, hrlt]
-            _ = (N : ℂ) ^ 2 := by
-              rw [Finset.sum_const]
-              simp
-              ring
-
 /-- The same Parseval mass identity holds uniformly for a translated grid. -/
 theorem shifted_midpoint_character_sum_normSq_total (N : ℕ) (t : ℝ)
     (hN : 0 < N) :
@@ -501,7 +459,6 @@ theorem shifted_v_fejer_average_abs_le_five (N : ℕ) (t : ℝ) (hN : 0 < N) :
           (∑ j ∈ Finset.range N, f₁ j) := hsum
     _ ≤ 5 * N := by nlinarith
 end HaarQuarter.TheoremD.Fejer
-
 
 namespace HaarQuarter.TheoremD.Fejer
 

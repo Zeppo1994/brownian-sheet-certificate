@@ -568,10 +568,5 @@ theorem smoothGoodGrid_nonempty {d n : ℕ} (hd : 0 < d) :
     simp at hratio
   exact Fintype.card_pos_iff.mp (by exact_mod_cast hcard)
 
-/-- Every member of the good set satisfies its advertised variance floor. -/
-theorem smoothGoodGrid_variance_floor {d n : ℕ} (q : SmoothGoodGrid d n) :
-    smoothVarianceMeanLowerBound d n / 2 ≤ smoothLayerVariance q.1 :=
-  q.2
-
 end BrownianSharp
 

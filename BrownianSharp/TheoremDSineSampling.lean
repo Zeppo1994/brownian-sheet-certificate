@@ -5,32 +5,6 @@ noncomputable section
 
 namespace HaarQuarter.TheoremD.SineSampling
 
-/-- The selected frequencies are a shifted DCT-II cosine grid. -/
-theorem selected_sine_eq_signed_cos (M j r : ℕ) (hM : 0 < M) :
-    Real.sin ((M + r : ℕ) * (Real.pi * ((j : ℝ) + 1 / 2) / M)) =
-      (-1 : ℝ) ^ j * Real.cos (r * (Real.pi * ((j : ℝ) + 1 / 2) / M)) := by
-  let θ : ℝ := Real.pi * ((j : ℝ) + 1 / 2) / M
-  have hphase : (M : ℝ) * θ = Real.pi / 2 + (j : ℝ) * Real.pi := by
-    dsimp [θ]
-    have hMne : (M : ℝ) ≠ 0 := by exact_mod_cast hM.ne'
-    field_simp
-    ring
-  have hangle : ((M + r : ℕ) : ℝ) * θ =
-      (Real.pi / 2 + (j : ℝ) * Real.pi) + (r : ℝ) * θ := by
-    rw [Nat.cast_add]
-    calc
-      ((M : ℝ) + (r : ℝ)) * θ = (M : ℝ) * θ + (r : ℝ) * θ := by ring
-      _ = _ := by rw [hphase]
-  have hsin : Real.sin (Real.pi / 2 + (j : ℝ) * Real.pi) = (-1 : ℝ) ^ j := by
-    rw [Real.sin_add_nat_mul_pi]
-    simp
-  have hcos : Real.cos (Real.pi / 2 + (j : ℝ) * Real.pi) = 0 := by
-    rw [Real.cos_add_nat_mul_pi]
-    simp
-  rw [hangle, Real.sin_add, hsin, hcos]
-  dsimp [θ]
-  ring
-
 end HaarQuarter.TheoremD.SineSampling
 
 namespace HaarQuarter.TheoremD.SineSampling
@@ -95,60 +69,8 @@ theorem midpoint_cos_sum_eq_zero (M k : ℕ) (hM : 0 < M)
 
 end HaarQuarter.TheoremD.SineSampling
 
-
 open scoped BigOperators
 
 namespace HaarQuarter.TheoremD.SineSampling
-
-/-- Finite integer sine polynomials have exact reflection antisymmetry. -/
-theorem finite_sine_polynomial_reflection (s : Finset ℕ) (a : ℕ → ℝ) (x : ℝ) :
-    (∑ k ∈ s, a k * Real.sin ((2 * Real.pi * k) * (1 - x))) =
-      -(∑ k ∈ s, a k * Real.sin ((2 * Real.pi * k) * x)) := by
-  calc
-    _ = ∑ k ∈ s, -(a k * Real.sin ((2 * Real.pi * k) * x)) := by
-      apply Finset.sum_congr rfl
-      intro k hk
-      have hsin : Real.sin ((2 * Real.pi * k) * (1 - x)) =
-          -Real.sin ((2 * Real.pi * k) * x) := by
-        rw [show (2 * Real.pi * k) * (1 - x) =
-          (k : ℝ) * (2 * Real.pi) - ((2 * Real.pi * k) * x) by ring,
-          Real.sin_nat_mul_two_pi_sub]
-      rw [hsin]
-      ring
-    _ = _ := by rw [Finset.sum_neg_distrib]
-
-/-- An antisymmetric function's full midpoint grid has twice the absolute
-mass of the first half grid. -/
-theorem full_midpoint_abs_sum_eq_twice_half
-    (M : ℕ) (hM : 0 < M) (f : ℝ → ℝ)
-    (hf : ∀ x, f (1 - x) = -f x) :
-    (∑ j ∈ Finset.range (2 * M),
-      |f (((j : ℝ) + 1 / 2) / (2 * M))|) =
-      2 * ∑ j ∈ Finset.range M, |f (((j : ℝ) + 1 / 2) / (2 * M))| := by
-  have hMne : (M : ℝ) ≠ 0 := by exact_mod_cast hM.ne'
-  have hpoint (j : ℕ) (hj : j < M) :
-      |f ((((M + j : ℕ) : ℝ) + 1 / 2) / (2 * M))| =
-      |f ((((M - 1 - j : ℕ) : ℝ) + 1 / 2) / (2 * M))| := by
-    have hnat : M - 1 - j + j + 1 = M := by omega
-    have hcast : ((M - 1 - j : ℕ) : ℝ) + (j : ℝ) + 1 = M := by exact_mod_cast hnat
-    have hx : ((((M + j : ℕ) : ℝ) + 1 / 2) / (2 * M)) =
-        1 - ((((M - 1 - j : ℕ) : ℝ) + 1 / 2) / (2 * M)) := by
-      push_cast
-      field_simp
-      nlinarith [hcast]
-    rw [hx, hf, abs_neg]
-  rw [show 2 * M = M + M by omega, Finset.sum_range_add]
-  have hsum : (∑ j ∈ Finset.range M,
-      |f ((((M + j : ℕ) : ℝ) + 1 / 2) / (2 * M))|) =
-      ∑ j ∈ Finset.range M, |f (((j : ℝ) + 1 / 2) / (2 * M))| := by
-    calc
-      _ = ∑ j ∈ Finset.range M,
-          |f ((((M - 1 - j : ℕ) : ℝ) + 1 / 2) / (2 * M))| := by
-          apply Finset.sum_congr rfl
-          intro j hj
-          exact hpoint j (Finset.mem_range.mp hj)
-      _ = _ := Finset.sum_range_reflect (fun j => |f (((j : ℝ) + 1 / 2) / (2 * M))|) M
-  rw [hsum]
-  ring
 
 end HaarQuarter.TheoremD.SineSampling

@@ -105,19 +105,6 @@ theorem fractionalKernelDerivative_succ_deriv (β t : ℝ) (j : ℕ) (u : ℝ)
   funext x
   simp [fractionalKernelDerivative, c, e]
 
-theorem iteratedDeriv_eq_fractionalKernelDerivative (β t : ℝ) (j : ℕ) (u : ℝ) :
-    iteratedDeriv j (fun x => kernel β (t-x)) u = fractionalKernelDerivative β t j u := by
-  have hcomp := iteratedDeriv_comp_const_sub (n := j)
-    (f := fun z : ℝ => z^(β-1)) (s := t)
-  have hrpow : iteratedDeriv j (fun z : ℝ => z^(β-1)) (t-u) =
-      (descPochhammer ℝ j).eval (β-1) * (t-u)^(β-1-(j:ℝ)) := by
-    rw [iteratedDeriv_eq_iterate]
-    exact Real.iter_deriv_rpow_const (β-1) (t-u) j
-  simp only [kernel, iteratedDeriv_const_mul_field]
-  rw [congrFun hcomp u]
-  rw [hrpow]
-  simp [fractionalKernelDerivative, smul_eq_mul, mul_assoc]
-
 theorem fractionalKernelDerivative_continuousOn {β t : ℝ} (ht : 2 ≤ t) (j : ℕ) :
     ContinuousOn (fractionalKernelDerivative β t j) (Set.uIcc (0:ℝ) 1) := by
   let e : ℝ := β-1-(j:ℝ)
@@ -277,58 +264,6 @@ theorem rlIntegral_dilate {β c t : ℝ} (hc : 0 < c) (ht : 0 ≤ t) (q : ℕ) (
           rw [← Real.rpow_neg_one c, ← Real.rpow_add hc]
           congr 1
           ring
-
-/-- Exact finite-horizon energy scaling for a dilated causal preimage. -/
-theorem rlIntegral_dilate_energy {α β c : ℝ} (q : ℕ)
-    (hα : β = (q:ℝ)-α) (hc : 0 < c) (F : ℝ → ℝ) :
-    (∫ t in (0:ℝ)..1,
-      (rlIntegral β (fun u => c^q * F (c*u)) t)^2) =
-      c^(2*α-1) * (∫ x in (0:ℝ)..c, (rlIntegral β F x)^2) := by
-  have hpoint : ∀ t ∈ Set.Icc (0:ℝ) 1,
-      rlIntegral β (fun u => c^q * F (c*u)) t = c^α * rlIntegral β F (c*t) := by
-    intro t ht
-    rw [rlIntegral_dilate hc ht.1 q F]
-    have hexp : (q:ℝ)-β = α := by rw [hα]; ring
-    rw [hexp]
-  calc
-    (∫ t in (0:ℝ)..1,
-      (rlIntegral β (fun u => c^q * F (c*u)) t)^2) =
-      ∫ t in (0:ℝ)..1, (c^α * rlIntegral β F (c*t))^2 := by
-        apply intervalIntegral.integral_congr
-        intro t ht
-        have htI : t ∈ Set.Icc (0:ℝ) 1 := by
-          simpa [Set.uIcc, min_eq_left (show (0:ℝ) ≤ 1 by norm_num),
-            max_eq_right (show (0:ℝ) ≤ 1 by norm_num)] using ht
-        change (rlIntegral β (fun u => c^q * F (c*u)) t)^2 = _
-        rw [hpoint t htI]
-    _ = c^(2*α) * (∫ t in (0:ℝ)..1, (rlIntegral β F (c*t))^2) := by
-      have hmul : ∀ t, (c^α * rlIntegral β F (c*t))^2 =
-          c^(2*α) * (rlIntegral β F (c*t))^2 := by
-        intro t
-        rw [mul_pow]
-        have hp : (c^α)^2 = c^(2*α) := by
-          rw [show (c^α)^2 = c^α * c^α by ring, ← Real.rpow_add hc]
-          congr 1
-          ring
-        rw [hp]
-      calc
-        (∫ t in (0:ℝ)..1, (c^α * rlIntegral β F (c*t))^2) =
-            ∫ t in (0:ℝ)..1, c^(2*α) * (rlIntegral β F (c*t))^2 := by
-              apply intervalIntegral.integral_congr
-              intro t ht
-              exact hmul t
-        _ = c^(2*α) * (∫ t in (0:ℝ)..1, (rlIntegral β F (c*t))^2) :=
-              by rw [intervalIntegral.integral_const_mul]
-    _ = c^(2*α-1) * (∫ x in (0:ℝ)..c, (rlIntegral β F x)^2) := by
-      rw [intervalIntegral.integral_comp_mul_left (f := fun x => (rlIntegral β F x)^2) hc.ne']
-      simp only [smul_eq_mul]
-      rw [show c*0 = 0 by ring, show c*1 = c by ring]
-      calc
-        c^(2*α) * (c⁻¹ * (∫ x in (0:ℝ)..c, (rlIntegral β F x)^2)) =
-            (c^(2*α) * c⁻¹) * (∫ x in (0:ℝ)..c, (rlIntegral β F x)^2) := by ring
-        _ = c^(2*α-1) * (∫ x in (0:ℝ)..c, (rlIntegral β F x)^2) := by
-          rw [← Real.rpow_neg_one c, ← Real.rpow_add hc]
-          congr 1
 
 /-- Causal translation of a left-supported input: shifting the input right by
 `a` delays its RL profile by exactly `a`. -/
@@ -732,36 +667,6 @@ theorem rlIntegral_dilate_shift_energy {α β c m : ℝ} (q : ℕ)
     _ = _ := by
       rw [← Real.rpow_neg_one c, ← Real.rpow_add hc]
       congr 1 <;> ring
-
-/-- A nonzero smooth atom has a nonzero fractional-integral preimage in the
-unit-interval source space. This obtains strict positivity from the exact
-operator identity, without estimating a particular integral from below. -/
-theorem smooth_atom_preimage_norm_pos (α : ℝ) (hα : 1/2 < α) (q : ℕ)
-    (hqα : α < q) (hqβ : 1/2 < (q:ℝ)-α) (F : ℝ → ℝ)
-    (hF : ContDiff ℝ (∞ : ℕ∞ω) F)
-    (hzero : ∀ j ≤ q, iteratedDeriv j F 0 = 0)
-    (hout : BrownianSharp.AlignmentFractionalDensity.restrictProfile F hF.continuous ≠ 0) :
-    0 < ‖BrownianSharp.AlignmentFractionalDensity.profileToL2
-      (BrownianSharp.AlignmentFractionalDensity.fractionalOnC ((q:ℝ)-α) hqβ
-        (BrownianSharp.AlignmentFractionalDensity.derivativeProfile q F hF))‖ := by
-  apply norm_pos_iff.mpr
-  intro hsource
-  apply hout
-  have hpre :=
-    BrownianSharp.AlignmentFractionalDensity.smooth_atom_fractional_preimage_L2
-      α hα q hqα hqβ F hF hzero
-  have hmap : BrownianSharp.AlignmentFractionalTranslation.fractionalRL α hα
-      (BrownianSharp.AlignmentFractionalDensity.profileToL2
-        (BrownianSharp.AlignmentFractionalDensity.fractionalOnC ((q:ℝ)-α) hqβ
-          (BrownianSharp.AlignmentFractionalDensity.derivativeProfile q F hF))) = 0 := by
-    rw [hsource, map_zero]
-  calc
-    BrownianSharp.AlignmentFractionalDensity.restrictProfile F hF.continuous =
-        BrownianSharp.AlignmentFractionalTranslation.fractionalRL α hα
-          (BrownianSharp.AlignmentFractionalDensity.profileToL2
-            (BrownianSharp.AlignmentFractionalDensity.fractionalOnC ((q:ℝ)-α) hqβ
-              (BrownianSharp.AlignmentFractionalDensity.derivativeProfile q F hF))) := hpre.symm
-    _ = 0 := hmap
 
 /-- The canonical profile embedding preserves the squared `L²` energy on the
 unit interval, written as a classical interval integral. -/

@@ -205,7 +205,6 @@ theorem pastTailTaylorApprox_eq_poly_endpoint {p : ℝ} {m : ℕ} {a b x : ℝ}
   rw [pastTailTaylorPoly, hleft, hsum]
   rw [hterm0]
 
-
 /-- A shifted power with square-integrable tail belongs to `L²` on the
 positive half-line. -/
 theorem shifted_rpow_memLp_two {q a : ℝ} (hq : q < -(1/2 : ℝ)) (ha : 0 < a) :

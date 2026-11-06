@@ -110,5 +110,4 @@ theorem gaussian_chaining_expected_norm_holder (h : ℝ) (hh : 0 < h)
     _=holderChainingConstant d h*Real.sqrt ((n₀:ℝ)+1)*
         (σ+L*(2:ℝ)^(-h*(n₀:ℝ))) := by ring
 
-
 end BrownianSharp.AlignmentHolderGaussianChaining

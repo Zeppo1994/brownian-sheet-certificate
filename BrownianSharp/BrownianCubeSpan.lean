@@ -28,18 +28,4 @@ noncomputable def brownianCubeSpanEmbedding (d : ℕ) :
   toLinearMap := (brownianCubeBoxSpan d).subtype
   norm_map' _ := rfl
 
-/-- Ambient parameter version, zero outside the sheet's cube. -/
-noncomputable def brownianCubeBoxVector {d : ℕ} (x : Fin d → ℝ) :
-    brownianCubeBoxSpan d := by
-  classical
-  exact if hx : ∀ i, x i ∈ Set.Icc (0:ℝ) 1 then
-    ⟨brownianSheetBoxIndicatorLp x, brownianCubeBoxIndicator_mem ⟨x,hx⟩⟩ else 0
-
-theorem brownianCubeBoxVector_coe {d : ℕ} (x : Fin d → ℝ)
-    (hx : ∀ i, x i ∈ Set.Icc (0:ℝ) 1) :
-    brownianCubeSpanEmbedding d (brownianCubeBoxVector x) =
-      brownianSheetBoxIndicatorLp x := by
-  simp only [brownianCubeBoxVector, dif_pos hx]
-  rfl
-
 end HaarQuarter

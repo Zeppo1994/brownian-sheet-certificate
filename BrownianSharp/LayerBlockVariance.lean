@@ -51,5 +51,4 @@ theorem nativeLayer_block_variance_le (d n K : ℕ) (hK : 1 ≤ K)
     actual_shape_block_variance_product_bound d K hK C hC r.1
       t x
 
-
 end BrownianSharp.LayerBlockVariance

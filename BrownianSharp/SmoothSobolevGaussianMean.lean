@@ -155,36 +155,4 @@ theorem smoothSobolev_p2_expected_energy_le {d ι : ℕ}
     _ = ∫⁻ y : (Fin ι → ℝ) × UnitAddTorus (Fin d), F y ∂P.prod μx := hproduct.symm
     _ ≤ M := htotal
 
-/-- A half-mass lower bound for the literal Sobolev `p=2` unit ball of the
-actual finite Gaussian smooth synthesis. The only additional input beyond the
-block-variance and summability bounds is measurability of the displayed energy
-map (the block series itself is handled in `smoothSobolev_p2_expected_energy_le`). -/
-theorem smoothSobolev_p2_unitBall_mass {d ι : ℕ}
-    (r : ℝ) (atoms : Fin ι → RealPeriodic d) (V : (Fin d → ℕ) → ℝ)
-    (hV : ∀ s, 0 ≤ V s)
-    (hvariance : ∀ (s : Fin d → ℕ) (x : UnitAddTorus (Fin d)),
-      (∑ i : Fin ι, ‖SmoothResolution.block s (atoms i) x‖ ^ 2) ≤ V s)
-    (hsummable : (∑' s : Fin d → ℕ,
-      ENNReal.ofReal ((2 : ℝ) ^ (2 * r * ∑ i, (s i : ℝ)) *
-        (4 * V s * gaussianAbsoluteMoment 2))) ≤ 1 / 2)
-    (hmeas : Measurable (fun z : Fin ι → ℝ =>
-      ∫⁻ x : UnitAddTorus (Fin d),
-        (SmoothResolution.squareFunctionSquared r
-          (gaussianSynthesis atoms z) x) ^ (2 / 2 : ℝ)
-        ∂(volume : Measure (UnitAddTorus (Fin d))))) :
-    (1 / 2 : ℝ≥0∞) ≤
-      (productStandardGaussian (Fin ι))
-        {z | SmoothResolution.SobolevUnitBall 2 r
-          (gaussianSynthesis atoms z)} := by
-  have hmean :
-      (∫⁻ z : Fin ι → ℝ, ∫⁻ x : UnitAddTorus (Fin d),
-        (SmoothResolution.squareFunctionSquared r
-          (gaussianSynthesis atoms z) x) ^ (2 / 2 : ℝ)
-        ∂(volume : Measure (UnitAddTorus (Fin d)))
-        ∂productStandardGaussian (Fin ι)) ≤ 1 / 2 :=
-    (smoothSobolev_p2_expected_energy_le r atoms V hV hvariance hsummable)
-  exact smoothSobolevUnitBall_mass_of_mean_le_half
-    (productStandardGaussian (Fin ι)) 2 r
-    (fun z => gaussianSynthesis atoms z) hmeas hmean
-
 end BrownianSharp

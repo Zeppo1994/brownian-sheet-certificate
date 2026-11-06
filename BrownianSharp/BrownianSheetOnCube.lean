@@ -60,11 +60,6 @@ noncomputable def brownianCubeGlobalExtension {d : ℕ}
     (f : C(BrownianCubeAnchor d, ℝ)) (x : Fin d → ℝ) :
     brownianCubeGlobalExtension f x = f (brownianCubeClamp d x) := rfl
 
-theorem brownianCubeGlobalExtension_eq_on_cube {d : ℕ}
-    (f : C(BrownianCubeAnchor d, ℝ)) (x : BrownianCubeAnchor d) :
-    brownianCubeGlobalExtension f x.val = f x := by
-  simp
-
 /-- A centered Brownian sheet with continuous sample paths on the anchored
 unit cube. Gaussianity is stated in the standard finite-dimensional sense;
 the covariance is the min-product kernel. The measurability field makes this
@@ -99,47 +94,6 @@ theorem eval_mean_zero (x : BrownianCubeAnchor d) :
 theorem eval_covariance (x y : BrownianCubeAnchor d) :
     cov[B.eval x, B.eval y; P] = ∏ i, min (x.val i) (y.val i) := B.covariance x y
 
-/-- The coordinate-clamped process on all of `ℝ^d`. -/
-noncomputable def globalEval (x : Fin d → ℝ) (ω : Ω) : ℝ :=
-  B.eval (brownianCubeClamp d x) ω
-
-theorem globalEval_measurable (x : Fin d → ℝ) : Measurable (B.globalEval x) :=
-  B.measurable_eval _
-
-theorem globalPath_continuous (ω : Ω) :
-    Continuous (fun x : Fin d → ℝ => B.globalEval x ω) := by
-  exact (B.path ω).continuous.comp (continuous_brownianCubeClamp d)
-
-theorem globalEval_eq_of_mem {x : Fin d → ℝ}
-    (hx : ∀ i, x i ∈ Set.Icc (0 : ℝ) 1) (ω : Ω) :
-    B.globalEval x ω = B.eval ⟨x, hx⟩ ω := by
-  rw [globalEval, show brownianCubeClamp d x = ⟨x, hx⟩ from
-    brownianCubeClamp_apply_of_mem ⟨x, hx⟩]
-
-theorem globalGaussian :
-    IsGaussianProcess (fun x : Fin d → ℝ => fun ω => B.globalEval x ω) P :=
-  B.gaussian.comp_right (brownianCubeClamp d)
-
-theorem globalEval_mean_zero (x : Fin d → ℝ) :
-    ∫ ω, B.globalEval x ω ∂P = 0 := B.mean_zero (brownianCubeClamp d x)
-
-theorem globalEval_covariance (x y : Fin d → ℝ) :
-    cov[B.globalEval x, B.globalEval y; P] =
-      ∏ i, min ((brownianCubeClamp d x).val i) ((brownianCubeClamp d y).val i) :=
-  B.covariance (brownianCubeClamp d x) (brownianCubeClamp d y)
-
-/-- The uniform-norm event is exactly the simultaneous pointwise bound used
-in the sheet formulation. -/
-theorem norm_le_iff_forall_eval (ω : Ω) (ε : ℝ) :
-    ‖B.path ω‖ ≤ ε ↔ ∀ x, |B.eval x ω| ≤ ε := by
-  simpa [eval, Real.norm_eq_abs] using
-    (ContinuousMap.norm_le_of_nonempty (f := B.path ω) (M := ε))
-
-theorem normEvent_eq_pointwiseEvent (ε : ℝ) :
-    {ω | ‖B.path ω‖ ≤ ε} = {ω | ∀ x, |B.eval x ω| ≤ ε} := by
-  ext ω
-  exact B.norm_le_iff_forall_eval ω ε
-
 end BrownianSheetOnCube
 
 namespace BrownianSheetOnCube
@@ -171,7 +125,6 @@ def ofProcess {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
       ∏ i, min (x.val i) (y.val i)) (x : BrownianCubeAnchor d) (ω : Ω) :
     (ofProcess X hMeasurable hContinuous hGaussian hMean hCovariance).eval x ω =
       X x ω := rfl
-
 
 noncomputable def aeContinuousNullCover
     {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
@@ -271,7 +224,6 @@ noncomputable def ofProcessAE
       _ = ∏ i, min (x.val i) (y.val i) := hCovariance x y
   exact ofProcess Y hYMeasurable hYContinuous hYGaussian hYMean hYCovariance
 
-
 @[simp] theorem ofProcessAE_eval
     {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
     (X : BrownianCubeAnchor d → Ω → ℝ)
@@ -284,27 +236,6 @@ noncomputable def ofProcessAE
     (ofProcessAE X hMeasurable hContinuous hGaussian hMean hCovariance).eval x ω =
       aeContinuousModification X hContinuous x ω := by
   rfl
-
-theorem ofProcessAE_eval_forall_ae
-    {d : ℕ} {Ω : Type*} [MeasurableSpace Ω] {P : Measure Ω}
-    (X : BrownianCubeAnchor d → Ω → ℝ)
-    (hMeasurable : ∀ x, Measurable (X x))
-    (hContinuous : ∀ᵐ ω ∂P, Continuous (fun x => X x ω))
-    (hGaussian : IsGaussianProcess X P)
-    (hMean : ∀ x, ∫ ω, X x ω ∂P = 0)
-    (hCovariance : ∀ x y, cov[X x, X y; P] =
-      ∏ i, min (x.val i) (y.val i)) :
-    ∀ᵐ ω ∂P, ∀ x, (ofProcessAE X hMeasurable hContinuous hGaussian hMean hCovariance).eval x ω = X x ω := by
-  classical
-  let N := aeContinuousNullCover X hContinuous
-  have hcover := aeContinuousNullCover_spec X hContinuous
-  have houtside : ∀ᵐ ω ∂P, ω ∉ N := by
-    apply (ae_iff).2
-    simpa [N] using hcover.2.2
-  filter_upwards [houtside] with ω hω
-  intro x
-  rw [ofProcessAE_eval]
-  simp [aeContinuousModification, N, hω]
 
 end BrownianSheetOnCube
 

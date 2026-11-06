@@ -471,66 +471,6 @@ theorem endpoint_periodicBesov_of_boundedCoefficients
   exact endpoint_periodicBesov_of_shapeProfile x r theta B A qlow qhigh hθ
     hA0 hAtop hrow hcol hshape (by simpa [A, B, qlow, qhigh] using hbudget)
 
-/-- The arbitrary-b coefficient box defeats the existing smooth-grid
-confinement event at the exact finite-layer covering threshold. -/
-theorem endpoint_periodic_cover_obstruction_of_box_mass
-    {d n k : ℕ} (hd : 0 < d) {b M A ε ρ : ℝ} (hb : 0 < b)
-    (hM : 0 < M) (hA : 0 < A)
-    (hε : 0 < ε) (hρ : 0 ≤ ρ) (hρε : ρ ≤ A*ε)
-    (K : Set (RealPeriodic d))
-    (hclass : ∀ x ∈ coefficientBox (ι := LayerIndex d n) M,
-      A • periodicNativeSynthesisLinear x ∈ K)
-    (hscalarbox : ENNReal.ofReal (Real.exp (-b/4)) ≤
-      ProbabilityTheory.gaussianReal 0 1 (Set.Icc (-M) M))
-    (hconf : (productStandardGaussian (LayerIndex d n)).real
-      (smoothGoodUniformEvent d n ε) ≤
-        Real.exp (-b * (Fintype.card (LayerIndex d n):ℝ)))
-    (hgap : ((k-1:ℕ):ℝ) * Real.log 2 <
-      (3/4) * b * (Fintype.card (LayerIndex d n):ℝ)) :
-    ((2^(k-1):ℕ):ℕ∞) < Metric.externalCoveringNumber ⟨ρ,hρ⟩ K := by
-  classical
-  let μ := fun _ : LayerIndex d n => ProbabilityTheory.gaussianReal 0 1
-  let E := coefficientBox (ι := LayerIndex d n) M
-  let Q : ℝ≥0∞ := ENNReal.ofReal
-    (Real.exp (-b * (Fintype.card (LayerIndex d n):ℝ)))
-  have hbox := productMeasure_coefficientBox_exp_lower μ
-    (by intro i; infer_instance) M b hb (by intro i; exact hscalarbox)
-  have hmass : ((2^(k-1):ℕ):ℝ≥0∞) * Q <
-      productStandardGaussian (LayerIndex d n) E := by
-    have hexp : ((2:ℝ)^(k-1)) *
-        Real.exp (-b*(Fintype.card (LayerIndex d n):ℝ)) <
-        Real.exp (-b*(Fintype.card (LayerIndex d n):ℝ)/4) := by
-      have htwo : (2:ℝ)^(k-1) =
-          Real.exp (((k-1:ℕ):ℝ)*Real.log 2) := by
-        rw [← Real.rpow_natCast, Real.rpow_def_of_pos (by norm_num : (0:ℝ)<2)]
-        congr 1
-        ring
-      rw [htwo]
-      rw [← Real.exp_add]
-      apply Real.exp_lt_exp.mpr
-      nlinarith [hgap]
-    have hnatcast : ((2^(k-1):ℕ):ℝ≥0∞) =
-        ENNReal.ofReal ((2:ℝ)^(k-1)) := by
-      norm_cast
-    have hmul : ((2^(k-1):ℕ):ℝ≥0∞) * Q = ENNReal.ofReal
-        (((2:ℝ)^(k-1)) *
-          Real.exp (-b*(Fintype.card (LayerIndex d n):ℝ))) := by
-      rw [hnatcast, show Q = ENNReal.ofReal
-        (Real.exp (-b*(Fintype.card (LayerIndex d n):ℝ))) by rfl]
-      rw [← ENNReal.ofReal_mul (by positivity)]
-    have hstrict : ((2^(k-1):ℕ):ℝ≥0∞) * Q <
-        ENNReal.ofReal (Real.exp (-b*(Fintype.card (LayerIndex d n):ℝ)/4)) := by
-      rw [hmul]
-      exact (ENNReal.ofReal_lt_ofReal_iff (by positivity)).2 hexp
-    exact hstrict.trans_le (by simpa [E, μ] using hbox)
-  have hconfENN : productStandardGaussian (LayerIndex d n)
-      (smoothGoodUniformEvent d n ε) ≤ Q := by
-    have hc := ENNReal.ofReal_le_ofReal hconf
-    rw [measureReal_def, ENNReal.ofReal_toReal (measure_ne_top _ _)] at hc
-    simpa [Q] using hc
-  exact periodicNative_externalCover_gt_of_class_mass hd hA hε hρ hρε
-    K E Q hclass hconfENN hmass
-
 /-- A single positive amplitude scale normalizes both the sup branch and every
 finite `theta ≥ 1` branch; `N^(1/theta)` is the exact weak-composition factor. -/
 noncomputable def endpointBesovScale (B H : ℝ) (N : ℕ) (p : ℝ) : ℝ :=
@@ -1116,11 +1056,7 @@ theorem endpoint_periodic_besov_entropy_rate
   have hrate := AlignmentExponentialBoxEntropy.entropy_rate_of_exponentially_large_native_class_mass
     (α := UnitAddTorus (Fin d)) (d:=d) hd classSet r beta hr
     (fun n => periodicNativeSynthesisLinear (d:=d) (n:=n))
-    (fun n q => periodicMidpoint (q.val))
-    (by
-      intro n x q
-      rw [periodicNativeSynthesisLinear_apply,
-        smoothPeriodicSynthesis_midpoint_eq])
+    (fun n x s hs => ⟨_, AlignmentPaperConfinementBridge.periodicNative_cube_eq x s hs⟩)
     hclass
   simpa [beta, classSet] using hrate
 

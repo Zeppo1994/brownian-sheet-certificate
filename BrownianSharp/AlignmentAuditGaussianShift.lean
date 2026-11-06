@@ -277,17 +277,4 @@ theorem productGaussian_symmetric_translate_lower
     (show (2 : ℝ≥0∞) ≠ ∞ by norm_num)).mp hineq'
   simpa [c, mul_comm, mul_left_comm, mul_assoc] using hcancel
 
-/-- The same bound written using pointwise set addition by a singleton. -/
-theorem productGaussian_symmetric_add_singleton_lower
-    (A : Set (ι → ℝ)) (hA : MeasurableSet A)
-    (hsymm : ∀ x, x ∈ A ↔ -x ∈ A) (h : ι → ℝ) :
-    BrownianSharp.productStandardGaussian ι (A + {h}) ≥
-      ENNReal.ofReal (Real.exp (-shiftEnergy h / 2)) *
-        BrownianSharp.productStandardGaussian ι A := by
-  have himage : Set.image (fun x : ι → ℝ => x + h) A = A + {h} := by
-    ext y
-    simp
-  rw [← himage]
-  exact productGaussian_symmetric_translate_lower A hA hsymm h
-
 end BrownianSharp.AlignmentAuditGaussianShift

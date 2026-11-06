@@ -1,7 +1,21 @@
 import Mathlib.Tactic
 import Mathlib.Algebra.Order.Antidiag.FinsuppEquiv
 import BrownianSharp.HaarTensorGrid
-import BrownianSharp.Target
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.Real.Sqrt
+import Mathlib.Algebra.BigOperators.Ring.Finset
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Ring
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Data.Finset.Max
+import Mathlib.Basic.Real.Basic
+import Mathlib.Tactic.NormNum
+import Mathlib.Analysis.SpecialFunctions.Trigonometric.Series
+import Lean.Elab.Tactic.Omega
+import BrownianSharp.QuarterScale
+import Mathlib.Data.Finset.Lattice.Fold
+import Mathlib.Data.Nat.Choose.Basic
 
 /-!
 Deterministic midpoint/prefix counting lemmas for the Brownian sharp small-ball
@@ -13,56 +27,6 @@ namespace BrownianSharp.Prefix
 
 /-- Coordinatewise domination of a shape by a capped common-prefix vector. -/
 def Below {d : ℕ} (r c : Fin d → ℕ) : Prop := ∀ i, r i ≤ c i
-
-/-- The sum of the coordinatewise remainder is the excess prefix grade. -/
-theorem remainder_grade {d : ℕ} (r c : Fin d → ℕ)
-    (hrc : Below r c) (hr : (∑ i : Fin d, r i) = n)
-    (hc : (∑ i : Fin d, c i) = n + h) :
-    (∑ i : Fin d, (c i - r i)) = h := by
-  have hsum : (∑ i : Fin d, (c i - r i)) + ∑ i : Fin d, r i =
-      ∑ i : Fin d, c i := by
-    rw [← Finset.sum_add_distrib]
-    apply Finset.sum_congr rfl
-    intro i hi
-    have hi' := hrc i
-    omega
-  omega
-
-/-- Distinct contributing shapes have distinct coordinatewise remainders. -/
-theorem remainder_injective {d : ℕ} (c : Fin d → ℕ) :
-    Function.Injective (fun r : {r : Fin d → ℕ // Below r c} =>
-      fun i => c i - r.1 i) := by
-  intro r s hrs
-  apply Subtype.ext
-  funext i
-  have hri := r.2 i
-  have hsi := s.2 i
-  have heq : c i - r.1 i = c i - s.1 i :=
-    congrArg (fun f : Fin d → ℕ => f i) hrs
-  omega
-
-/-- Consequently, prefix subtraction is a genuine injection into the
-remainder shapes; this is the set-theoretic core of the overlap count. -/
-theorem contributing_shape_remainders_are_injective {d : ℕ}
-    (c : Fin d → ℕ) :
-    ∀ r s : {r : Fin d → ℕ // Below r c},
-      (fun i => c i - r.1 i) = (fun i => c i - s.1 i) → r = s := by
-  exact remainder_injective c
-
-/-- A deterministic fixed-fraction estimate used to extract good gridpoints.
-The bounds `0 ≤ alpha ≤ 1` express that it is a fraction. -/
-theorem good_fraction_lower {m M alpha : ℝ}
-    (hm : 0 < m) (hM : 0 < M) (halpha0 : 0 ≤ alpha)
-    (hmean : m ≤ M * alpha + (m / 2) * (1 - alpha)) :
-    m / (2 * M) ≤ alpha := by
-  have hbad : (m / 2) * (1 - alpha) ≤ m / 2 := by
-    calc
-      (m / 2) * (1 - alpha) ≤ (m / 2) * 1 :=
-        mul_le_mul_of_nonneg_left (by linarith) (by linarith)
-      _ = m / 2 := by ring
-  have hgood : m / 2 ≤ M * alpha := by linarith
-  have hprod : m ≤ (2 * M) * alpha := by nlinarith [hgood]
-  exact (div_le_iff₀ (by positivity : 0 < 2 * M)).2 (by nlinarith [hprod])
 
 /-- Contradictory prefix mass cannot support a layer shape: a tuple below
 `c` has total grade at most the total grade of `c`. -/
@@ -122,99 +86,6 @@ theorem common_prefix_fiber_card {L : ℕ} (j : Fin L)
     Fintype.card {k : Fin (2 ^ L) //
       HaarQuarter.dyadicCellIndex L j k.val = c.val} = 2 ^ (L - j.val) :=
   HaarQuarter.dyadicGridFiber_card L j c
-
-/-- A fixed grid address has at most the fraction `2^-j` of all addresses
-sharing its first `j` cell bits. This is the one-coordinate estimate used in
-the product prefix-mass count. -/
-theorem common_prefix_fiber_fraction {L : ℕ} (j : Fin L)
-    (c : Fin (2 ^ j.val)) :
-    Fintype.card {k : Fin (2 ^ L) //
-      HaarQuarter.dyadicCellIndex L j k.val = c.val} * 2 ^ j.val = 2 ^ L := by
-  rw [common_prefix_fiber_card]
-  rw [← Nat.pow_add]
-  congr 1
-  omega
-
-/-- Product-grid version of the fixed common-prefix fiber count. -/
-theorem product_common_prefix_fiber_card {d L : ℕ}
-    (profile : HaarQuarter.ProductGridProfile (Fin d) L)
-    (cell : HaarQuarter.ProductGridCell profile) :
-    Fintype.card {x : HaarQuarter.ProductGridPoint (Fin d) L //
-      HaarQuarter.productGridCellIndex profile x = cell} =
-      ∏ i, 2 ^ (L - (profile i).val) :=
-  HaarQuarter.productGridFiber_card profile cell
-
-/-- For a fixed product address, the proportion of addresses sharing all
-specified coordinate prefixes is exactly `2^(-sum j)`, expressed without
-rational probabilities by clearing the finite sample-space denominator. -/
-theorem product_common_prefix_fiber_fraction {d L : ℕ}
-    (profile : HaarQuarter.ProductGridProfile (Fin d) L)
-    (cell : HaarQuarter.ProductGridCell profile) :
-    Fintype.card {x : HaarQuarter.ProductGridPoint (Fin d) L //
-      HaarQuarter.productGridCellIndex profile x = cell} *
-        (∏ i, 2 ^ (profile i).val) =
-      Fintype.card (HaarQuarter.ProductGridPoint (Fin d) L) := by
-  rw [product_common_prefix_fiber_card]
-  rw [← Finset.prod_mul_distrib]
-  calc
-    (∏ i, 2 ^ (L - (profile i).val) * 2 ^ (profile i).val) =
-        ∏ i, 2 ^ L := by
-      apply Finset.prod_congr rfl
-      intro i hi
-      rw [← Nat.pow_add, Nat.sub_add_cancel (Nat.le_of_lt (profile i).isLt)]
-    _ = Fintype.card (HaarQuarter.ProductGridPoint (Fin d) L) := by
-      simp [HaarQuarter.ProductGridPoint, Fintype.card_pi]
-
-/-- The profile count appearing in the Brownian argument is the existing
-Haar shape-count normalization at `D=d-1`, `N=n+1`. -/
-theorem layer_shape_count_eq_haar_shapeCount {d n : ℕ} (hd : 1 ≤ d) :
-    Nat.choose (n + d - 1) (d - 1) = HaarQuarter.shapeCount (d - 1) (n + 1) := by
-  have htop : n + d - 1 = n + (d - 1) := by omega
-  rw [HaarQuarter.shapeCount, Nat.succ_sub_one, htop]
-
-/-- The contributing part of the grade-`n` Finsupp antidiagonal injects into
-the grade-`h` antidiagonal by subtracting from the fixed prefix vector. This
-is the finite cardinal form of the common-prefix remainder count. -/
-theorem contributing_finsupp_count_le {d n h : ℕ}
-    (c : Fin d →₀ ℕ)
-    (hc : (c.sum fun _ x => x) = n + h) :
-    (((Finset.univ : Finset (Fin d)).finsuppAntidiag n).filter
-        (fun r => ∀ i, r i ≤ c i)).card ≤
-      ((Finset.univ : Finset (Fin d)).finsuppAntidiag h).card := by
-  classical
-  let S := (Finset.univ : Finset (Fin d)).finsuppAntidiag n
-  let T := (Finset.univ : Finset (Fin d)).finsuppAntidiag h
-  let A := S.filter (fun r => ∀ i, r i ≤ c i)
-  apply Finset.card_le_card_of_injOn (fun r => c - r)
-  · intro r hr
-    have hrs := (Finset.mem_filter.mp hr).1
-    have hbound := (Finset.mem_filter.mp hr).2
-    have hrgrade : (r.sum fun _ x => x) = n := by
-      simpa [S] using (Finset.mem_finsuppAntidiag'.mp hrs).1
-    have hpoint : r + (c - r) = c := by
-      ext i
-      exact Nat.add_sub_of_le (hbound i)
-    have hsumAdd := Finsupp.sum_hom_add_index
-      (h := fun _ : Fin d => AddMonoidHom.id ℕ) (f := r) (g := c - r)
-    have hsum : (r.sum fun _ x => x) + ((c - r).sum fun _ x => x) =
-        c.sum fun _ x => x := by
-      calc
-        _ = (r + (c - r)).sum fun _ x => x := hsumAdd.symm
-        _ = c.sum fun _ x => x := by rw [hpoint]
-    have hout : ((c - r).sum fun _ x => x) = h := by omega
-    change c - r ∈ Finset.univ.finsuppAntidiag h
-    rw [Finset.mem_finsuppAntidiag']
-    exact ⟨hout, Finsupp.support_subset_iff.mpr (by simp)⟩
-  · intro r hr s hs hrs
-    have hrbound := (Finset.mem_filter.mp hr).2
-    have hsbound := (Finset.mem_filter.mp hs).2
-    apply Finsupp.ext
-    intro i
-    have hcoord : c i - r i = c i - s i :=
-      congrArg (fun f : Fin d →₀ ℕ => f i) hrs
-    have hri := hrbound i
-    have hsi := hsbound i
-    omega
 
 /-- Exact weak-composition count: the antidiagonal of finitely supported
 `d`-coordinate natural vectors of total grade `h` has size

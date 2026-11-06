@@ -1,5 +1,6 @@
 import BrownianSharp.AlignmentGaussianFiniteFeature
-import BrownianSharp.AlignmentExponentialFiniteGaussianSmallBall
+import BrownianSharp.AlignmentExponentialDiagonalDilation
+import BrownianSharp.SmoothCoefficientEvents
 import Mathlib.Tactic
 
 noncomputable section
@@ -12,7 +13,6 @@ namespace BrownianSharp.AlignmentGaussianGradedHalfMass
 
 open BrownianSharp.AlignmentGaussianFiniteFeature
 open BrownianSharp.AlignmentGaussianChainingRate
-open BrownianSharp.AlignmentExponentialFiniteGaussianSmallBall
 
 private def gradedHalfMassIndex (β : ℝ) : ℕ := Nat.ceil β + 1
 

@@ -104,32 +104,6 @@ theorem spectralMeasure_isFinite (κ h : ℝ) (hκ : 0 < κ) (hh : 0 < h) :
   rw [heq]
   exact hi.ne
 
-def phase (t ξ : ℝ) : EuclideanSpace ℝ (Fin 2) :=
-  WithLp.toLp 2 (![Real.cos (2 * Real.pi * ξ * t), Real.sin (2 * Real.pi * ξ * t)])
-
-theorem phase_norm (t ξ : ℝ) : ‖phase t ξ‖ = 1 := by
-  rw [phase, EuclideanSpace.norm_eq]
-  simp only [Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one,
-    Real.norm_eq_abs, sq_abs]
-  rw [Real.cos_sq_add_sin_sq]
-  norm_num
-
-theorem phaseMemLp (κ h t : ℝ) (hκ : 0 < κ) (hh : 0 < h) :
-    MemLp (fun ξ : ℝ => phase t ξ) 2 (spectralMeasure κ h) := by
-  let μ := spectralMeasure κ h
-  letI : IsFiniteMeasure μ := spectralMeasure_isFinite κ h hκ hh
-  apply MemLp.of_bound (by
-    change AEStronglyMeasurable (fun ξ : ℝ => phase t ξ) μ
-    apply (show Measurable (fun ξ : ℝ => phase t ξ) by
-      unfold phase
-      fun_prop).aestronglyMeasurable) 1
-  filter_upwards with ξ
-  rw [phase_norm]
-
-def feature (κ h t : ℝ) (hκ : 0 < κ) (hh : 0 < h) :
-    Lp (EuclideanSpace ℝ (Fin 2)) 2 (spectralMeasure κ h) :=
-  (phaseMemLp κ h t hκ hh).toLp (fun ξ => phase t ξ)
-
 def stationaryCovariance (κ h t u : ℝ) : ℝ :=
   ∫ ξ : ℝ, Real.cos (2 * Real.pi * ξ * (t - u)) ∂spectralMeasure κ h
 
@@ -168,21 +142,5 @@ theorem continuous_stationaryCovariance (κ h : ℝ) (hκ : 0 < κ) (hh : 0 < h)
   have hc := continuous_spectralCovariance_lag κ h hκ hh
   simpa [stationaryCovariance, Function.comp_def] using
     hc.comp (continuous_fst.sub continuous_snd)
-
-theorem feature_inner_eq_stationaryCovariance (κ h t u : ℝ)
-    (hκ : 0 < κ) (hh : 0 < h) :
-    inner ℝ (feature κ h t hκ hh) (feature κ h u hκ hh) = stationaryCovariance κ h t u := by
-  rw [MeasureTheory.L2.inner_def, stationaryCovariance]
-  dsimp [feature]
-  have hcoe_t := (phaseMemLp κ h t hκ hh).coeFn_toLp
-  have hcoe_u := (phaseMemLp κ h u hκ hh).coeFn_toLp
-  apply integral_congr_ae
-  filter_upwards [hcoe_t, hcoe_u] with ξ ht hu
-  rw [ht, hu]
-  simp only [phase, EuclideanSpace.inner_toLp_toLp]
-  simp [dotProduct, Fin.sum_univ_two, Pi.star_apply, star_trivial]
-  rw [← Real.cos_sub]
-  rw [show 2 * Real.pi * ξ * u - 2 * Real.pi * ξ * t =
-      -(2 * Real.pi * ξ * (t - u)) by ring, Real.cos_neg]
 
 end BrownianSharp.AlignmentMaternSpectralFeature

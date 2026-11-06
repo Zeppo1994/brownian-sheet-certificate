@@ -88,18 +88,5 @@ theorem kolmogorovWidth_le_of_subset_scalarImage
   exact (BrownianSharp.AlignmentPeriodicUpperReduction.kolmogorovWidth_mono_set
       hK m).trans (kolmogorovWidth_scalarImage_le_of_bound J m A E hA hE hJ)
 
-/-- Strict-index operator version, matching the manuscript's `dim V < k`
-convention. -/
-theorem operatorKolmogorovNumber_le_of_subset_scalarImage
-    {K J : Set X} (A E : ℝ) (hK : K ⊆ scalarImage A J) {k : ℕ} (hk : 1 ≤ k) (hA : 0 < A) (hE : 0 ≤ E)
-    (hJ : BrownianSharp.AlignmentOperatorNumbers.operatorKolmogorovNumber J k ≤
-      ENNReal.ofReal E) :
-    BrownianSharp.AlignmentOperatorNumbers.operatorKolmogorovNumber K k ≤
-      ENNReal.ofReal (A * E) := by
-  rw [BrownianSharp.AlignmentOperatorNumbers.operatorKolmogorovNumber_eq_width_pred K hk]
-  apply kolmogorovWidth_le_of_subset_scalarImage A E hK (k - 1) hA hE
-  rw [← BrownianSharp.AlignmentOperatorNumbers.operatorKolmogorovNumber_eq_width_pred J hk]
-  exact hJ
-
 end BrownianSharp.AlignmentScaledSetWidth
 

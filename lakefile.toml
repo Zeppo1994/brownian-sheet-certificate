@@ -12,3 +12,6 @@ name = "BrownianSharp"
 
 [[lean_lib]]
 name = "Isoperimetric"
+
+[[lean_lib]]
+name = "TauCeti"

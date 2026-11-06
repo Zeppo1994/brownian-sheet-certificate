@@ -66,26 +66,4 @@ theorem pastTailTaylorSpan_mono (v : PastTailTaylorIndex → ℕ → H)
   · refine ⟨⟨⟨(some (Fin.castLE hJ j),a), Fin.castLE hM k⟩⟩, ?_⟩
     simp [embedIndex]
 
-/-- The generic weighted Taylor estimate specialized to the permanent shell
-addresses, with the coefficient span shared by all parameters. -/
-theorem pastTailTaylor_family_width
-    (J M : ℕ) (v : PastTailTaylorIndex → ℕ → H)
-    (center : (Option (Fin J) × Fin 4) → ℝ)
-    (weight : (Option (Fin J) × Fin 4) → ℝ → ℝ)
-    (remainder : ℝ → ℝ) (K : ℝ → H) (A : Set ℝ)
-    {δ η : ℝ} (hδ : 0 ≤ δ) (hη : 0 ≤ η)
-    (hweights : ∀ t, t ∈ A → ∀ i, 0 ≤ weight i t)
-    (hrem : ∀ t, t ∈ A → 0 ≤ remainder t)
-    (hmass : ∀ t, t ∈ A →
-      (∑ i : Option (Fin J) × Fin 4, weight i t)+remainder t=1)
-    (hlocal : ∀ t, t ∈ A → ∀ i, weight i t ≠ 0 →
-      ‖K t-localTaylor M (fun i k => v (embedIndex J i) k.val)
-          center i t‖ ≤ δ)
-    (htail : ∀ t, t ∈ A → remainder t ≠ 0 → ‖K t‖ ≤ η) :
-    kolmogorovWidth (K '' A) ((4*(J+1))*M) ≤ ENNReal.ofReal (δ+η) := by
-  have h := weighted_taylor_family_width M
-    (fun i k => v (embedIndex J i) k.val) center weight remainder K A
-    hδ hη hweights hrem hmass hlocal htail
-  simpa [Fintype.card_option, Fintype.card_prod, Nat.mul_comm, Nat.add_comm] using h
-
 end BrownianSharp.AlignmentFractionalPastTailFiltration

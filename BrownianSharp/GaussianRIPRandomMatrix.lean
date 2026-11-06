@@ -58,54 +58,6 @@ theorem gaussianMatrixProjection_hasLaw_standard
   · funext ω
     rfl
 
-/-- The upper chi-square estimate transfers to the measurements of any fixed
-unit vector under the Gaussian matrix law. -/
-theorem gaussianMatrixProjection_upper_tail
-    {m N : ℕ} (u : Fin N → ℝ) (hu : ∑ k, u k ^ 2 = 1) :
-    (gaussianMatrixMeasure m N).real
-      {ω | 4 * (m : ℝ) ≤ ∑ i, (gaussianMatrixProjection u ω i) ^ 2} ≤
-        Real.exp (-(m : ℝ) / 4) := by
-  let P := gaussianMatrixProjection (m := m) u
-  have hP := gaussianMatrixProjection_hasLaw_standard (m := m) u hu
-  have hsum : Measurable (fun z : Fin m → ℝ => ∑ i, z i ^ 2) := by fun_prop
-  have hset : MeasurableSet {z : Fin m → ℝ | 4 * (m : ℝ) ≤ ∑ i, z i ^ 2} := by
-    change MeasurableSet ((fun z : Fin m → ℝ => ∑ i, z i ^ 2) ⁻¹' Set.Ici (4 * (m : ℝ)))
-    exact measurableSet_Ici.preimage hsum
-  have hmap := MeasureTheory.map_measureReal_apply_of_aemeasurable hP.aemeasurable hset
-  rw [hP.map_eq] at hmap
-  have htail := productGaussian_sqNorm_upper_tail (κ := Fin m)
-  have heq : (gaussianMatrixMeasure m N).real
-      {ω | 4 * (m : ℝ) ≤ ∑ i, (P ω i) ^ 2} =
-      (BrownianSharp.productStandardGaussian (Fin m)).real
-        {z | 4 * (m : ℝ) ≤ ∑ i, z i ^ 2} := by
-    simpa [P, gaussianMatrixProjection] using hmap.symm
-  rw [heq]
-  simpa using htail
-
-/-- The lower chi-square estimate transfers to the measurements of any fixed
-unit vector under the Gaussian matrix law. -/
-theorem gaussianMatrixProjection_lower_tail
-    {m N : ℕ} (u : Fin N → ℝ) (hu : ∑ k, u k ^ 2 = 1) :
-    (gaussianMatrixMeasure m N).real
-      {ω | ∑ i, (gaussianMatrixProjection u ω i) ^ 2 ≤ (m : ℝ) / 4} ≤
-        Real.exp (-(m : ℝ) / 4) := by
-  let P := gaussianMatrixProjection (m := m) u
-  have hP := gaussianMatrixProjection_hasLaw_standard (m := m) u hu
-  have hsum : Measurable (fun z : Fin m → ℝ => ∑ i, z i ^ 2) := by fun_prop
-  have hset : MeasurableSet {z : Fin m → ℝ | ∑ i, z i ^ 2 ≤ (m : ℝ) / 4} := by
-    change MeasurableSet ((fun z : Fin m → ℝ => ∑ i, z i ^ 2) ⁻¹' Set.Iic ((m : ℝ) / 4))
-    exact measurableSet_Iic.preimage hsum
-  have hmap := MeasureTheory.map_measureReal_apply_of_aemeasurable hP.aemeasurable hset
-  rw [hP.map_eq] at hmap
-  have htail := productGaussian_sqNorm_lower_tail (κ := Fin m)
-  have heq : (gaussianMatrixMeasure m N).real
-      {ω | ∑ i, (P ω i) ^ 2 ≤ (m : ℝ) / 4} =
-      (BrownianSharp.productStandardGaussian (Fin m)).real
-        {z | ∑ i, z i ^ 2 ≤ (m : ℝ) / 4} := by
-    simpa [P, gaussianMatrixProjection] using hmap.symm
-  rw [heq]
-  simpa using htail
-
 /-- Stronger upper-tail transfer, at the squared radius `2m`. -/
 theorem gaussianMatrixProjection_upper_tail_two
     {m N : ℕ} (u : Fin N → ℝ) (hu : ∑ k, u k ^ 2 = 1) :

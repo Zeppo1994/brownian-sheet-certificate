@@ -110,7 +110,6 @@ theorem fractionalTensorRL_reindex_apply {d : ℕ} (e : Fin d ≃ Fin d)
         (MeasurePreserving.integral_comp' (reindexCoordinatesMP e)
           (fun u => Latest.fractionalTensorKernel a (reindexAnchor e t) u * g u))
 
-
 @[simp] theorem reindexAnchor_symm_left {d : ℕ} (e : Fin d ≃ Fin d)
     (t : BrownianCubeAnchor d) : reindexAnchor e.symm (reindexAnchor e t) = t := by
   apply Subtype.ext
@@ -172,7 +171,6 @@ theorem fractionalIntegrationBall_reindex {d : ℕ} (e : Fin d ≃ Fin d)
         fractionalTensorRL a ha g (reindexAnchor e t)
       exact fractionalTensorRL_reindex_apply e a ha g t
 
-
 /-- Indices attaining the minimum order. -/
 def minimumIndexSet {d : ℕ} (a : Fin d → ℝ) (r : ℝ) : Finset (Fin d) :=
   Finset.univ.filter (fun i => a i = r)
@@ -198,19 +196,6 @@ theorem minimumCoordinatePermutation_first {ν e : ℕ}
     exact Finset.orderEmbOfFin_mem _ _ _
   exact (Finset.mem_filter.mp hmem).2
 
-/-- A minimum-multiplicity assumption therefore yields a permutation whose
-first block consists exactly of the minimum-order coordinates. -/
-theorem exists_minimumCoordinatePermutation {ν e : ℕ}
-    (a : Fin (ν + e) → ℝ) (r : ℝ)
-    (hm : Latest.minimumMultiplicity a r ν) :
-    ∃ eperm : Fin (ν + e) ≃ Fin (ν + e),
-      ∀ i : Fin ν, reindexOrders eperm a (Fin.castAdd e i) = r := by
-  change (∀ i, r ≤ a i) ∧ (minimumIndexSet a r).card = ν at hm
-  refine ⟨minimumCoordinatePermutation a r hm.2, ?_⟩
-  intro i
-  exact minimumCoordinatePermutation_first a r hm.2 i
-
-
 /-- After the minimum coordinates are moved first, the order vector is exactly
 of the padded form used by the RL face restriction. -/
 theorem reindexOrders_eq_paddedOrders {ν e : ℕ}
@@ -234,34 +219,5 @@ theorem reindexOrders_eq_paddedOrders {ν e : ℕ}
       simpa using h
     rw [hi']
     simp [paddedOrders, reindexOrders, ep]
-
-
-/-- Coordinate permutation for an arbitrary ambient dimension, with the first
-`ν` coordinates mapped to the minimum-order indices. -/
-theorem exists_minimumCoordinatePermutation_general {d ν : ℕ}
-    (hν : ν ≤ d) (a : Fin d → ℝ) (r : ℝ)
-    (hm : Latest.minimumMultiplicity a r ν) :
-    ∃ eperm : Fin d ≃ Fin d,
-      ∀ i : Fin ν, a (eperm (Equiv.cast (congrArg Fin
-        (by omega : ν + (d - ν) = d)) (Fin.castAdd (d-ν) i))) = r := by
-  classical
-  change (∀ i, r ≤ a i) ∧ (minimumIndexSet a r).card = ν at hm
-  let S := minimumIndexSet a r
-  have hcompl : Sᶜ.card = d - ν := by
-    rw [Finset.card_compl, Fintype.card_fin, hm.2]
-  have hsum : ν + (d - ν) = d := by omega
-  let ec : Fin (ν + (d-ν)) ≃ Fin d := Equiv.cast (congrArg Fin hsum)
-  let es : Fin (ν + (d-ν)) ≃ Fin d :=
-    finSumFinEquiv.symm.trans (finSumEquivOfFinset hm.2 hcompl)
-  let eperm : Fin d ≃ Fin d := ec.symm.trans es
-  refine ⟨eperm, ?_⟩
-  intro i
-  have hmem : eperm (ec (Fin.castAdd (d-ν) i)) ∈ S := by
-    change (finSumFinEquiv.symm.trans (finSumEquivOfFinset hm.2 hcompl))
-      (ec.symm (ec (Fin.castAdd (d-ν) i))) ∈ S
-    rw [Equiv.symm_apply_apply, Equiv.trans_apply,
-      finSumFinEquiv_symm_apply_castAdd, finSumEquivOfFinset_inl]
-    exact Finset.orderEmbOfFin_mem S hm.2 i
-  exact (Finset.mem_filter.mp hmem).2
 
 end BrownianSharp.AlignmentFractionalPaddingPermutation

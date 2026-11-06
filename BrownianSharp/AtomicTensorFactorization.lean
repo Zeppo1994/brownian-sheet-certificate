@@ -142,13 +142,6 @@ def scalarVarianceEnvelope (K : ℕ) (C : ℝ) (s t : ℕ) : ℝ :=
       ((2 : ℝ) ^ (t + 2) + 1) *
         (((2 * Real.pi * (2 : ℝ) ^ (t - 1)) ^ K)⁻¹) ^ 2
 
-private theorem scalarVarianceEnvelope_nonneg (K : ℕ) (C : ℝ) (s t : ℕ) :
-    0 ≤ scalarVarianceEnvelope K C s t := by
-  unfold scalarVarianceEnvelope
-  split_ifs with h
-  · positivity
-  · positivity
-
 private theorem scalarVarianceEnvelope_bounds_actual (K : ℕ) (hK : 1 ≤ K)
     (C : ℝ) (hC : ∀ x : ℝ, |iteratedDeriv K smoothAtom x| ≤ C)
     (s t : ℕ) (x : UnitAddCircle) :
@@ -179,32 +172,5 @@ theorem actual_shape_block_variance_product_bound (d K : ℕ) (hK : 1 ≤ K)
   · intro i hi
     exact scalarVarianceEnvelope_bounds_actual K hK C hC
       (s i) (t i) (x i)
-
-/-- Sum of the tensor variance envelopes over any finite collection of source
-depth shapes. This is the deterministic input to the Gaussian second-moment
-wrapper; no source-shape tail is hidden in the statement. -/
-theorem finite_shape_block_variance_product_bound (d K : ℕ) (hK : 1 ≤ K)
-    (C : ℝ) (hC : ∀ x : ℝ, |iteratedDeriv K smoothAtom x| ≤ C)
-    (S : Finset (Fin d → ℕ)) (t : Fin d → ℕ)
-    (x : UnitAddTorus (Fin d)) :
-    (∑ s ∈ S, ∑ j : ShapeCell d s,
-      ‖block t (shapePeriodicAtom s j) x‖ ^ 2) ≤
-      ∑ s ∈ S, ∏ i : Fin d,
-        scalarVarianceEnvelope K C (s i) (t i) := by
-  apply Finset.sum_le_sum
-  intro s hs
-  exact actual_shape_block_variance_product_bound d K hK C hC s t x
-
-/-- The fixed-shape variance envelope is unconditional: compact smoothness of
-the chosen bump supplies a finite derivative constant for every order K. -/
-theorem exists_actual_shape_block_variance_product_bound (d K : ℕ)
-    (hK : 1 ≤ K) (s t : Fin d → ℕ) (x : UnitAddTorus (Fin d)) :
-    ∃ C : ℝ, 0 < C ∧
-      (∑ j : ShapeCell d s,
-        ‖block t (shapePeriodicAtom s j) x‖ ^ 2) ≤
-        ∏ i : Fin d, scalarVarianceEnvelope K C (s i) (t i) := by
-  obtain ⟨C, hCpos, hC⟩ := exists_smoothAtom_iteratedDeriv_bound K
-  exact ⟨C, hCpos,
-    actual_shape_block_variance_product_bound d K hK C hC s t x⟩
 
 end BrownianSharp.AtomicTensorFactorization

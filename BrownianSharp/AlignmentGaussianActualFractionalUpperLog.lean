@@ -106,7 +106,7 @@ theorem fractionalSheet_upperLog_of_actualMvN_scalar_filtrations
   exact fractionalSheet_upperLog_of_scalar_filtrations hν H hH h hmin
     U hfinite hnested hbase A C hApos hC hcard hres' η hη hη1 hηsq
 
-/-- Dimension-free formulation matching the literal latest statement. The
+/-- Dimension-free formulation matching the literal statement. The
 minimum-multiplicity hypothesis itself forces `ν ≤ d`; writing `d=ν+(d-ν)`
 then lets the graded closure split active and inactive coordinates. -/
 theorem fractionalSheet_upperLog_of_actualMvN_scalar_filtrations_any_dimension

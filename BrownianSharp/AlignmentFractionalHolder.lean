@@ -1129,10 +1129,6 @@ singularity exponent below order one and a boundary-based square-root norm
 modulus at and above order one. The latter bound is not asserted optimal. -/
 noncomputable def holderExponent (α : ℝ) : ℝ := min (α - 1/2) (1/2)
 
-theorem holderExponent_pos {α : ℝ} (hα : 1/2 < α) : 0 < holderExponent α := by
-  unfold holderExponent
-  exact lt_min (by linarith) (by norm_num)
-
 /-- A single quantitative modulus for all RL orders α>1/2. This is stated
 directly for the actual restricted L² kernel vectors used in the RL operator. -/
 theorem translatedUnitKernelFamily_increment_sq_norm_le_holder

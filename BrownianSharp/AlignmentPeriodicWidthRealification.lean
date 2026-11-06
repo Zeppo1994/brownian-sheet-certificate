@@ -96,48 +96,6 @@ theorem complexPair_inner_real_vectors {ι : Type*} [Fintype ι]
       ∑ i, (c i * e i).re := by
   exact complexPair_inner_real c e
 
-/-- Realified finite Fourier evaluation feature for a frequency set. -/
-def torusFeature {d : ℕ} (S : Finset (Fin d → ℤ))
-    (x : UnitAddTorus (Fin d)) : EuclideanSpace ℝ (S.attach × Fin 2) :=
-  complexFeatureVector (fun k : S.attach => UnitAddTorus.mFourier k.1 x)
-
-theorem torusFeature_norm_sq_le_card {d : ℕ} (S : Finset (Fin d → ℤ))
-    (x : UnitAddTorus (Fin d)) : ‖torusFeature S x‖^2 ≤ S.card := by
-  rw [torusFeature, complexFeatureVector_norm_sq]
-  calc
-    ∑ k : S.attach, ‖UnitAddTorus.mFourier k.1 x‖^2 ≤ ∑ _k : S.attach, (1:ℝ) := by
-      apply Finset.sum_le_sum
-      intro k hk
-      have hnorm : ‖UnitAddTorus.mFourier k.1 x‖ = 1 := by
-        simp [UnitAddTorus.mFourier, fourier_apply]
-      nlinarith [sq_nonneg (‖UnitAddTorus.mFourier k.1 x‖)]
-    _ = S.card := by simp
-
-theorem torusFeature_norm_le_sqrt_card {d : ℕ} (S : Finset (Fin d → ℤ))
-    (x : UnitAddTorus (Fin d)) : ‖torusFeature S x‖ ≤ Real.sqrt S.card := by
-  have hnonneg : 0 ≤ ‖torusFeature S x‖ := norm_nonneg _
-  have hsqrt : 0 ≤ Real.sqrt (S.card : ℝ) := Real.sqrt_nonneg _
-  apply (sq_le_sq₀ hnonneg hsqrt).1
-  rw [Real.sq_sqrt (by positivity : 0 ≤ (S.card:ℝ))]
-  exact torusFeature_norm_sq_le_card S x
-
-theorem weighted_torusFeature_radius {d : ℕ} (S : Finset (Fin d → ℤ))
-    (x : UnitAddTorus (Fin d)) (r : ℝ) (n : ℕ)
-    (hcard : S.card ≤ 5^d * 2^n) :
-    ‖(2:ℝ)^(-r*(n:ℝ)) • torusFeature S x‖ ≤
-      Real.sqrt ((5:ℝ)^d) * ((2:ℝ)^(1/2-r))^n := by
-  rw [norm_smul, Real.norm_eq_abs, abs_of_nonneg (Real.rpow_nonneg (by norm_num : (0:ℝ) ≤ 2) (-r*(n:ℝ)))]
-  calc
-    (2:ℝ)^(-r*(n:ℝ))*‖torusFeature S x‖ ≤
-        (2:ℝ)^(-r*(n:ℝ))*Real.sqrt (S.card:ℝ) :=
-      mul_le_mul_of_nonneg_left (torusFeature_norm_le_sqrt_card S x)
-        (Real.rpow_nonneg (by norm_num) _)
-    _ ≤ (2:ℝ)^(-r*(n:ℝ))*Real.sqrt ((5:ℝ)^d*(2:ℝ)^n) :=
-      mul_le_mul_of_nonneg_left (Real.sqrt_le_sqrt (by exact_mod_cast hcard))
-        (Real.rpow_nonneg (by norm_num) _)
-    _ = Real.sqrt ((5:ℝ)^d)*((2:ℝ)^(1/2-r))^n := by
-      rw [mul_comm, AlignmentPeriodicReconstruction.sqrt_dyadic_weight_identity]
-
 /-- A mask's Hilbert radius is controlled by the number of its coordinates
 and a uniform pointwise coordinate bound. This is the finite layer estimate
 needed when realified Fourier coordinates are grouped by dyadic shape. -/
@@ -304,7 +262,6 @@ theorem periodicSourceVector_norm_sq {d : ℕ} (S : Finset (Fin d → ℕ))
       unfold realBlockEnergy
       rw [← hparseval']
       rw [← mul_pow]
-
 
 theorem periodicSourceVector_feature_pairing {d : ℕ}
     (S : Finset (Fin d → ℕ)) (r : ℝ) (f : RealPeriodic d)

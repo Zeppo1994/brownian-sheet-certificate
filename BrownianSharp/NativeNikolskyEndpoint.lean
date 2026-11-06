@@ -14,104 +14,11 @@ namespace BrownianSharp
 open BrownianSharp.SmoothResolution
 open BrownianSharp.Torus
 
-private theorem dyadic_inverse_nat_pow (a K : ℕ) :
-    (((2:ℝ)^a)⁻¹)^K = (2:ℝ)^(-(a:ℝ)*(K:ℝ)) := by
-  have hbase : (2:ℝ)^a = (2:ℝ)^(a:ℝ) := by simp
-  rw [hbase, ← Real.rpow_natCast]
-  rw [Real.inv_rpow (by positivity : 0 ≤ (2:ℝ)^(a:ℝ))]
-  rw [← Real.rpow_mul (by norm_num : (0:ℝ) ≤ 2)]
-  rw [← Real.rpow_neg (by norm_num : (0:ℝ) ≤ 2)]
-  congr 1
-  push_cast
-  ring
-
-private theorem dyadic_inverse_gap_mul (s t K : ℕ) (hst : s < t) :
-    (((2:ℝ)^t)⁻¹)^K * (2:ℝ)^(s*K) =
-      (2:ℝ)^(-((K:ℝ) * ((t-s:ℕ):ℝ))) := by
-  rw [dyadic_inverse_nat_pow t K, ← Real.rpow_natCast (2:ℝ) (s*K)]
-  rw [← Real.rpow_add (by norm_num : (0:ℝ) < 2)]
-  congr 1
-  have hsub : s + (t-s) = t := Nat.add_sub_of_le (Nat.le_of_lt hst)
-  have hsubR : (s:ℝ) + ((t-s:ℕ):ℝ) = (t:ℝ) := by exact_mod_cast hsub
-  rw [← hsubR]
-  simp only [Nat.cast_mul]
-  ring
-
 def nativeNikolskyShapeWeightReal {d : ℕ} (s t : Fin d → ℕ)
     (r : ℝ) (K : ℕ) : ℝ :=
   ∏ i : Fin d, if t i ≤ s i then
     (2:ℝ)^(-r*((s i-t i:ℕ):ℝ))
   else (2:ℝ)^(-((K:ℝ)-r)*((t i-s i:ℕ):ℝ))
-
-private theorem dyadicShapeWeightedFactor_eq {d : ℕ}
-    (s t : Fin d → ℕ) (r : ℝ) (K n : ℕ)
-    (hsum : ∑ i, s i = n) :
-    (2:ℝ)^(r * ∑ i, (t i:ℝ)) *
-      (∏ i : Fin d, if s i < t i then
-        (2:ℝ)^(-((K:ℝ)*((t i-s i:ℕ):ℝ))) else 1) =
-    (2:ℝ)^(r*(n:ℝ)) * nativeNikolskyShapeWeightReal s t r K := by
-  have hcoord : ∀ i : Fin d,
-      (2:ℝ)^(r*(t i:ℝ)) * (if s i < t i then
-        (2:ℝ)^(-((K:ℝ)*((t i-s i:ℕ):ℝ))) else 1) =
-      (2:ℝ)^(r*(s i:ℝ)) *
-        (if t i ≤ s i then (2:ℝ)^(-r*((s i-t i:ℕ):ℝ))
-          else (2:ℝ)^(-((K:ℝ)-r)*((t i-s i:ℕ):ℝ))) := by
-    intro i
-    by_cases hst : s i < t i
-    · have hgap : (s i:ℝ) + ((t i-s i:ℕ):ℝ) = (t i:ℝ) := by
-        exact_mod_cast (Nat.add_sub_of_le (Nat.le_of_lt hst))
-      simp [hst, Nat.not_le_of_gt hst]
-      rw [← Real.rpow_add (by norm_num : (0:ℝ) < 2),
-        ← Real.rpow_add (by norm_num : (0:ℝ) < 2)]
-      congr 1
-      rw [← hgap]
-      ring
-    · have hts : t i ≤ s i := Nat.le_of_not_gt hst
-      have hgap : (t i:ℝ) + ((s i-t i:ℕ):ℝ) = (s i:ℝ) := by
-        exact_mod_cast (Nat.add_sub_of_le hts)
-      simp [hst, hts]
-      rw [← Real.rpow_add (by norm_num : (0:ℝ) < 2)]
-      congr 1
-      rw [← hgap]
-      ring
-  have hprod : (∏ i : Fin d, (2:ℝ)^(r*(t i:ℝ))) *
-      (∏ i : Fin d, if s i < t i then
-        (2:ℝ)^(-((K:ℝ)*((t i-s i:ℕ):ℝ))) else 1) =
-      (∏ i : Fin d, (2:ℝ)^(r*(s i:ℝ))) * nativeNikolskyShapeWeightReal s t r K := by
-    calc
-      _ = ∏ i : Fin d, ((2:ℝ)^(r*(t i:ℝ)) *
-          (if s i < t i then (2:ℝ)^(-((K:ℝ)*((t i-s i:ℕ):ℝ))) else 1)) :=
-            (Finset.prod_mul_distrib).symm
-      _ = ∏ i : Fin d, ((2:ℝ)^(r*(s i:ℝ)) *
-          (if t i ≤ s i then (2:ℝ)^(-r*((s i-t i:ℕ):ℝ))
-            else (2:ℝ)^(-((K:ℝ)-r)*((t i-s i:ℕ):ℝ)))) := by
-              apply Finset.prod_congr rfl
-              intro i hi
-              exact hcoord i
-      _ = _ := by
-        rw [Finset.prod_mul_distrib]
-        rfl
-  have ht : (2:ℝ)^(r * ∑ i, (t i:ℝ)) =
-      ∏ i : Fin d, (2:ℝ)^(r*(t i:ℝ)) := by
-    rw [Finset.mul_sum, Real.rpow_sum_of_pos (by norm_num : (0:ℝ) < 2)]
-  have hs' : ∏ i : Fin d, (2:ℝ)^(r*(s i:ℝ)) = (2:ℝ)^(r*(n:ℝ)) := by
-    rw [← Real.rpow_sum_of_pos (by norm_num : (0:ℝ) < 2)]
-    congr 1
-    rw [← Finset.mul_sum, ← Nat.cast_sum, hsum]
-  rw [ht, ← hs']
-  exact hprod
-
-private theorem finset_prod_rpow_of_nonneg {ι : Type*} (s : Finset ι)
-    (f : ι → ℝ) (p : ℝ) (hf : ∀ i ∈ s, 0 ≤ f i) :
-    (∏ i ∈ s, f i) ^ p = ∏ i ∈ s, f i ^ p := by
-  classical
-  induction s using Finset.induction_on with
-  | empty => simp
-  | @insert i s hi ih =>
-      rw [Finset.prod_insert hi, Finset.prod_insert hi]
-      rw [Real.mul_rpow (hf i (Finset.mem_insert_self _ _))
-        (Finset.prod_nonneg fun j hj => hf j (Finset.mem_insert_of_mem hj))]
-      rw [ih (fun j hj => hf j (Finset.mem_insert_of_mem hj))]
 
 private theorem prod_le_prod_nonneg_real {ι : Type*} (s : Finset ι)
     (f g : ι → ℝ) (hf : ∀ i ∈ s, 0 ≤ f i) (hg : ∀ i ∈ s, 0 ≤ g i)
@@ -187,46 +94,6 @@ theorem weightedBlockNorm_le_of_integral_bound {d : ℕ}
     _ = ENNReal.ofReal ((2 : ℝ) ^ (r * ∑ i, (t i : ℝ)) * B ^ (1/p)) := by
       rw [ENNReal.ofReal_mul (by positivity :
         0 ≤ (2 : ℝ) ^ (r * ∑ i, (t i : ℝ)))]
-
-theorem fixedShape_weightedBlockNorm_le_nativeDecay {d : ℕ}
-    (s t : Fin d → ℕ) (c : DyadicShapeCell d s → ℝ)
-    (p r : ℝ) (hp : 1 ≤ p) (K : ℕ) (hK : Even K) (hKpos : 0 < K)
-    (Lscalar Lprofile Cderiv : ℝ)
-    (hLscalar : 0 ≤ Lscalar) (hLprofile : 0 ≤ Lprofile)
-    (hCderiv : 0 ≤ Cderiv)
-    (hscalar : ∀ q : ℕ,
-      (∫ x : UnitAddCircle, ‖ScalarKernelL1.scalarBlockKernel q x‖
-        ∂AddCircle.haarAddCircle) ≤ Lscalar)
-    (hprofile : ∀ (q : ℕ), 0 < q →
-      (∫ x : UnitAddCircle, ‖inverseMultiplierKernel q K x‖
-        ∂AddCircle.haarAddCircle) ≤ ‖inverseProfileScale q K‖ * Lprofile)
-    (hderiv : ∀ y : ℝ, |iteratedDeriv K smoothAtom y| ≤ Cderiv) :
-    SmoothResolution.weightedBlockNorm (ENNReal.ofReal p) r t
-        (fixedShapeSynthesis s c) ≤
-      ENNReal.ofReal ((2 : ℝ) ^ (r * ∑ i, (t i : ℝ)) *
-        ((∏ i : Fin d, if s i < t i then
-          ‖inverseProfileScale (t i) K‖ * Lprofile else Lscalar) ^ p *
-          (∏ i : Fin d, ((2 : ℝ) ^ (s i))⁻¹ *
-            ((if s i < t i then Cderiv else 1) *
-              (2 : ℝ) ^ (s i * (if s i < t i then K else 0))) ^ p) *
-          ∑ j : DyadicShapeCell d s, |c j| ^ p) ^ (1 / p)) := by
-  let B := (∏ i : Fin d, if s i < t i then
-      ‖inverseProfileScale (t i) K‖ * Lprofile else Lscalar) ^ p *
-    (∏ i : Fin d, ((2 : ℝ) ^ (s i))⁻¹ *
-      ((if s i < t i then Cderiv else 1) *
-        (2 : ℝ) ^ (s i * (if s i < t i then K else 0))) ^ p) *
-    ∑ j : DyadicShapeCell d s, |c j| ^ p
-  have hB : 0 ≤ B := by dsimp [B]; positivity
-  have hInt := fixedShapeBlock_nativeDecay_integral s t c p hp K hK hKpos
-    Lscalar Lprofile Cderiv hLscalar hLprofile hCderiv hscalar hprofile hderiv
-  have hInt' : (∫ x : UnitAddTorus (Fin d),
-      ‖SmoothResolution.block t (fixedShapeSynthesis s c) x‖ ^ p
-      ∂Measure.pi (fun _ : Fin d => AddCircle.haarAddCircle)) ≤ B := by
-    simpa [B] using hInt
-  change SmoothResolution.weightedBlockNorm (ENNReal.ofReal p) r t
-      (fixedShapeSynthesis s c) ≤ _
-  exact weightedBlockNorm_le_of_integral_bound (fixedShapeSynthesis s c) t p r B
-    (by linarith [hp]) hB hInt'
 
 def nativeNikolskyShapeWeight {d : ℕ} (t : Fin d → ℕ)
     (qlow qhigh : ℝ≥0∞) (s : Fin d → ℕ) : ℝ≥0∞ :=

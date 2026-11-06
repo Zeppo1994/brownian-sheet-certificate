@@ -59,7 +59,6 @@ theorem fourier_dist_bound (n : ℤ) (x y : AddCircle (1:ℝ)) :
     _ = ‖fourier n (x-y)-1‖ := by rw [norm_mul, hn, mul_one]
     _ ≤ _ := by simpa only [dist_eq_norm] using fourier_sub_one_bound n (x-y)
 
-
 theorem norm_prod_sub_prod_le_sum {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (f g : ι → ℂ) (hf : ∀ i, ‖f i‖=1) (hg : ∀ i, ‖g i‖=1) :
     ‖(∏ i ∈ s, f i)-(∏ i ∈ s, g i)‖ ≤ ∑ i ∈ s, ‖f i-g i‖ := by
@@ -136,7 +135,6 @@ theorem periodicFeature_dist_bound {d : ℕ} (S : Finset (Fin d → ℕ)) (r : �
       exact (mul_le_mul_of_nonneg_left (mFourier_dist_bound i.2.1 x y)
         (Real.rpow_nonneg (by norm_num) _)).trans_eq (by ring)
     _ = _ := by simp only [periodicFeatureLipschitzConstant, Finset.sum_mul]
-
 
 theorem periodicFeatureLipschitzConstant_nonneg {d : ℕ}
     (S : Finset (Fin d → ℕ)) (r : ℝ) :
@@ -237,7 +235,6 @@ theorem periodicFeatureLipschitzConstant_le {d L : ℕ}
       Finset.sum_le_sum (fun i _ => hi i)
     _ = (Fintype.card (FourierCoeffIndex S):ℝ)*(2*Real.pi*(d:ℝ)*(2:ℝ)^(L+1)) := by simp
     _ ≤ _ := mul_le_mul_of_nonneg_right (by exact_mod_cast finite_fourier_index_card_le S hS) (by positivity)
-
 
 theorem succ_le_two_pow (L : ℕ) : L+1 ≤ 2^L := by
   induction L with

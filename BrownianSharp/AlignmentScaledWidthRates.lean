@@ -56,7 +56,7 @@ theorem twoSidedWidthRate_of_entropy_lower_and_scaled_width_upper
   exact twoSidedWidthRate_of_entropy_lower_and_width_upper K s a (A * R)
     hs ha (mul_nonneg hA.le hR) hzeroK hEntropy hUpperK
 
-/-- Convert the legacy width-index convention (`rank ≤ m`) to the manuscript's
+/-- Convert the set-width index convention (`rank ≤ m`) to the manuscript's
 strict operator convention (`rank < k`), with the necessary one-index shift. -/
 theorem operator_width_rate_of_legacy
     (K : Set X) (r a : ℝ) (hr : 0 < r) (ha : 0 ≤ a)

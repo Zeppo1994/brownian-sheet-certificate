@@ -1,9 +1,13 @@
 import BrownianSharp.SmoothPeriodicConditional
-import BrownianSharp.CameronMartinEntropy
-import BrownianSharp.GaussianGridStatistics
+import BrownianSharp.CameronMartin
+import BrownianSharp.NativeProjection
 import Mathlib.MeasureTheory.Integral.Pi
-import Mathlib.MeasureTheory.Function.L1Space.Integrable
+import Mathlib.MeasureTheory.Integral.Bochner.Set
+import Mathlib.Probability.Distributions.Gaussian.Real
+import Mathlib.Probability.Moments.Variance
 import Mathlib.Tactic
+import BrownianSharp.GaussianGridStatistics
+import Mathlib.MeasureTheory.Function.L1Space.Integrable
 
 /-! Actual finite product-Gaussian coefficient cutoffs for the smooth
 periodic atoms. The expectations are computed from Gaussian laws; all
@@ -169,50 +173,9 @@ theorem smoothShapeCoefficientCutoff_mass {d n : ℕ} (r : Shape d n)
     (smoothShapeCoefficientEnergy_nonneg r p) hM hmean_le
   simpa [mul_assoc] using hmass
 
-/-- Shape-wise coefficient cutoff event. -/
-def smoothShapeCoefficientCutoff {d n : ℕ} (p : ℝ)
-    (x : LayerIndex d n → ℝ) : Prop :=
-  ∀ r : Shape d n,
-    smoothShapeCoefficientEnergy r p x ≤
-      2 * (Fintype.card (SmoothShapeCells r) : ℝ) *
-        (1 + gaussianAbsoluteMoment p)
-
 /-- A positive deterministic expectation budget for one tensor shape. -/
 def smoothShapeCoefficientBudget {d n : ℕ} (p : ℝ) (r : Shape d n) : ℝ :=
   (Fintype.card (SmoothShapeCells r) : ℝ) * (1 + gaussianAbsoluteMoment p)
-
-/-- The normalized sum of all shape energies. -/
-def smoothAllShapeCoefficientEnergy {d n : ℕ} (p : ℝ)
-    (x : LayerIndex d n → ℝ) : ℝ :=
-  ∑ r : Shape d n,
-    smoothShapeCoefficientEnergy r p x / smoothShapeCoefficientBudget p r
-
-theorem smoothShapeCoefficientBudget_pos {d n : ℕ} (r : Shape d n)
-    (p : ℝ) : 0 < smoothShapeCoefficientBudget p r := by
-  unfold smoothShapeCoefficientBudget
-  have hcard : 0 < (Fintype.card (SmoothShapeCells r) : ℝ) := by
-    have hn : Nonempty (SmoothShapeCells r) := ⟨fun i => ⟨0, by positivity⟩⟩
-    exact_mod_cast (Fintype.card_pos_iff.mpr hn)
-  have hmoment := gaussianAbsoluteMoment_nonneg p
-  positivity
-
-theorem smoothAllShapeCoefficientEnergy_nonneg {d n : ℕ} (p : ℝ)
-    (x : LayerIndex d n → ℝ) : 0 ≤ smoothAllShapeCoefficientEnergy p x := by
-  unfold smoothAllShapeCoefficientEnergy
-  apply Finset.sum_nonneg
-  intro r hr
-  apply div_nonneg (smoothShapeCoefficientEnergy_nonneg r p x)
-  exact (smoothShapeCoefficientBudget_pos r p).le
-
-theorem smoothAllShapeCoefficientEnergy_integrable {d n : ℕ} {p : ℝ}
-    (hp : 0 < p) :
-    Integrable (smoothAllShapeCoefficientEnergy p)
-      (productStandardGaussian (LayerIndex d n)) := by
-  unfold smoothAllShapeCoefficientEnergy
-  apply integrable_finsetSum Finset.univ
-  intro r hr
-  exact (smoothShapeCoefficientEnergy_integrable r hp).div_const
-    (smoothShapeCoefficientBudget p r)
 
 theorem smoothShapeCoefficientEnergy_measurable {d n : ℕ} (r : Shape d n)
     {p : ℝ} (hp : 0 < p) :
@@ -220,100 +183,6 @@ theorem smoothShapeCoefficientEnergy_measurable {d n : ℕ} (r : Shape d n)
   unfold smoothShapeCoefficientEnergy
   have hp0 : 0 ≤ p := le_of_lt hp
   fun_prop
-
-theorem smoothAllShapeCoefficientEnergy_measurable {d n : ℕ} {p : ℝ}
-    (hp : 0 < p) :
-    Measurable (smoothAllShapeCoefficientEnergy (d := d) (n := n) p) := by
-  unfold smoothAllShapeCoefficientEnergy
-  apply Finset.measurable_sum
-  intro r hr
-  exact (smoothShapeCoefficientEnergy_measurable r hp).div_const
-    (smoothShapeCoefficientBudget p r)
-
-theorem smoothAllShapeCoefficientEnergy_mean_le_shapeCount {d n : ℕ}
-    {p : ℝ} (hp : 0 < p) :
-    (∫ x : LayerIndex d n → ℝ, smoothAllShapeCoefficientEnergy p x
-      ∂productStandardGaussian (LayerIndex d n)) ≤ Fintype.card (Shape d n) := by
-  unfold smoothAllShapeCoefficientEnergy
-  rw [integral_finsetSum Finset.univ (fun r hr => by
-    exact (smoothShapeCoefficientEnergy_integrable r hp).div_const
-      (smoothShapeCoefficientBudget p r))]
-  have hbudget (r : Shape d n) : 0 < smoothShapeCoefficientBudget p r :=
-    smoothShapeCoefficientBudget_pos r p
-  have hterm (r : Shape d n) :
-      (∫ x : LayerIndex d n → ℝ, smoothShapeCoefficientEnergy r p x
-          / smoothShapeCoefficientBudget p r
-          ∂productStandardGaussian (LayerIndex d n)) ≤ 1 := by
-    rw [show (fun x : LayerIndex d n → ℝ =>
-          smoothShapeCoefficientEnergy r p x / smoothShapeCoefficientBudget p r) =
-        fun x => (smoothShapeCoefficientBudget p r)⁻¹ *
-          smoothShapeCoefficientEnergy r p x by funext x; ring,
-      integral_const_mul, smoothShapeCoefficientEnergy_mean r hp]
-    have hcard : 0 < (Fintype.card (SmoothShapeCells r) : ℝ) := by
-      have hn : Nonempty (SmoothShapeCells r) := ⟨fun i => ⟨0, by positivity⟩⟩
-      exact_mod_cast (Fintype.card_pos_iff.mpr hn)
-    have hmoment := gaussianAbsoluteMoment_nonneg p
-    unfold smoothShapeCoefficientBudget
-    calc
-      (smoothShapeCoefficientBudget p r)⁻¹ *
-          ((Fintype.card (SmoothShapeCells r) : ℝ) * gaussianAbsoluteMoment p) =
-          ((Fintype.card (SmoothShapeCells r) : ℝ) * gaussianAbsoluteMoment p) /
-            smoothShapeCoefficientBudget p r := by
-        rw [div_eq_mul_inv]
-        ring
-      _ ≤ 1 := (div_le_one (hbudget r)).2 (by
-        unfold smoothShapeCoefficientBudget
-        have := gaussianAbsoluteMoment_nonneg p
-        nlinarith)
-  calc
-    (∑ r : Shape d n,
-        ∫ x : LayerIndex d n → ℝ, smoothShapeCoefficientEnergy r p x /
-          smoothShapeCoefficientBudget p r
-          ∂productStandardGaussian (LayerIndex d n)) ≤
-      ∑ _r : Shape d n, (1 : ℝ) := Finset.sum_le_sum fun r hr => hterm r
-    _ = (Fintype.card (Shape d n) : ℝ) := by simp
-
-/-- A simultaneous cutoff for all tensor shapes, obtained by one global
-Markov estimate. Each shape threshold carries the explicit shape-count loss;
-the sharper product bound needs a separate block-independence argument. -/
-theorem smoothAllShapeCoefficientCutoff_mass {d n : ℕ} {p : ℝ}
-    (hd : 0 < d) (hp : 0 < p) :
-    (1 / 2 : ℝ≥0∞) ≤
-      (productStandardGaussian (LayerIndex d n))
-        {x | ∀ r : Shape d n,
-          smoothShapeCoefficientEnergy r p x ≤
-            2 * (Fintype.card (Shape d n) : ℝ) *
-              smoothShapeCoefficientBudget p r} := by
-  have hshapepos : 0 < (Fintype.card (Shape d n) : ℝ) := by
-    rw [shape_card d n hd]
-    exact_mod_cast Nat.choose_pos (by omega : d - 1 ≤ n + d - 1)
-  have hmass := gaussian_nonneg_energy_cutoff_mass
-    (productStandardGaussian (LayerIndex d n)) (smoothAllShapeCoefficientEnergy p)
-    (smoothAllShapeCoefficientEnergy_measurable hp)
-    (smoothAllShapeCoefficientEnergy_integrable hp)
-    (smoothAllShapeCoefficientEnergy_nonneg p) hshapepos
-    (smoothAllShapeCoefficientEnergy_mean_le_shapeCount hp)
-  have hsubset :
-      {x : LayerIndex d n → ℝ |
-        smoothAllShapeCoefficientEnergy p x ≤ 2 * (Fintype.card (Shape d n) : ℝ)} ⊆
-      {x | ∀ r : Shape d n,
-        smoothShapeCoefficientEnergy r p x ≤
-          2 * (Fintype.card (Shape d n) : ℝ) *
-            smoothShapeCoefficientBudget p r} := by
-    intro x hx r
-    have hterm :
-        smoothShapeCoefficientEnergy r p x /
-          smoothShapeCoefficientBudget p r ≤
-        smoothAllShapeCoefficientEnergy p x := by
-      unfold smoothAllShapeCoefficientEnergy
-      exact Finset.single_le_sum (fun s hs => div_nonneg
-        (smoothShapeCoefficientEnergy_nonneg s p x)
-        (smoothShapeCoefficientBudget_pos s p).le) (Finset.mem_univ r)
-    have hb := smoothShapeCoefficientBudget_pos r p
-    have hnonneg := smoothShapeCoefficientEnergy_nonneg r p x
-    have := (div_le_iff₀ hb).1 (hterm.trans hx)
-    nlinarith
-  exact hmass.trans (measure_mono hsubset)
 
 /-- Coordinate extension by zero from a finite coordinate block. -/
 noncomputable def smoothCoefficientBlockExtend {κ : Type*} [Fintype κ] (S : Finset κ)
@@ -385,18 +254,6 @@ def smoothShapeJointGoodEvent {d n : ℕ} (p : ℝ) (S : Finset (Shape d n)) :
     Set (LayerIndex d n → ℝ) :=
   {x | ∀ r ∈ S,
     smoothShapeCoefficientEnergy r p x ≤ 2 * smoothShapeCoefficientBudget p r}
-
-theorem smoothShapeGoodEvent_measurable {d n : ℕ} (p : ℝ) (r : Shape d n)
-    {hp : 0 < p} : MeasurableSet (smoothShapeGoodEvent p r) := by
-  exact measurableSet_le (smoothShapeCoefficientEnergy_measurable r hp) measurable_const
-
-theorem smoothShapeJointGoodEvent_measurable {d n : ℕ} (p : ℝ)
-    (S : Finset (Shape d n)) {hp : 0 < p} :
-    MeasurableSet (smoothShapeJointGoodEvent p S) := by
-  rw [smoothShapeJointGoodEvent]
-  simp only [Set.setOf_forall]
-  exact Finset.measurableSet_biInter S fun r hr =>
-    smoothShapeGoodEvent_measurable (p := p) (r := r) (hp := hp)
 
 theorem smoothShapeJointGoodEvent_block_factor {d n : ℕ} (p : ℝ)
     (r : Shape d n) (S : Finset (Shape d n)) (hr : r ∉ S)
@@ -537,76 +394,5 @@ theorem smoothAllShapesCoefficientCutoff_mass {d n : ℕ} (hd : 0 < d)
       Fintype.card (Shape d n) by simp, shape_card d n hd]
   rw [hcard] at h
   exact h
-
-/-- A deterministic weighted quadratic Sobolev energy of the actual Gaussian
-coefficients. The weights are supplied by the concrete atomic norm bound. -/
-def smoothWeightedCoefficientEnergy {d n : ℕ}
-    (w : LayerIndex d n → ℝ) (x : LayerIndex d n → ℝ) : ℝ :=
-  ∑ a : LayerIndex d n, w a * x a ^ 2
-
-theorem smoothWeightedCoefficientEnergy_nonneg {d n : ℕ}
-    (w : LayerIndex d n → ℝ) (hw : ∀ a, 0 ≤ w a)
-    (x : LayerIndex d n → ℝ) :
-    0 ≤ smoothWeightedCoefficientEnergy w x := by
-  unfold smoothWeightedCoefficientEnergy
-  apply Finset.sum_nonneg
-  intro a ha
-  exact mul_nonneg (hw a) (sq_nonneg _)
-
-theorem smoothWeightedCoefficientEnergy_integrable {d n : ℕ}
-    (w : LayerIndex d n → ℝ) :
-    Integrable (smoothWeightedCoefficientEnergy w)
-      (productStandardGaussian (LayerIndex d n)) := by
-  unfold smoothWeightedCoefficientEnergy
-  apply integrable_finsetSum Finset.univ
-  intro a ha
-  exact (integrable_comp_eval (μ := fun _ : LayerIndex d n => gaussianReal 0 1)
-    (i := a) (standardGaussian_pow_integrable 2)).const_mul (w a)
-
-theorem smoothWeightedCoefficientEnergy_mean {d n : ℕ}
-    (w : LayerIndex d n → ℝ) :
-    (∫ x : LayerIndex d n → ℝ, smoothWeightedCoefficientEnergy w x
-      ∂productStandardGaussian (LayerIndex d n)) = ∑ a : LayerIndex d n, w a := by
-  have hsecond : standardGaussianMoment 2 = 1 := by
-    unfold standardGaussianMoment
-    rw [show (2 : ℕ) = 2 * 1 by norm_num, standardGaussian_evenMoment]
-    norm_num
-  unfold smoothWeightedCoefficientEnergy productStandardGaussian
-  rw [integral_finsetSum Finset.univ (fun a ha => by
-    exact (integrable_comp_eval (μ := fun _ : LayerIndex d n => gaussianReal 0 1)
-      (i := a) (standardGaussian_pow_integrable 2)).const_mul (w a))]
-  apply Finset.sum_congr rfl
-  intro a ha
-  rw [integral_const_mul]
-  rw [integral_comp_eval (μ := fun _ : LayerIndex d n => gaussianReal 0 1)
-    (i := a) (f := fun t => t ^ 2) (by fun_prop)]
-  change w a * standardGaussianMoment 2 = w a
-  rw [hsecond]
-  ring
-
-/-- With any deterministic nonnegative coefficient weights, a genuine
-Gaussian Sobolev-energy cutoff has mass at least one half. Its threshold is
-twice one plus the exact expected energy; no class norm estimate is built in. -/
-theorem smoothWeightedCoefficientCutoff_mass {d n : ℕ}
-    (w : LayerIndex d n → ℝ) (hw : ∀ a, 0 ≤ w a) :
-    (1 / 2 : ℝ≥0∞) ≤
-      (productStandardGaussian (LayerIndex d n))
-        {x | smoothWeightedCoefficientEnergy w x ≤
-          2 * (1 + ∑ a : LayerIndex d n, w a)} := by
-  let M : ℝ := 1 + ∑ a : LayerIndex d n, w a
-  have hsum : 0 ≤ ∑ a : LayerIndex d n, w a := Finset.sum_nonneg fun a ha => hw a
-  have hM : 0 < M := by dsimp [M]; linarith
-  have hmean :
-      ∫ x : LayerIndex d n → ℝ, smoothWeightedCoefficientEnergy w x
-        ∂productStandardGaussian (LayerIndex d n) ≤ M := by
-    rw [smoothWeightedCoefficientEnergy_mean]
-    dsimp [M]
-    linarith
-  have hmass := gaussian_nonneg_energy_cutoff_mass
-    (productStandardGaussian (LayerIndex d n)) (smoothWeightedCoefficientEnergy w)
-    (by fun_prop [smoothWeightedCoefficientEnergy])
-    (smoothWeightedCoefficientEnergy_integrable w)
-    (smoothWeightedCoefficientEnergy_nonneg w hw) hM hmean
-  simpa [M] using hmass
 
 end BrownianSharp

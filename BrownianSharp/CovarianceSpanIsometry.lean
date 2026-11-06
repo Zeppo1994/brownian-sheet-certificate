@@ -67,7 +67,6 @@ theorem exists_closedSpan_isometry_of_gram
   rw [hgen] at ht
   exact ht
 
-
 /-- A continuous isometry fixed on generators maps their closed span into
 the closed span of the image generators. -/
 theorem closedSpan_isometry_image_mem [CompleteSpace H]

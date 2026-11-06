@@ -40,36 +40,4 @@ theorem gaussian_uniform_event_mass_lt_one {κ ι : Type*} [Fintype κ] [Fintype
   change (productStandardGaussian κ).real E < 1
   linarith
 
-theorem nativeGoodUniformEvent_mass_lt_one {d n : ℕ} (hd : 0 < d) (ε : ℝ) :
-    (productStandardGaussian (LayerIndex d n)).real (nativeGoodUniformEvent d n ε) < 1 := by
-  letI := nativeGoodGrid_nonempty (d := d) (n := n) hd
-  have hnz : ∃ q : NativeGoodGrid d n, ∃ a, nativeLayerRowCoefficient q.val a ≠ 0 := by
-    by_contra hn
-    push_neg at hn
-    let q : NativeGoodGrid d n := Classical.choice inferInstance
-    have hv := nativeGoodGrid_variance_pos hd q
-    simp only [nativeLayerRowVariance, hn q, zero_pow (by norm_num : (2:ℕ)≠0), Finset.sum_const_zero] at hv
-    exact (lt_irrefl 0 hv)
-  exact gaussian_uniform_event_mass_lt_one _ hnz ε
-
-/-- The native field has an actual exponential confinement estimate at every
-positive grade after the finite initial scales are absorbed into the constant. -/
-theorem nativeGoodUniform_confinement_all_grades_of_ehrhard
-    (hEhrhard : ProductGaussianEhrhard) {d : ℕ} (hd : 2 ≤ d) :
-    ∃ b : ℝ, 0 < b ∧ ∀ n : ℕ, 0 < n →
-      (productStandardGaussian (LayerIndex d n)).real
-        (nativeGoodUniformEvent d n
-          (sharpRadius d (nativeRadiusConstant d (1/2) (nativeMomentSlope d)) n)) ≤
-      Real.exp (-b * nativeDimension d n) := by
-  obtain ⟨N, hN, hbound⟩ := nativeGoodUniform_confinement_of_ehrhard hEhrhard hd
-  obtain ⟨b, hb, hall⟩ := eventual_exponential_bound_global
-    (fun n => (productStandardGaussian (LayerIndex d n)).real
-      (nativeGoodUniformEvent d n
-        (sharpRadius d (nativeRadiusConstant d (1/2) (nativeMomentSlope d)) n)))
-    (nativeDimension d) 1 N
-    (fun n hn => (by positivity : (0:ℝ)<2^n).trans_le
-      (nativeDimension_ge_dyadic d n (by omega)))
-    (fun n hn => nativeGoodUniformEvent_mass_lt_one (by omega) _) (nativeConfinementExponent_pos d) hbound
-  exact ⟨b, hb, fun n hn => hall n (by omega)⟩
-
 end BrownianSharp

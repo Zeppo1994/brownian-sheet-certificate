@@ -15,61 +15,6 @@ open BrownianSharp.Torus
 open BrownianSharp.ScalarKernelL1
 open UnitAddTorus
 
-/-- The mixed tensor kernel has the actual low/high coordinate L1 budget:
-low coordinates use the uniform scalar-block bound, while high coordinates
-use the proved inverse-profile decay. -/
-theorem fixedShape_mixedKernel_integral_le_endpoint_profile
-    {d : ℕ} (s t : Fin d → ℕ) (K : ℕ) (hK : Even K) (hKpos : 0 < K)
-    (Lscalar Lprofile : ℝ) (hLs : 0 ≤ Lscalar) (hLp : 0 ≤ Lprofile)
-    (hscalar : ∀ q : ℕ,
-      (∫ x : UnitAddCircle, ‖ScalarKernelL1.scalarBlockKernel q x‖
-        ∂AddCircle.haarAddCircle) ≤ Lscalar)
-    (hprofile : ∀ q : ℕ, 0 < q →
-      (∫ x : UnitAddCircle, ‖inverseMultiplierKernel q K x‖
-        ∂AddCircle.haarAddCircle) ≤ ‖inverseProfileScale q K‖ * Lprofile) :
-    let k : Fin d → ℕ := fun i => if s i < t i then K else 0
-    (∫ y : UnitAddTorus (Fin d),
-      ‖coordinateProductKernel (fixedShapeMixedKernel t k) y‖
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤
-      ∏ i : Fin d, if s i < t i then
-        ‖inverseProfileScale (t i) K‖ * Lprofile else Lscalar := by
-  classical
-  dsimp
-  let k : Fin d → ℕ := fun i => if s i < t i then K else 0
-  let Linv : Fin d → ℝ := fun i => ‖inverseProfileScale (t i) K‖ * Lprofile
-  have hscale : ∀ i, k i = 0 ∨ (0 < t i ∧ 0 < k i ∧ Even (k i)) := by
-    intro i
-    simp only [k]
-    split_ifs with hit
-    · right
-      refine ⟨?_, ?_, ?_⟩
-      · omega
-      · exact hKpos
-      · exact hK
-    · left
-      rfl
-  have hbound := fixedShapeMixedKernel_integral_le t k Lscalar hLs
-    hscalar Linv (fun i => mul_nonneg (norm_nonneg _) hLp) ?_
-  · have hR : (∏ i : Fin d, if k i = 0 then Lscalar else Linv i) =
-        ∏ i : Fin d, if s i < t i then Linv i else Lscalar := by
-      apply Finset.prod_congr rfl
-      intro i hi
-      by_cases hit : s i < t i <;> simp [k, Linv, hit]; have hk0 : K ≠ 0 := Nat.ne_of_gt hKpos; simp [hk0]
-    change (∫ y : UnitAddTorus (Fin d),
-      ‖coordinateProductKernel (fixedShapeMixedKernel t k) y‖
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤
-      ∏ i : Fin d, if s i < t i then Linv i else Lscalar
-    rw [← hR]
-    exact hbound
-  · intro i hk
-    have hit : s i < t i := by
-      by_contra hnot
-      simp [k, hnot] at hk
-    have ht : 0 < t i := Nat.zero_lt_of_lt hit
-    exact ⟨ht, by simpa [k, hit] using hK, by
-      simpa [Linv, k, hit] using hprofile (t i) ht⟩
-
-
 /-- The literal p=∞ weighted block norm inherits coordinatewise dyadic
 high-frequency decay from the actual inverse multiplier, with no finite-p
 integral conversion. -/
@@ -164,7 +109,6 @@ theorem fixedShape_weightedBlockNorm_top_le_endpointProductDecay
   rw [Finset.prod_mul_distrib]
   ring
 
-
 /-- All profile constants used above exist from the checked scalar kernel,
 inverse multiplier kernel, and compact smooth-atom derivative bounds. -/
 theorem exists_endpoint_profile_constants {K : ℕ} (hK : Even K) :
@@ -186,7 +130,6 @@ theorem exists_endpoint_profile_constants {K : ℕ} (hK : Even K) :
   obtain ⟨CK, hCK, hderivK⟩ := exists_smoothAtom_iteratedDeriv_bound K
   exact ⟨Lscalar, Lprofile, Czero, CK, hLs, hLp,
     le_of_lt hC0, le_of_lt hCK, hscalar, hprofile, hderiv0, hderivK⟩
-
 
 private theorem dyadic_inverse_nat_pow_endpoint (a K : ℕ) :
     (((2:ℝ)^a)⁻¹)^K = (2:ℝ)^(-(a:ℝ)*(K:ℝ)) := by

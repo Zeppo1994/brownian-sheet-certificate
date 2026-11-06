@@ -214,7 +214,7 @@ theorem integratedSheet_oneSided_upperLog {d : ℕ} (hd : 2 ≤ d)
   simpa [p, BrownianSharp.Latest.smallBallRate, β, hshape,
     div_eq_mul_inv] using hmain
 
-/-- Full latest integrated-sheet two-sided clause: the entropy/Cameron--Martin
+/-- Two-sided integrated-sheet clause: the entropy/Cameron--Martin
 shift lower bound and the actual finite-Gaussian/dyadic upper bound together. -/
 theorem latest_integratedSheet_certified :
     BrownianSharp.Latest.IntegratedSheetStatement := by

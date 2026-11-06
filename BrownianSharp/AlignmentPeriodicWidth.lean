@@ -15,23 +15,9 @@ namespace BrownianSharp.AlignmentPeriodicWidth
 
 noncomputable section
 
-private theorem four_pow_eq_two_pow_sq (j : ℕ) :
-    (4 : ℝ) ^ j = ((2 : ℝ) ^ j) ^ 2 := by
-  calc
-    (4 : ℝ) ^ j = ((2 : ℝ) ^ 2) ^ j := by norm_num
-    _ = (2 : ℝ) ^ (2 * j) := by rw [← pow_mul]
-    _ = (2 : ℝ) ^ (j * 2) := by
-      exact congrArg (fun e : ℕ => (2 : ℝ) ^ e) (Nat.mul_comm 2 j)
-    _ = ((2 : ℝ) ^ j) ^ 2 := by rw [← pow_mul]
-
 /-- Polynomial-logarithmic scale used by the periodic width corollary. -/
 def rate (s a : ℝ) (k : ℕ) : ℝ :=
   (k : ℝ) ^ (-s) * (Real.log (k : ℝ)) ^ a
-
-/-- The largest scale factor needed in the finite Carl budget across the
-middle range, split at the quadratic exponent. -/
-def middleScaleWeight (s : ℝ) (m₀ m : ℕ) : ℝ :=
-  if s ≤ 2 then (m:ℝ)^(2-s) else (m₀:ℝ)^(2-s)
 
 /-- The corresponding budget weight for a natural polynomial budget power A. -/
 def scaleWeightA (A : ℕ) (s : ℝ) (m₀ m : ℕ) : ℝ :=
@@ -135,98 +121,12 @@ theorem localDepthEta_sum_le (A L : ℕ) {B : ℝ} (hB : 0 ≤ B) :
       rw [pow_succ]
       ring
 
-theorem middleScaleWeight_pos {s : ℝ} {m₀ m : ℕ}
-    (hm₀ : 1 ≤ m₀) (hm : 1 ≤ m) : 0 < middleScaleWeight s m₀ m := by
-  dsimp [middleScaleWeight]
-  split_ifs <;> positivity
-
 theorem rate_nonneg {s a : ℝ} {k : ℕ} (hk : 2 ≤ k) :
     0 ≤ rate s a k := by
   unfold rate
   apply mul_nonneg
   · exact Real.rpow_nonneg (by positivity) _
   · exact Real.rpow_nonneg (Real.log_nonneg (by exact_mod_cast (show 1 ≤ k by omega))) _
-
-theorem rate_pos {s a : ℝ} {k : ℕ} (hk : 2 ≤ k) :
-    0 < rate s a k := by
-  unfold rate
-  apply mul_pos
-  · exact Real.rpow_pos_of_pos (by positivity) _
-  · exact Real.rpow_pos_of_pos (Real.log_pos (by exact_mod_cast (show 1 < k by omega))) _
-
-theorem logPow_mono {a : ℝ} (ha : 0 ≤ a) {m n : ℕ}
-    (hm : 2 ≤ m) (hmn : m ≤ n) :
-    (Real.log (m : ℝ)) ^ a ≤ (Real.log (n : ℝ)) ^ a := by
-  have hlogm : 0 < Real.log (m : ℝ) :=
-    Real.log_pos (by exact_mod_cast (show 1 < m by omega))
-  have hlogmn : Real.log (m : ℝ) ≤ Real.log (n : ℝ) :=
-    Real.log_le_log (by positivity) (by exact_mod_cast hmn)
-  exact Real.rpow_le_rpow hlogm.le hlogmn ha
-
-theorem rate_log_mono {s a : ℝ} (ha : 0 ≤ a) {m n : ℕ}
-    (hm : 2 ≤ m) (hmn : m ≤ n) :
-    (m : ℝ) ^ (-s) * (Real.log (m : ℝ)) ^ a ≤
-      (m : ℝ) ^ (-s) * (Real.log (n : ℝ)) ^ a := by
-  exact mul_le_mul_of_nonneg_left (logPow_mono ha hm hmn)
-    (Real.rpow_nonneg (by positivity) _)
-
-/-- For rates no faster than quadratic, dyadic dilation pays for the two
-orders contributed by the Carl cover. -/
-theorem dyadic_rate_scale_le {s a : ℝ} (ha : 0 ≤ a)
-    {r m₀ m N j : ℕ} (hr : 2 ≤ r) (hm₀ : 1 ≤ m₀) (hm₀r : m₀ ≤ r)
-    (hrm : r ≤ m) (hmN : m ≤ N)
-    (hindex : r + 1 = 2 ^ j) :
-    (4 : ℝ) ^ j * rate s a r ≤
-      4 * middleScaleWeight s m₀ m * (Real.log (N : ℝ)) ^ a := by
-  have hrpos : 0 < (r : ℝ) := by positivity
-  have hlogr : 0 < Real.log (r : ℝ) :=
-    Real.log_pos (by exact_mod_cast (show 1 < r by omega))
-  have hlogmono : (Real.log (r : ℝ)) ^ a ≤ (Real.log (N : ℝ)) ^ a := by
-    have hlogle : Real.log (r : ℝ) ≤ Real.log (N : ℝ) :=
-      Real.log_le_log (by positivity) (by exact_mod_cast (le_trans hrm hmN))
-    exact Real.rpow_le_rpow hlogr.le hlogle ha
-  have hindexR : (r : ℝ) + 1 = (2 : ℝ) ^ j := by exact_mod_cast hindex
-  have h4 : (4 : ℝ) ^ j = ((r : ℝ) + 1) ^ 2 := by
-    rw [four_pow_eq_two_pow_sq, hindexR]
-  have hgeom : ((r : ℝ) + 1) ^ 2 ≤ 4 * (r : ℝ) ^ 2 := by
-    have hrR : (2 : ℝ) ≤ (r : ℝ) := by exact_mod_cast hr
-    nlinarith [sq_nonneg ((r : ℝ) - 1)]
-  have hpow : (r : ℝ) ^ (2 - s) ≤ middleScaleWeight s m₀ m := by
-    by_cases hs2 : s ≤ 2
-    · simp [middleScaleWeight, hs2]
-      exact Real.rpow_le_rpow (by positivity) (by exact_mod_cast hrm) (by linarith)
-    · have hm₀pos : 0 < (m₀:ℝ) := by exact_mod_cast (show 0 < m₀ by omega)
-      have hm₀rR : (m₀:ℝ) ≤ (r:ℝ) := by exact_mod_cast hm₀r
-      have hrev := Real.rpow_le_rpow_of_nonpos hm₀pos hm₀rR (by linarith : 2-s ≤ 0)
-      simpa [middleScaleWeight, hs2] using hrev
-  rw [h4]
-  unfold rate
-  have hfactor : ((r : ℝ) + 1) ^ 2 * (r : ℝ) ^ (-s) ≤
-      4 * middleScaleWeight s m₀ m := by
-    calc
-      ((r : ℝ) + 1) ^ 2 * (r : ℝ) ^ (-s) ≤
-          4 * (r : ℝ) ^ 2 * (r : ℝ) ^ (-s) := by
-            exact mul_le_mul_of_nonneg_right hgeom (by positivity)
-      _ = 4 * (r : ℝ) ^ (2 - s) := by
-            have hpower : (r : ℝ) ^ 2 * (r : ℝ) ^ (-s) = (r : ℝ) ^ (2 - s) := by
-              rw [← Real.rpow_natCast (r : ℝ) 2, ← Real.rpow_add hrpos]
-              congr 1
-            calc
-              4 * (r : ℝ) ^ 2 * (r : ℝ) ^ (-s) =
-                  4 * ((r : ℝ) ^ 2 * (r : ℝ) ^ (-s)) := by ring
-              _ = 4 * (r : ℝ) ^ (2 - s) := by rw [hpower]
-      _ ≤ 4 * middleScaleWeight s m₀ m := by
-            exact mul_le_mul_of_nonneg_left hpow (by norm_num)
-  have hqnonneg : 0 ≤ (Real.log (r : ℝ)) ^ a := by positivity
-  calc
-    ((r : ℝ) + 1) ^ 2 * ((r : ℝ) ^ (-s) * (Real.log (r : ℝ)) ^ a) ≤
-        (4 * middleScaleWeight s m₀ m) * (Real.log (r : ℝ)) ^ a := by
-      simpa [mul_assoc] using mul_le_mul_of_nonneg_right hfactor hqnonneg
-    _ ≤ 4 * middleScaleWeight s m₀ m * (Real.log (N : ℝ)) ^ a := by
-      have hcoef : 0 ≤ 4 * middleScaleWeight s m₀ m := by
-        dsimp [middleScaleWeight]
-        split_ifs <;> positivity
-      nlinarith [mul_le_mul_of_nonneg_left hlogmono hcoef]
 
 /-- Polynomial-log rate scaling for a general natural scalar budget power A.
 This is the scale estimate needed when Q=2^A replaces the quadratic 4. -/
@@ -283,130 +183,6 @@ theorem dyadic_rate_scale_le_A {s a : ℝ} (ha : 0 ≤ a) (A : ℕ)
           simpa [mul_assoc] using mul_le_mul_of_nonneg_right hfactor hlognonneg
     _ ≤ (2:ℝ)^A*scaleWeightA A s m₀ m*(Real.log (N:ℝ))^a := by
           exact mul_le_mul_of_nonneg_left hlogmono hcoeff
-
-/-- Assemble a sharp polynomial-logarithmic width upper estimate into the
-finite dyadic width budget used by the certified Carl cover. The ambient set
-and its zero-width radius are completely generic. -/
-theorem dyadic_width_budget_of_rate_upper
-    {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
-    (S : Set X) {s a : ℝ} (ha : 0 ≤ a)
-    {m₀ m L : ℕ} (hm₀ : 2 ≤ m₀) (hm₀m : m₀ ≤ m)
-    (hmN : m ≤ 2 ^ L) (_hL : 1 ≤ L)
-    (R C : ℝ) (hR : 0 ≤ R) (hC : 0 < C)
-    (hzero : HaarQuarter.TheoremD.Width.kolmogorovWidth S 0 ≤ ENNReal.ofReal R)
-    (hupper : ∀ k : ℕ, m₀ ≤ k →
-      HaarQuarter.TheoremD.Width.kolmogorovWidth S k ≤
-        ENNReal.ofReal (C * rate s a k)) :
-    ∃ B : ℝ,
-      B = R * (m₀ : ℝ)^2 + 4 * C * middleScaleWeight s m₀ m *
-        (Real.log (2 ^ L : ℝ))^a +
-        (2 ^ L : ℝ)^2 *
-          (HaarQuarter.TheoremD.Width.kolmogorovWidth S m).toReal ∧
-      0 < B ∧
-      ∀ j : Fin (L + 1),
-        HaarQuarter.TheoremD.Width.kolmogorovWidth S (2 ^ j.val - 1) ≤
-          ENNReal.ofReal (B / (4 : ℝ)^j.val) := by
-  let N : ℝ := (2 ^ L : ℕ)
-  let Q : ℝ := (Real.log N)^a
-  have hm2 : 2 ≤ m := le_trans hm₀ hm₀m
-  have hN2 : 2 ≤ 2 ^ L := le_trans hm2 hmN
-  have hNpos : 0 < N := by dsimp [N]; positivity
-  have hQ : 0 ≤ Q := by
-    dsimp [Q]
-    have hlog : 0 ≤ Real.log N := Real.log_nonneg (by
-      dsimp [N]
-      exact_mod_cast (show 1 ≤ 2 ^ L by omega))
-    exact Real.rpow_nonneg hlog _
-  have hfinite : HaarQuarter.TheoremD.Width.kolmogorovWidth S m ≠ ⊤ :=
-    ne_top_of_le_ne_top ENNReal.ofReal_ne_top (hupper m hm₀m)
-  let w : ℝ := (HaarQuarter.TheoremD.Width.kolmogorovWidth S m).toReal
-  have hw : HaarQuarter.TheoremD.Width.kolmogorovWidth S m = ENNReal.ofReal w := by
-    dsimp [w]
-    exact (ENNReal.ofReal_toReal hfinite).symm
-  have hw0 : 0 ≤ w := by dsimp [w]; exact ENNReal.toReal_nonneg
-  let B : ℝ := R*(m₀:ℝ)^2 + 4*C*middleScaleWeight s m₀ m*Q + N^2*w
-  have hB : 0 < B := by
-    dsimp [B]
-    have hNlog : 0 < Real.log N := Real.log_pos (by
-      dsimp [N]
-      exact_mod_cast (by omega : 1 < 2 ^ L))
-    have hQpos : 0 < (Real.log N)^a := Real.rpow_pos_of_pos hNlog _
-    have hweight : 0 < middleScaleWeight s m₀ m := by
-      dsimp [middleScaleWeight]
-      split_ifs <;> positivity
-    positivity
-  refine ⟨B, ?_, hB, ?_⟩
-  · simp [B, Q, N, w]
-  intro j
-  let q : ℕ := 2 ^ j.val - 1
-  have hqplus : q + 1 = 2 ^ j.val := by
-    dsimp [q]
-    exact Nat.sub_add_cancel (Nat.one_le_pow j.val 2 (by omega))
-  have hpow4 : (4:ℝ)^j.val = ((q:ℝ)+1)^2 := by
-    rw [four_pow_eq_two_pow_sq]
-    have hcast : (q:ℝ)+1 = (2:ℝ)^j.val := by exact_mod_cast hqplus
-    rw [hcast]
-  by_cases hsmall : q < m₀
-  · have hmono := HaarQuarter.TheoremD.Width.kolmogorovWidth_antitone S (Nat.zero_le q)
-    have hwidth : HaarQuarter.TheoremD.Width.kolmogorovWidth S q ≤ ENNReal.ofReal R :=
-      le_trans hmono hzero
-    have hqplusR : (q:ℝ)+1 ≤ (m₀:ℝ) := by
-      have hh : q+1 ≤ m₀ := by omega
-      exact_mod_cast hh
-    have hbudget : R ≤ B/(4:ℝ)^j.val := by
-      apply (le_div_iff₀ (by positivity)).2
-      dsimp [B]
-      rw [hpow4]
-      have hsq : ((q:ℝ)+1)^2 ≤ (m₀:ℝ)^2 := by nlinarith
-      have hweight : 0 ≤ middleScaleWeight s m₀ m :=
-        (middleScaleWeight_pos (by omega) (by omega)).le
-      have hQ0 : 0 ≤ Q := hQ
-      have hrest : 0 ≤ 4*C*middleScaleWeight s m₀ m*Q + N^2*w := by positivity
-      nlinarith
-    exact le_trans hwidth (ENNReal.ofReal_le_ofReal hbudget)
-  · have hlarge : m₀ ≤ q := by omega
-    by_cases hqle : q ≤ m
-    · have hup := hupper q hlarge
-      have hscale := dyadic_rate_scale_le (s:=s) (a:=a) (r:=q)
-        (m₀:=m₀) (m:=m) (N:=2^L) (j:=j.val) ha
-        (by omega : 2 ≤ q) (by omega : 1 ≤ m₀)
-        hlarge hqle hmN hqplus
-      have hbudget : C*rate s a q ≤ B/(4:ℝ)^j.val := by
-        apply (le_div_iff₀ (by positivity)).2
-        have hscaled : C*rate s a q*(4:ℝ)^j.val ≤
-            4*C*middleScaleWeight s m₀ m*Q := by
-          calc
-            _ = C*((4:ℝ)^j.val*rate s a q) := by ring
-            _ ≤ C*(4*middleScaleWeight s m₀ m*Q) := mul_le_mul_of_nonneg_left hscale hC.le
-            _ = _ := by dsimp [Q]; ring
-        dsimp [B]
-        have hrest : 0 ≤ R*(m₀:ℝ)^2 + N^2*w := by positivity
-        nlinarith
-      exact le_trans hup (ENNReal.ofReal_le_ofReal hbudget)
-    · have hmq : m ≤ q := by omega
-      have hmono := HaarQuarter.TheoremD.Width.kolmogorovWidth_antitone S hmq
-      have hjL : j.val ≤ L := by omega
-      have hpow2 : (2:ℝ)^j.val ≤ N := by
-        dsimp [N]
-        exact_mod_cast Nat.pow_le_pow_right (by omega : 1 ≤ 2) hjL
-      have hfactor : (4:ℝ)^j.val ≤ N^2 := by
-        rw [four_pow_eq_two_pow_sq]
-        have hx0 : 0 ≤ (2:ℝ)^j.val := by positivity
-        calc
-          ((2:ℝ)^j.val)^2 = (2:ℝ)^j.val * (2:ℝ)^j.val := by ring
-          _ ≤ N*(2:ℝ)^j.val := mul_le_mul_of_nonneg_right hpow2 hx0
-          _ ≤ N*N := mul_le_mul_of_nonneg_left hpow2 (by positivity)
-          _ = N^2 := by ring
-      have hbudget : w ≤ B/(4:ℝ)^j.val := by
-        apply (le_div_iff₀ (by positivity)).2
-        dsimp [B]
-        have hprod := mul_le_mul_of_nonneg_right hfactor hw0
-        have hweight : 0 ≤ middleScaleWeight s m₀ m :=
-          (middleScaleWeight_pos (by omega) (by omega)).le
-        have hQ0 : 0 ≤ Q := hQ
-        have hrest : 0 ≤ R*(m₀:ℝ)^2 + 4*C*middleScaleWeight s m₀ m*Q := by positivity
-        nlinarith
-      exact le_trans (le_trans hmono (le_of_eq hw)) (ENNReal.ofReal_le_ofReal hbudget)
 
 /-- General-power version of the dyadic width budget. Taking A>s makes the
 middle-scale contribution grow like N^(A−s), which can absorb the fixed
@@ -512,81 +288,6 @@ theorem dyadic_width_budget_of_rate_upper_A
         nlinarith
       exact le_trans (le_trans hmono (le_of_eq hw)) (ENNReal.ofReal_le_ofReal hbudget)
 
-/-- Entropy lower bounds force the scalar Carl cover budget to be large.
-The statement is rate-generic; only positivity of the polynomial exponent
-and nonnegativity of the logarithmic exponent are used. -/
-theorem dyadic_budget_lower_of_entropy_lower
-    {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
-    (S : Set X) {s a : ℝ} (hs : 0 < s) (ha : 0 ≤ a)
-    {L : ℕ} (hL : 1 ≤ L) (c B : ℝ) (hc : 0 < c) (hB : 0 < B)
-    (hEntropy : ∀ k : ℕ, 2 ≤ k →
-      ENNReal.ofReal (c * rate s a k) ≤ HaarQuarter.TheoremD.entropyNumber k S)
-    (hCover : HaarQuarter.TheoremD.entropyNumber (96 * 2 ^ L + 1) S ≤
-      ENNReal.ofReal (4 * B / (4:ℝ)^L)) :
-    (c/4) * (2 ^ L:ℝ)^2 *
-      ((97 * (2 ^ L:ℝ)) ^ (-s)) * (Real.log (2 ^ L:ℝ))^a ≤ B := by
-  let N : ℝ := (2 ^ L : ℕ)
-  have hN2 : 2 ≤ 2^L := by
-    calc
-      2 = 2^1 := by norm_num
-      _ ≤ 2^L := Nat.pow_le_pow_right (by omega : 1 ≤ 2) (by omega : 1 ≤ L)
-  have hN2R : 2 ≤ N := by dsimp [N]; exact_mod_cast hN2
-  have hNpos : 0 < N := by linarith
-  have hk : 2 ≤ 96*2^L+1 := by omega
-  have hkR : 0 < (96*(2^L:ℕ)+1:ℕ) := by omega
-  have hNle : (96*(2^L:ℕ)+1:ℕ) ≤ 97*(2^L:ℕ) := by
-    have hNpos' : 1 ≤ 2^L := by omega
-    omega
-  have hlog : 0 ≤ Real.log N := Real.log_nonneg (by linarith)
-  let K : ℝ := 96*N+1
-  have hNleK : N ≤ K := by
-    dsimp [K]
-    nlinarith
-  have hlogcmp : Real.log N ≤ Real.log K :=
-    Real.log_le_log (by positivity) hNleK
-  have hinv : (97*N)^(-s) ≤ (96*(2^L:ℕ)+1:ℝ)^(-s) := by
-    have hKdef : K = (96*(2^L:ℕ)+1:ℝ) := by
-      dsimp [K, N]
-    rw [← hKdef]
-    have hxy : K ≤ 97*N := by dsimp [K]; nlinarith
-    exact Real.rpow_le_rpow_of_nonpos (by positivity) hxy (by linarith)
-  have hlogpow : (Real.log N)^a ≤
-      (Real.log K)^a := Real.rpow_le_rpow hlog hlogcmp ha
-  have hrateLower :
-      (97*N)^(-s)*(Real.log N)^a ≤ rate s a (96*2^L+1) := by
-    unfold rate
-    have hlogpow' : (Real.log N)^a ≤
-        (Real.log (96*(2^L:ℝ)+1))^a := by
-      simpa [K, N, Nat.cast_add, Nat.cast_mul, Nat.cast_one, Nat.cast_pow] using hlogpow
-    simpa [Nat.cast_add, Nat.cast_mul, Nat.cast_one, Nat.cast_pow] using
-      mul_le_mul hinv hlogpow' (Real.rpow_nonneg hlog _) (by positivity)
-  have hpair := le_trans (hEntropy (96*2^L+1) hk) hCover
-  have hNpow : (4:ℝ)^L = N^2 := by
-    have h := four_pow_eq_two_pow_sq L
-    simpa [N, Nat.cast_pow] using h
-  have hnonneg : 0 ≤ 4*B/N^2 := by positivity
-  have hpairReal : c*rate s a (96*2^L+1) ≤ 4*B/N^2 := by
-    have hpair' : ENNReal.ofReal (c*rate s a (96*2^L+1)) ≤
-        ENNReal.ofReal (4*B/N^2) := by simpa [hNpow] using hpair
-    have hleft0 : 0 ≤ c*rate s a (96*2^L+1) := by
-      exact mul_nonneg hc.le (rate_nonneg (by omega))
-    exact (ENNReal.ofReal_le_ofReal_iff (by positivity)).mp hpair'
-  have hmulLower : c*((97*N)^(-s)*(Real.log N)^a)*N^2 ≤
-      c*rate s a (96*2^L+1)*N^2 := by
-    exact mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left hrateLower hc.le)
-      (sq_nonneg N)
-  have hmulUpper : c*rate s a (96*2^L+1)*N^2 ≤ 4*B := by
-    have := mul_le_mul_of_nonneg_right hpairReal (sq_nonneg N)
-    have hNne' : N ≠ 0 := ne_of_gt hNpos
-    field_simp [hNne'] at this
-    nlinarith [this]
-  have hmul' : c*((97*N)^(-s)*(Real.log N)^a)*N^2 ≤ 4*B :=
-    le_trans hmulLower hmulUpper
-  have hNne : N ≠ 0 := ne_of_gt hNpos
-  have hfinal : (c/4)*N^2*((97*N)^(-s))*(Real.log N)^a ≤ B := by
-    nlinarith [hmul']
-  simpa [N] using hfinal
-
 /-- General-power scalar extraction from a local-depth entropy cover. `D` is
 the center-exponent multiplier and `Krad` is the cover-radius multiplier. -/
 theorem dyadic_budget_lower_of_entropy_lower_A
@@ -676,72 +377,6 @@ theorem dyadic_budget_lower_of_entropy_lower_A
           (c*((((D+1:ℕ):ℝ)*N)^(-s)*(Real.log N)^a)*N^A)/Krad := by ring
       _ ≤ B := hdiv
   simpa [N] using hfinal
-
-/-- Conditional all-exponent Carl extraction. If the entropy-forced budget
-beats the explicit low- and middle-scale contributions, the remaining budget
-forces a same-scale lower bound on the target Kolmogorov width. The scalar
-margin is kept visible so applications must discharge it rather than silently
-assuming a sharp width lower estimate. -/
-theorem width_lower_of_entropy_budget_margin
-    {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
-    [CompleteSpace X] [MeasurableSpace X] [BorelSpace X]
-    (S : Set X) {s a : ℝ} (hs : 0 < s) (ha : 0 ≤ a)
-    {m₀ k L : ℕ} (hm₀ : 2 ≤ m₀) (hm₀k : m₀ ≤ k)
-    (hkN : k ≤ 2^L) (hL : 1 ≤ L)
-    (R C c : ℝ) (hR : 0 ≤ R) (hC : 0 < C) (hc : 0 < c)
-    (hzero : HaarQuarter.TheoremD.Width.kolmogorovWidth S 0 ≤ ENNReal.ofReal R)
-    (hupper : ∀ n : ℕ, m₀ ≤ n →
-      HaarQuarter.TheoremD.Width.kolmogorovWidth S n ≤
-        ENNReal.ofReal (C*rate s a n))
-    (hEntropy : ∀ n : ℕ, 2 ≤ n →
-      ENNReal.ofReal (c*rate s a n) ≤ HaarQuarter.TheoremD.entropyNumber n S)
-    (hmargin : R*(m₀:ℝ)^2 + 4*C*middleScaleWeight s m₀ k*(Real.log (2^L:ℝ))^a ≤
-      (c/8)*(2^L:ℝ)^2*(97*(2^L:ℝ))^(-s)*(Real.log (2^L:ℝ))^a) :
-    ENNReal.ofReal ((c/8)*(97*(2^L:ℝ))^(-s)*(Real.log (2^L:ℝ))^a) ≤
-      HaarQuarter.TheoremD.Width.kolmogorovWidth S k := by
-  let N : ℝ := (2^L:ℕ)
-  obtain ⟨B,hBform,hBpos,hwidth⟩ := dyadic_width_budget_of_rate_upper
-    S ha hm₀ hm₀k hkN hL R C hR hC hzero hupper
-  obtain ⟨P, hcoverRaw⟩ := Carl.exists_entropy_cover_of_dyadic_width_bound
-    S L B hBpos hwidth
-  have hcover : HaarQuarter.TheoremD.entropyNumber (96*2^L+1) S ≤
-      ENNReal.ofReal (4*B/(4:ℝ)^L) := by
-    calc
-      _ ≤ (NNReal.mk (4*B/(4:ℝ)^L) (by positivity) : ENNReal) := hcoverRaw
-      _ = ENNReal.ofReal (4*B/(4:ℝ)^L) := by
-        rw [← ENNReal.ofReal_coe_nnreal]
-        rfl
-  have hbudget := dyadic_budget_lower_of_entropy_lower S hs ha hL c B hc hBpos
-    hEntropy hcover
-  have hbase : R*(m₀:ℝ)^2 + 4*C*middleScaleWeight s m₀ k*(Real.log N)^a ≤
-      (c/8)*N^2*(97*N)^(-s)*(Real.log N)^a := by
-    simpa [N] using hmargin
-  have hwfinite : HaarQuarter.TheoremD.Width.kolmogorovWidth S k ≠ ⊤ :=
-    ne_top_of_le_ne_top ENNReal.ofReal_ne_top (hupper k hm₀k)
-  let w : ℝ := (HaarQuarter.TheoremD.Width.kolmogorovWidth S k).toReal
-  have hweq : HaarQuarter.TheoremD.Width.kolmogorovWidth S k = ENNReal.ofReal w := by
-    dsimp [w]
-    exact (ENNReal.ofReal_toReal hwfinite).symm
-  have hw0 : 0 ≤ w := by dsimp [w]; exact ENNReal.toReal_nonneg
-  have hNpos : 0 < N := by dsimp [N]; positivity
-  have hremain : (c/8)*N^2*(97*N)^(-s)*(Real.log N)^a ≤ N^2*w := by
-    have hleft := hbudget
-    rw [hBform] at hleft
-    simp at hleft
-    have hbase' := hbase
-    simp [N] at hbase'
-    simp [N, w]
-    nlinarith [hleft, hbase']
-  have hwidthReal : (c/8)*(97*N)^(-s)*(Real.log N)^a ≤ w := by
-    have hdiv : ((c/8)*N^2*(97*N)^(-s)*(Real.log N)^a)/N^2 ≤ w :=
-      (div_le_iff₀ (sq_pos_of_pos hNpos)).2 (by nlinarith [hremain])
-    calc
-      (c/8)*(97*N)^(-s)*(Real.log N)^a =
-          ((c/8)*N^2*(97*N)^(-s)*(Real.log N)^a)/N^2 := by field_simp
-      _ ≤ w := hdiv
-  have htargetnonneg : 0 ≤ (c/8)*(97*N)^(-s)*(Real.log N)^a := by positivity
-  rw [hweq]
-  simpa [N] using ENNReal.ofReal_le_ofReal hwidthReal
 
 /-- Local terminal depths decouple dimension growth from the residual accuracy.
 This is the arbitrary-rate finite Carl cover interface. `depth j` is the
@@ -1116,93 +751,6 @@ private theorem dyadic_rpow_mul {J : ℕ} {β : ℝ} :
     _ = ((2:ℝ)^β)^J := by
       rw [← Real.rpow_natCast ((2:ℝ)^β) J]
       exact Real.rpow_mul h2.le _ _
-
-/-- The scalar remainder margin is eventually available whenever the budget
-power A strictly exceeds the entropy exponent s. -/
-theorem eventually_carl_budget_margin
-    {s a R C c : ℝ} {A q m₀ : ℕ} (hs : 0 < s) (ha : 0 ≤ a)
-    (hsA : s < A) (hAq : A+1 ≤ 3*q) (hm₀ : 2 ≤ m₀)
-    (hR : 0 ≤ R) (hC : 0 < C) (hc : 0 < c) :
-    ∃ L₀ : ℕ, ∀ L : ℕ, L₀ ≤ L →
-      R*(m₀:ℝ)^A + (2:ℝ)^A*C*scaleWeightA A s m₀ m₀ *
-          (Real.log (2^L:ℝ))^a ≤
-        (c/(2*((2:ℝ)^(A+1)+2)))*(2^L:ℝ)^A*
-          (((96*q+1:ℝ)*(2^L:ℝ))^(-s))*(Real.log (2^L:ℝ))^a := by
-  let D : ℕ := 96*q
-  let Krad : ℝ := (2:ℝ)^(A+1)+2
-  let wt : ℝ := scaleWeightA A s m₀ m₀
-  let base : ℝ := R*(m₀:ℝ)^A+(2:ℝ)^A*C*wt
-  let b : ℝ := (2:ℝ)^((A:ℝ)-s)
-  let kpow : ℝ := ((D+1:ℝ)^(-s))
-  let coeff : ℝ := c/(2*Krad)
-  have hApos : 0 < (A:ℝ) := by linarith
-  have hKrad : 0 < Krad := by dsimp [Krad]; positivity
-  have hcoeff : 0 < coeff := by dsimp [coeff]; positivity
-  have hwt : 0 < wt := by
-    dsimp [wt, scaleWeightA]
-    split_ifs <;> positivity
-  have hbase : 0 ≤ base := by
-    dsimp [base]
-    positivity
-  have hb : 1 < b := by
-    dsimp [b]
-    apply Real.one_lt_rpow (by norm_num)
-    linarith
-  have hkpow : 0 < kpow := by
-    dsimp [kpow]
-    positivity
-  have hbTendsto : Filter.Tendsto (fun L : ℕ => b^L) Filter.atTop Filter.atTop :=
-    tendsto_pow_atTop_atTop_of_one_lt hb
-  have hfactorTendsto : Filter.Tendsto
-      (fun L : ℕ => (2^L:ℝ)^A*(((D+1:ℝ)*(2^L:ℝ))^(-s)))
-      Filter.atTop Filter.atTop := by
-    have hconst := hbTendsto.atTop_mul_const hkpow
-    have heq : (fun L : ℕ => (2^L:ℝ)^A*(((D+1:ℝ)*(2^L:ℝ))^(-s))) =
-        (fun L : ℕ => b^L*kpow) := by
-      funext L
-      dsimp [b,kpow]
-      rw [carlDyadicFactor_eq]
-      ring
-    rw [heq]
-    exact hconst
-  have hpowTendsto : Filter.Tendsto (fun L : ℕ => (2:ℝ)^L)
-      Filter.atTop Filter.atTop :=
-    tendsto_pow_atTop_atTop_of_one_lt (by norm_num)
-  have hlogTendsto : Filter.Tendsto
-      (fun L : ℕ => Real.log ((2:ℝ)^L)) Filter.atTop Filter.atTop :=
-    Real.tendsto_log_atTop.comp hpowTendsto
-  have hlogEv : ∀ᶠ L : ℕ in Filter.atTop, 1 ≤ Real.log ((2:ℝ)^L) :=
-    hlogTendsto.eventually_ge_atTop 1
-  have hfactorEv : ∀ᶠ L : ℕ in Filter.atTop,
-      base/coeff ≤ (2^L:ℝ)^A*(((D+1:ℝ)*(2^L:ℝ))^(-s)) :=
-    hfactorTendsto.eventually_ge_atTop (base/coeff)
-  obtain ⟨L₀,hL₀⟩ := Filter.eventually_atTop.1 (hlogEv.and hfactorEv)
-  refine ⟨L₀, ?_⟩
-  intro L hL
-  obtain ⟨hlog,hfactor⟩ := hL₀ L hL
-  have hlogpow : 1 ≤ (Real.log ((2:ℝ)^L))^a := by
-    calc
-      1 = (1:ℝ)^a := by simp
-      _ ≤ (Real.log ((2:ℝ)^L))^a :=
-        Real.rpow_le_rpow (by norm_num) hlog ha
-  have hRpart : R*(m₀:ℝ)^A ≤ R*(m₀:ℝ)^A*(Real.log ((2:ℝ)^L))^a := by
-    have hRnonneg : 0 ≤ R*(m₀:ℝ)^A := by positivity
-    nlinarith [mul_le_mul_of_nonneg_left hlogpow hRnonneg]
-  have hleft : R*(m₀:ℝ)^A+(2:ℝ)^A*C*wt*(Real.log ((2:ℝ)^L))^a ≤
-      base*(Real.log ((2:ℝ)^L))^a := by
-    dsimp [base]
-    nlinarith [hRpart]
-  have hbaseFactor : base ≤ coeff*((2^L:ℝ)^A*
-      (((D+1:ℝ)*(2^L:ℝ))^(-s))) :=
-    by
-      have h := (div_le_iff₀ hcoeff).1 hfactor
-      nlinarith [h]
-  have hright : base*(Real.log ((2:ℝ)^L))^a ≤
-      coeff*((2^L:ℝ)^A*(((D+1:ℝ)*(2^L:ℝ))^(-s)))*
-        (Real.log ((2:ℝ)^L))^a :=
-    mul_le_mul_of_nonneg_right hbaseFactor (by positivity)
-  have htotal := hleft.trans hright
-  simpa [D,Krad,coeff,wt, mul_assoc] using htotal
 
 /-- Uniform-in-m Carl margin with a dyadic level chosen at a fixed offset from
 `log₂ m`. The offset pays for the middle-scale constant, while the low-scale

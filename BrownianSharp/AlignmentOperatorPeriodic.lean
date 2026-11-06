@@ -4,7 +4,7 @@ import BrownianSharp.AlignmentOperatorStatements
 import BrownianSharp.AlignmentOperatorNumbers
 import BrownianSharp.AlignmentOperatorWidthIndexShift
 
-/-! Periodic clauses for the revised manuscript's L-infinity entropy and
+/-! Periodic clauses for the manuscript's L-infinity entropy and
 strict-dimension operator widths. -/
 
 noncomputable section

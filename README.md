@@ -1,5 +1,9 @@
 # Entropy, Kolmogorov widths, and Brownian-sheet small deviations
 
+Lean certificate for D. Bilyk, S. Neumayer and T. Ullrich,
+*The small ball problem for the Brownian sheet: sharp bounds via entropy
+numbers in $`L_\infty`$* (6 November 2026). Results are numbered as in the paper.
+
 Throughout, $`d\ge2`$, $`\mathbb N=\{1,2,\ldots\}`$, and
 $`\mathbb N_0=\{0,1,2,\ldots\}`$.
 The spaces $`L_p`$ on the cube $`[0,1]^d`$ use the Lebesgue measure, and
@@ -11,7 +15,7 @@ sufficiently large $`k`$; the analogous convention applies as a radius tends
 to zero. Constants may depend on the fixed dimension and the displayed
 smoothness and integrability parameters, but not on $`k`$ or the radius.
 
-## 1. Brownian-sheet small deviations
+## 1. Brownian-sheet small deviations (Theorem 1.1)
 
 Let $`(\Omega,\mathcal F,\mathbb P)`$ be a probability space. All Gaussian
 fields below have continuous paths and are measurable as maps from
@@ -45,7 +49,7 @@ in dimensions $`d\ge3`$, determining the exact logarithmic exponent in the
 uniform norm. The case $`d=2`$ was proved by
 [Talagrand](https://doi.org/10.1214/aop/1176988605).
 
-## Notation: entropy, widths, and approximation numbers
+## Notation: entropy numbers and Kolmogorov widths
 
 For Banach spaces $`X,Y`$, write $`B_X=\{x\in X:\|x\|_X\le1\}`$.
 For $`K\subset Y`$ and $`t\gt 0`$, let $`N(K,t;Y)`$ be the least number of closed
@@ -62,59 +66,44 @@ For Kolmogorov widths, the infimum runs over linear subspaces $`V\subset Y`$ wit
 d_k(T)=\inf_{\dim V\lt k}\sup_{x\in B_X}\inf_{v\in V}\|Tx-v\|_Y.
 ```
 
-For approximation numbers, the infimum runs over bounded linear maps $`A:X\to Y`$ with $`\mathrm{rank}A\lt k`$:
-
-```math
-a_k(T)=\inf_{\mathrm{rank}A\lt k}\|T-A\|_{X\to Y}.
-```
-
 For a set $`K\subset Y`$, we use $`e_k(K;Y)`$ and $`d_k(K;Y)`$ for the
 corresponding entropy numbers and Kolmogorov widths.
 In particular, $`e_k(T)=e_k(T(B_X);Y)`$ and $`d_k(T)=d_k(T(B_X);Y)`$.
-Here $`\mathrm{rank}A=\dim A(X)`$, and
-$`\|T-A\|_{X\to Y}=\sup_{x\in B_X}\|(T-A)x\|_Y`$.
 
-## 2. Anchored mixed Sobolev ball: entropy and Kolmogorov widths
+## 2. Anchored integration operators (Theorem 1.2)
 
-Consider the non-periodic integration operator
+For $`1\lt p\lt\infty`$, consider the non-periodic integration operator
 
 ```math
 \begin{aligned}
-T_d &:L_2([0,1]^d)\longrightarrow C([0,1]^d),\\
-(T_dg)(\mathbf t)&=\int_{[0,\mathbf t]}g(\mathbf u)\,d\mathbf u,
-\qquad [0,\mathbf t]=\prod_{i=1}^d[0,t_i].
+T_{d,p} &:L_p([0,1]^d)\longrightarrow C([0,1]^d),\\
+(T_{d,p}g)(\mathbf t)&=\int_{[0,\mathbf t]}g(\mathbf u)\,d\mathbf u,
+\qquad [0,\mathbf t]=\prod_{i=1}^d[0,t_i],
 \end{aligned}
 ```
 
-Its image $`K_d=T_d(B_{L_2([0,1]^d)})`$ is the non-periodic anchored mixed
-Sobolev unit ball. Its elements vanish whenever one coordinate is zero and
+and write $`T_d=T_{d,2}`$. The image $`K_d=T_d(B_{L_2([0,1]^d)})`$ is the
+non-periodic anchored mixed Sobolev unit ball and the Cameron–Martin unit ball
+of the Brownian sheet. Its elements vanish whenever one coordinate is zero and
 have mixed weak derivative satisfying
 $`\|\partial_1\cdots\partial_d f\|_{L_2}\le1`$.
 In the uniform norm on $`C([0,1]^d)`$, it holds
 
 ```math
-e_k(T_d)\asymp d_k(T_d)
-\asymp k^{-1}(\log k)^{d-1/2},
-\qquad k\to\infty.
+e_k(T_{d,p})\asymp k^{-1}(\log k)^{d-1/2},
+\qquad k\to\infty,
 ```
 
-Equivalently, its covering entropy satisfies
+for every $`1\lt p\lt\infty`$, and the same order holds for $`d_k(T_{d,p})`$
+when $`2\le p\lt\infty`$. The image ball $`T_{d,p}(B_{L_p})`$ is compact.
 
-```math
-\log N(K_d,t;C([0,1]^d))
-\asymp t^{-1}\bigl(\log(1/t)\bigr)^{d-1/2},
-\qquad t\downarrow0.
-```
+The entropy estimate resolves
+[Bilyk–Lacey–Vagharshakyan's Conjecture 2.9](https://arxiv.org/pdf/0705.4619v3#page=5)
+for $`1\lt p\lt\infty`$.
+The matching upper entropy estimate for $`p\ge2`$ was known from
+[Dunker–Linde–Kühn–Lifshits](https://doi.org/10.1006/jath.1999.3354).
 
-The covering-entropy estimate resolves the $`p=2`$ case of
-[Bilyk–Lacey–Vagharshakyan's Conjecture 2.9](https://arxiv.org/pdf/0705.4619v3#page=5).
-The matching upper entropy estimate was known from
-[Dunker–Linde–Kühn–Lifshits](https://www.sciencedirect.com/science/article/pii/S0021904599933543).
-Together, the entropy and width estimates determine both the covering
-complexity of this ball and its optimal approximation error from subspaces
-of dimension less than $`k`$.
-
-## 3. Periodic classes with mixed smoothness
+## 3. Periodic classes with mixed smoothness (Theorem 1.3)
 
 Let $`\mathbb T^d=(\mathbb R/\mathbb Z)^d`$ carry normalized Lebesgue measure.
 Choose a real even $`\varphi_0\in C_c^\infty(\mathbb R)`$ equal to one on
@@ -168,36 +157,32 @@ $`L_\infty(\mathbb T^d)`$, and use $`1/\infty=0`$.
 The output norm is the essential supremum, equal to the supremum norm
 on continuous representatives.
 
-For $`1\lt p\le\infty`$, $`r\gt 1/p`$ and $`1\le\theta\le\infty`$, the entropy
-numbers satisfy
+Let $`d\ge2`$. As $`k\to\infty`$, the following hold.
+
+(i) For $`2\le p\lt\infty`$ and $`r\gt 1/2`$,
 
 ```math
-\begin{aligned}
-e_k(I:\mathbf W_p^r\to L_\infty)
-&\gtrsim k^{-r}(\log k)^{r(d-1)+1/2}
-&& (p\lt \infty),\\
-e_k(I:\mathbf B_{p,\theta}^r\to L_\infty)
-&\gtrsim k^{-r}(\log k)^{(r+1/2-1/\theta)(d-1)+1/2},\\
-e_k(I:\mathbf H_p^r\to L_\infty)
-&\gtrsim k^{-r}(\log k)^{(r+1/2)(d-1)+1/2}.
-\end{aligned}
+e_k(I:\mathbf W_p^r\to L_\infty)\asymp d_k(I:\mathbf W_p^r\to L_\infty)
+\asymp k^{-r}(\log k)^{r(d-1)+1/2}.
 ```
 
-For $`r\gt 1/2`$, the Kolmogorov widths satisfy
+For $`1\lt p\lt\infty`$ and $`r\gt 1/p`$, the lower bound for $`e_k`$ remains valid.
+
+(ii) For $`2\le p\le\infty`$, $`2\le\theta\le\infty`$ and $`r\gt 1/2`$,
 
 ```math
-\begin{aligned}
-d_k(I:\mathbf W_p^r\to L_\infty)
-&\asymp k^{-r}(\log k)^{r(d-1)+1/2}
-&& (2\le p\lt \infty),\\
-d_k(I:\mathbf H_p^r\to L_\infty)
-&\asymp k^{-r}(\log k)^{(r+1/2)(d-1)+1/2}
-&& (2\le p\le\infty).
-\end{aligned}
+e_k(I:\mathbf B_{p,\theta}^r\to L_\infty)\asymp d_k(I:\mathbf B_{p,\theta}^r\to L_\infty)
+\asymp k^{-r}(\log k)^{(r+1/2-1/\theta)(d-1)+1/2}.
 ```
 
-The estimates hold for every cutoff specified above; the constants may
-also depend on that cutoff.
+The Nikol'skii spaces $`\mathbf H_p^r=\mathbf B_{p,\infty}^r`$ correspond to
+$`\theta=\infty`$. For $`1\lt p\le\infty`$, $`1\le\theta\le\infty`$ and
+$`r\gt 1/p`$, the lower bound for $`e_k`$ remains valid.
+
+The estimates hold for every cutoff specified above, both for the classes of
+continuous functions and for the full $`L_1`$ classes; the constants may also
+depend on that cutoff. The entropy order in (ii) also holds for the
+coordinatewise mean-zero Besov classes (Remark 3.3) when $`\theta\lt\infty`$.
 
 For $`d\ge3`$, the Sobolev width estimate resolves the finite-$`p`$ part of
 [Conjecture 4.21](https://arxiv.org/pdf/1601.03978v3#page=50) in
@@ -212,59 +197,49 @@ The Sobolev entropy estimate supplies the conjectured lower bound in
 [Conjecture 6.16](https://arxiv.org/pdf/1601.03978v3#page=87) of the book.
 Together with the Besov and Nikol'skii lower bounds, it addresses the
 entropy question in [Outstanding Open Problem 1.6](https://arxiv.org/pdf/1601.03978v3#page=12)
-in the displayed ranges. The entropy statements above are lower bounds;
-the width statements give the two-sided orders.
+in the displayed ranges.
 
-## 4. Tensor fractional integration: entropy and Kolmogorov widths
+## 4. Probabilistic small ball inequality (Theorem 2.1)
 
-For $`\alpha\gt 1/2`$, let $`R_\alpha:L_2(0,1)\to C([0,1])`$ be the Riemann–Liouville operator
-
-```math
-(R_\alpha g)(t)=\frac1{\Gamma(\alpha)}
- \int_0^t(t-u)^{\alpha-1}g(u)\,du.
-```
-
-Here $`\Gamma`$ is Euler's Gamma function. For
-$`\boldsymbol\alpha=(\alpha_1,\ldots,\alpha_d)`$ with all $`\alpha_i\gt 1/2`$, set
+Fix a nonzero real $`\psi\in C_c^\infty(0,1)`$ with $`\|\psi\|_\infty\le1`$.
+For a dyadic rectangle $`R=\prod_i[m_i2^{-s_i},(m_i+1)2^{-s_i})`$ put
+$`a_R(\mathbf x)=\prod_i\psi(2^{s_i}x_i-m_i)`$, let $`\mathcal D_n`$ be the
+rectangles of volume $`2^{-n}`$, $`S_n=\binom{n+d-1}{d-1}`$, and let
+$`(G_R)`$ be independent standard Gaussian variables. Then there are
+$`a,b\gt 0`$, depending only on $`d`$ and $`\psi`$, such that for all
+sufficiently large $`n`$
 
 ```math
-T_{\boldsymbol\alpha}
-=R_{\alpha_1}\otimes\cdots\otimes R_{\alpha_d}
-:L_2([0,1]^d)\longrightarrow C([0,1]^d).
+\mathbb P\Bigl\{\Bigl\|\sum_{R\in\mathcal D_n}G_Ra_R\Bigr\|_\infty
+\le a\sqrt{nS_n}\Bigr\}\le\exp(-b|\mathcal D_n|).
 ```
 
-Let $`r=\min_i\alpha_i`$, and let
-$`\nu=\#\{i:\alpha_i=r\}`$ be its multiplicity. If $`\nu\ge2`$, then
+The certificate proves this for every nonzero continuous $`\psi`$ supported in
+$`(0,1)`$ with $`|\psi|\le1`$, together with Lemmas 2.3–2.5,
+Proposition 2.6 and Remarks 2.2, 2.7 and 2.9.
+
+## 5. Fractional integration (Theorem 5.1)
+
+For $`r\gt 1/2`$, let $`R_r:L_2(0,1)\to C([0,1])`$ be the Riemann–Liouville operator
 
 ```math
-e_k(T_{\boldsymbol\alpha})\asymp d_k(T_{\boldsymbol\alpha})
-\asymp k^{-r}(\log k)^{r(\nu-1)+1/2}.
+(R_r g)(t)=\frac1{\Gamma(r)}
+ \int_0^t(t-u)^{r-1}g(u)\,du,
 ```
 
-Explicitly, the tensor notation means
+and $`T_d^{(r)}=R_r^{\otimes d}:L_2([0,1]^d)\to C([0,1]^d)`$. Then
 
 ```math
-(T_{\boldsymbol\alpha}g)(\mathbf t)
-=\int_{\prod_{i=1}^d[0,t_i)}
- \left(\prod_{i=1}^d\frac{(t_i-u_i)^{\alpha_i-1}}{\Gamma(\alpha_i)}\right)
- g(\mathbf u)\,d\mathbf u.
+e_k(T_d^{(r)})\asymp d_k(T_d^{(r)})
+\asymp k^{-r}(\log k)^{r(d-1)+1/2}.
 ```
 
-In particular,
-$`T_{\mathbf1}=T_d`$ for $`\mathbf1=(1,\ldots,1)`$.
+In particular, $`T_d^{(1)}=T_d`$.
 
-This extends the entropy and width estimates in Result 2 to unequal
-fractional orders. It determines both covering complexity and optimal
-subspace-approximation error, including the dependence of the logarithmic
-exponent on the multiplicity of the least order.
-[Kühn–Linde, Section 5](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf)
-gives earlier results for the related Gaussian approximation problem;
-their Theorem 5.7 concerns Gaussian approximation numbers.
-
-## 5. Fractional Brownian-sheet small deviations
+## 6. Fractional and integrated Brownian sheets (Theorem 5.2)
 
 For $`\mathbf H=(H_1,\ldots,H_d)\in(0,1)^d`$, let $`B^{\mathbf H}`$ be the
-continuous centered Gaussian sheet with measurable path map and covariance
+continuous centered Gaussian sheet with covariance
 
 ```math
 \mathbb E[B^{\mathbf H}(\mathbf s)B^{\mathbf H}(\mathbf t)]
@@ -272,95 +247,113 @@ continuous centered Gaussian sheet with measurable path map and covariance
  \frac{s_i^{2H_i}+t_i^{2H_i}-|s_i-t_i|^{2H_i}}2.
 ```
 
-Let $`H_*=\min_iH_i`$ occur in exactly $`\nu\ge2`$ coordinates. Then
+Let $`H_*=\min_iH_i`$ occur in exactly $`\nu\ge2`$ coordinates, and let
+$`m\in\mathbb N_0`$. Then
 
 ```math
+\begin{aligned}
 -\log\mathbb P\{\|B^{\mathbf H}\|_\infty\le\varepsilon\}
-\asymp \varepsilon^{-1/H_*}
- \bigl(\log(1/\varepsilon)\bigr)^{\nu-1+\nu/(2H_*)}.
+&\asymp \varepsilon^{-1/H_*}
+ \bigl(\log(1/\varepsilon)\bigr)^{\nu-1+\nu/(2H_*)},\\
+-\log\mathbb P\{\|R_m^{\otimes d}B\|_\infty\le\varepsilon\}
+&\asymp \varepsilon^{-2/(2m+1)}
+ \bigl(\log(1/\varepsilon)\bigr)^{d-1+d/(2m+1)}.
+\end{aligned}
 ```
 
-The exact small-deviation rate is posed as an open problem in the
+The constants and thresholds depend only on $`d`$ and the regularity
+parameters. They are uniform over the probability space and realization.
+
+The exact fractional rate is posed as an open problem in the
 [remark after Kühn–Linde's Corollary 7.5](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf#page=27).
-Their bounds in (7.19) differ by a factor
-$`(\log(1/\varepsilon))^{1/(2H_*)}`$ in the negative logarithm of the
-probability; their parameter is $`\gamma_i=2H_i`$.
-The estimate above attains the upper order and closes this gap in the
+The estimate above attains their upper order and closes this gap in the
 stated repeated-minimum range. The equal-index two-dimensional case was
 established by [Belinsky–Linde](https://doi.org/10.1023/A:1016263614257).
 
-## 6. Integrated Brownian-sheet small deviations
+## 7. Tensor-product Matérn fields (Corollary 5.3)
 
-For $`\mathbf m=(m_1,\ldots,m_d)\in\mathbb N_0^d`$, define
-
-```math
-X_{\mathbf m}=(R_{m_1}\otimes\cdots\otimes R_{m_d})B,
-\qquad R_0=\mathrm{Id}.
-```
-
-Thus $`X_{\mathbf m}`$ integrates the Brownian sheet $`m_i`$ times from zero
-in coordinate $`i`$. If $`m_*=\min_i m_i`$ occurs in exactly $`\nu\ge2`$
-coordinates, then
+Let $`X`$ be a centered continuous Gaussian field on $`[0,1]^d`$ with covariance
+$`\mathbb E[X(\mathbf s)X(\mathbf t)]=\prod_{i=1}^dk_i(s_i-t_i)`$, where the
+spectral density of $`k_i`$ is proportional to $`(\kappa_i^2+\xi^2)^{-h-1/2}`$
+for a common $`h\gt 0`$. Its Cameron–Martin embedding
+$`I_X:H_X\to C([0,1]^d)`$ satisfies
 
 ```math
--\log\mathbb P\{\|X_{\mathbf m}\|_\infty\le\varepsilon\}
-\asymp \varepsilon^{-2/(2m_*+1)}
- \bigl(\log(1/\varepsilon)\bigr)^{\nu-1+\nu/(2m_*+1)}.
-```
-
-The constants and thresholds in the fractional and integrated estimates
-depend only on $`d`$ and the regularity vector. They are uniform over the
-probability space and realization.
-
-The fractional rate with $`H_i=1/2`$ for every $`i`$, and the integrated rate
-with $`m_i=0`$ for every $`i`$, both reduce to the Brownian-sheet rate in Result 1.
-
-These rates determine the logarithmic exponent after coordinatewise integer
-integration in the stated repeated-minimum range. They follow from Result 4
-with $`\alpha_i=m_i+1`$ and the
-[Li–Linde entropy–small-deviation correspondence](https://doi.org/10.1214/aop/1022677459),
-extending the Brownian-sheet estimate to integrated sheets.
-
-## 7. Approximation numbers and the approximation-to-width quotient
-
-For the tensor fractional-integration operator $`T_{\boldsymbol\alpha}`$
-defined above, let $`r=\min_i\alpha_i`$ and
-$`\nu=\#\{i:\alpha_i=r\}\ge2`$, with all $`\alpha_i\gt 1/2`$. Then
-
-```math
-a_k(T_{\boldsymbol\alpha})
-\asymp k^{-r+1/2}(\log k)^{r(\nu-1)},
+e_k(I_X)\asymp d_k(I_X)\asymp k^{-h-1/2}(\log k)^{(h+1/2)(d-1)+1/2},
 \qquad
-\frac{a_k(T_{\boldsymbol\alpha})}{d_k(T_{\boldsymbol\alpha})}
-\asymp\sqrt{\frac{k}{\log k}}.
+-\log\mathbb P\{\|X\|_\infty\le\varepsilon\}
+\asymp\varepsilon^{-1/h}\bigl(\log(1/\varepsilon)\bigr)^{d-1+d/(2h)}.
 ```
 
-The width in the denominator is positive and finite for all sufficiently
-large $`k`$.
+## 8. Quantization and deterministic integration (Corollary 5.4)
 
-The approximation-number order was established in
-[Kühn–Linde, Proposition 5.8](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf#page=20).
-Combining it with the sharp width order from Result 4 yields the quotient.
-The factor $`\sqrt{k/\log k}`$ quantifies the loss from requiring a bounded
-linear finite-rank approximation, compared with best approximation from a
-fixed subspace.
+For a continuous Gaussian field $`X`$ with law $`\mu`$ on $`C([0,1]^d)`$, let
+$`q_{m,p}(\mu)=\inf_{f_1,\ldots,f_m}(\mathbb E\min_j\|X-f_j\|_\infty^p)^{1/p}`$,
+$`p=1,2`$, and let $`\mu_m`$ be the empirical measure of $`m`$ independent copies.
+For $`X=B`$, $`B^{\mathbf H}`$ (with $`\nu\ge2`$) and $`R_q^{\otimes d}B`$,
+
+```math
+q_{m,1}(\mu)\asymp q_{m,2}(\mu)\asymp\mathbb E[W_2(\mu,\mu_m)]\asymp
+\begin{cases}
+(\log\log m)^{d-1/2}(\log m)^{-1/2}, & X=B,\\
+(\log\log m)^{H_*(\nu-1)+\nu/2}(\log m)^{-H_*}, & X=B^{\mathbf H},\\
+(\log\log m)^{(q+1)(d-1)+1/2}(\log m)^{-q-1/2}, & X=R_q^{\otimes d}B.
+\end{cases}
+```
+
+The minimax error of deterministic integration of 1-Lipschitz functionals,
+using at most $`m`$ adaptive exact evaluations, equals $`q_{m,1}(\mu)`$ and
+therefore has the same rates.
+
+## Scope of the formalization
+
+Every lower bound follows the proof of the paper: Theorem 2.1, the covering
+argument (3.9)–(3.11) and, for Gaussian fields, the lower half of the
+Kuelbs–Li–Linde correspondence (4.1). The upper bounds, which the paper
+imports from the literature, are proved internally, partly by other routes.
+
+Not formalized are Remarks 2.8 and 3.4, the last part of Remark 3.3, and the upper half of
+(4.1) as a general theorem. The last part of Remark 3.3 extends Theorem 1.3(i) to
+$`1\lt p\lt 2`$ and relies on Belinsky's upper bound.
+
+[PAPER_TO_LEAN.md](PAPER_TO_LEAN.md) maps each numbered result, lemma and
+proof step of the paper to its Lean declaration and records the conventions.
 
 ## Statement-to-certificate map
 
 The combined endpoint is
-[mainBodyResults_certified](BrownianSharp/AlignmentMainBodyCertified.lean#L23),
+[mainBodyResults_certified](BrownianSharp/AlignmentMainBodyCertified.lean#L226),
 of type `BrownianSharp.AlignmentMainBodyCertified.MainBodyResultsStatement`.
 Each row below is a field of that conjunction; full names begin with `BrownianSharp.`.
 
-| Certified result | Lean provider |
+| Certified result | Lean statement |
 |---|---|
-| Brownian-sheet two-sided small deviations | [AlignmentGaussianBrownianReverse.latest_brownian_twoSided_certified](BrownianSharp/AlignmentGaussianBrownianReverse.lean#L138) |
-| Cameron–Martin covering entropy, entropy numbers, and Kolmogorov widths | [AlignmentOperatorCameronMartin.cameronMartinEntropyWidth_certified](BrownianSharp/AlignmentOperatorCameronMartin.lean#L59) |
-| Periodic mixed-smoothness entropy lower bounds and Kolmogorov widths, for arbitrary admissible cutoffs | [AlignmentPeriodicCutoffCertified.arbitraryCutoffMainResults_certified](BrownianSharp/AlignmentPeriodicCutoffCertified.lean#L19) |
-| Tensor fractional-integration entropy numbers and Kolmogorov widths | [AlignmentOperatorFractional.fractionalEntropyWidth_certified](BrownianSharp/AlignmentOperatorFractional.lean#L17) |
-| Fractional Brownian-sheet two-sided small deviations | [AlignmentFractionalSheetStatement.latest_fractionalSheet_certified](BrownianSharp/AlignmentFractionalSheetStatement.lean#L21) |
-| Integrated Brownian-sheet two-sided small deviations | [AlignmentGaussianIntegratedReverse.latest_integratedSheet_certified](BrownianSharp/AlignmentGaussianIntegratedReverse.lean#L219) |
-| Fractional-integration approximation numbers and approximation-to-width quotient | [AlignmentFractionalApproximationCertified.fractionalApproximation_certified](BrownianSharp/AlignmentFractionalApproximationCertified.lean#L12) |
+| Theorem 1.1: Brownian-sheet two-sided small deviations | [AlignmentPaperSheetUniverse.BrownianTwoSidedStatementU](BrownianSharp/AlignmentPaperSheetUniverse.lean#L23) |
+| Theorem 1.2: entropy and Kolmogorov numbers of $`T_{d,p}`$, compactness | [AlignmentMainBodyCertified.AnchoredLpTheoremStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L44) |
+| Theorem 1.3: entropy lower bounds and Kolmogorov widths, every admissible cutoff, continuous and full $`L_1`$ classes | [AlignmentPeriodicCutoffCertified.ArbitraryCutoffMainResultsStatement](BrownianSharp/AlignmentPeriodicCutoffCertified.lean#L15) |
+| Theorem 1.3: two-sided Sobolev and Nikol'skii entropy | [AlignmentMainBodyCertified.PeriodicEndpointEntropyStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L60) |
+| Theorem 1.3: two-sided Besov entropy and Kolmogorov numbers | [AlignmentMainBodyCertified.PeriodicBesovUpperRangeStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L78) |
+| Theorem 1.3: two-sided Besov rates, full $`L_1`$ classes | [AlignmentMainBodyCertified.FullL1PeriodicBesovUpperRangeStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L94) |
+| Theorem 1.3: two-sided Sobolev and Nikol'skii entropy, full $`L_1`$ classes | [AlignmentPaperFullL1PeriodicEntropy.FullL1PeriodicEndpointEntropyStatement](BrownianSharp/AlignmentPaperFullL1PeriodicEntropy.lean#L20) |
+| Theorem 2.1: probabilistic small ball inequality | [AlignmentPaperGenericBumpCertified.AdmissibleBumpIidConfinementStatement](BrownianSharp/AlignmentPaperGenericBumpCertified.lean#L119) |
+| Remark 2.2: exceptional set (2.7) | [AlignmentMainBodyCertified.ExceptionalSetStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L138) |
+| Remark 2.7: sharpness of Proposition 2.6 | [AlignmentMainBodyCertified.ConvexTailSharpnessStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L172) |
+| Remark 2.9: failure for $`d=1`$ | [AlignmentMainBodyCertified.OneDimensionalFailureStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L150) |
+| Lemma 3.1: Carl's inequality for widths and entropy | [AlignmentMainBodyCertified.CarlLemmaStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L126) |
+| Remark 3.3: coordinatewise mean-zero Besov classes | [AlignmentMainBodyCertified.MeanZeroBesovEntropyStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L111) |
+| Theorem 5.1: fractional integration | [AlignmentPaperFractional.PaperFractionalTensorStatement](BrownianSharp/AlignmentPaperFractional.lean#L36) |
+| Theorem 5.2: fractional Brownian sheets | [AlignmentPaperSheetUniverse.FractionalSheetStatementU](BrownianSharp/AlignmentPaperSheetUniverse.lean#L32) |
+| Theorem 5.2: integrated Brownian sheets | [AlignmentPaperSheetUniverse.IntegratedSheetStatementU](BrownianSharp/AlignmentPaperSheetUniverse.lean#L45) |
+| Corollary 5.3: Matérn entropy and Kolmogorov numbers | [AlignmentPaperMaternNumbersCertified.MaternCMNumbersStatement](BrownianSharp/AlignmentPaperMaternNumbersCertified.lean#L12) |
+| Corollary 5.3: Matérn small deviations | [AlignmentPaperMaternSmallBallUpper.MaternRawSmallBallStatement](BrownianSharp/AlignmentPaperMaternSmallBallUpper.lean#L72) |
+| Corollary 5.4: quantization and empirical Wasserstein rates | [AlignmentPaperQuantizationSheetFinal.PaperQuantizationResultsStatement](BrownianSharp/AlignmentPaperQuantizationSheetFinal.lean#L391) |
+| Section 5.3: minimax deterministic integration equals $`q_{m,1}`$ | [AlignmentMainBodyCertified.PaperDeterministicIntegrationStatement](BrownianSharp/AlignmentMainBodyCertified.lean#L187) |
+| Section 5.3: deterministic integration rates | [AlignmentPaperDeterministicIntegrationRates.DeterministicIntegrationRatesStatement](BrownianSharp/AlignmentPaperDeterministicIntegrationRates.lean#L23) |
+
+Lemmas 2.3, 2.4 and Proposition 2.6 are stated in
+[AlignmentPaperSection2Lemmas.lean](BrownianSharp/AlignmentPaperSection2Lemmas.lean).
+Lemma 2.5, Lemma 3.2 and the proof routes are listed in
+[PAPER_TO_LEAN.md](PAPER_TO_LEAN.md).
 
 ## Install and verify
 
@@ -383,7 +376,7 @@ The certificate's own proofs are built from the bundled sources.
 Success requires both a successful build and an audit ending in:
 
 ```text
-PASS: 10636 component declarations use only foundational axioms. Exact public statement types checked above.
+PASS: 11338 component declarations use only foundational axioms. Exact public statement types checked above.
 ```
 
 [CertificateAudit.lean](CertificateAudit.lean) checks the exact exported theorem
@@ -402,7 +395,8 @@ the excluded `.lake/` dependency and build cache locally.
 ## Read the formal statements
 
 Start with [AlignmentMainBodyCertified.lean](BrownianSharp/AlignmentMainBodyCertified.lean)
-and follow its seven statement fields. Gaussian-sheet targets are in
+and follow its statement fields; [PAPER_TO_LEAN.md](PAPER_TO_LEAN.md) gives the
+scope of each field. Gaussian-sheet targets are in
 [AlignmentLatestStatements.lean](BrownianSharp/AlignmentLatestStatements.lean);
 operator targets are in
 [AlignmentOperatorStatements.lean](BrownianSharp/AlignmentOperatorStatements.lean).
@@ -416,7 +410,7 @@ import BrownianSharp
 
 #check BrownianSharp.AlignmentMainBodyCertified.mainBodyResults_certified
 #print BrownianSharp.AlignmentMainBodyCertified.MainBodyResultsStatement
-#print BrownianSharp.Latest.BrownianTwoSidedStatement
+#print BrownianSharp.AlignmentPaperSheetUniverse.BrownianTwoSidedStatementU
 #print axioms BrownianSharp.AlignmentMainBodyCertified.mainBodyResults_certified
 ```
 
@@ -435,7 +429,7 @@ The formalization was developed with AI assistance.
 Conjecture numbers refer to the linked author versions.
 
 - Dinh Dũng, Vladimir Temlyakov, and Tino Ullrich,
-  [Hyperbolic Cross Approximation](https://link.springer.com/book/10.1007/978-3-319-92240-9),
+  [Hyperbolic Cross Approximation](https://doi.org/10.1007/978-3-319-92240-9),
   Birkhäuser (2018).
   [Open author version](https://arxiv.org/pdf/1601.03978v3):
   Outstanding Open Problems 1.3 and 1.6; Conjectures 4.21, 4.27 and 6.16;
@@ -447,12 +441,12 @@ Conjecture numbers refer to the linked author versions.
   the Brownian-sheet small-ball rate.
 - Vladimir Temlyakov,
   [On the Entropy Numbers of the Mixed Smoothness Function Classes](https://arxiv.org/pdf/1602.08712v1),
-  J. Approx. Theory (2017), equation (1.8), for the Sobolev entropy conjecture.
+  J. Approx. Theory 217 (2017), 26–56, equation (1.8), for the Sobolev entropy conjecture.
 - Michel Talagrand,
   [The Small Ball Problem for the Brownian Sheet](https://doi.org/10.1214/aop/1176988605),
   Ann. Probab. 22 (1994), 1331–1354, for dimension two.
 - T. Dunker, W. Linde, T. Kühn, and M. A. Lifshits,
-  [Metric Entropy of Integration Operators and Small Ball Probabilities for the Brownian Sheet](https://www.sciencedirect.com/science/article/pii/S0021904599933543),
+  [Metric Entropy of Integration Operators and Small Ball Probabilities for the Brownian Sheet](https://doi.org/10.1006/jath.1999.3354),
   J. Approx. Theory 101 (1999), 63–77, for the probability lower bound
   in all dimensions.
 - Eduard Belinsky and Werner Linde,
@@ -460,16 +454,19 @@ Conjecture numbers refer to the linked author versions.
   J. Theoret. Probab. 15 (2002), 589–612, for the sharp two-dimensional
   fractional-sheet estimate.
 - Thomas Kühn and Werner Linde,
-  [Optimal Series Representation of Fractional Brownian Sheets](https://www.jstor.org/stable/3318951),
+  [Optimal Series Representation of Fractional Brownian Sheets](https://projecteuclid.org/euclid.bj/1078435223),
   Bernoulli 8 (2002), 669–696.
   [Open author version](https://users.fmi.uni-jena.de/~hicke/inst_stoch/Linde/SERREP5.pdf):
   Theorem 5.7, Proposition 5.8, Corollary 7.5 and the following remark.
 - Wenbo V. Li and Werner Linde,
   [Approximation, Metric Entropy and Small Ball Estimates for Gaussian Measures](https://doi.org/10.1214/aop/1022677459),
-  Ann. Probab. 27 (1999), 1556–1578, for the entropy–small-deviation correspondence.
+  Ann. Probab. 27 (1999), 1556–1578, and
+  James Kuelbs and Wenbo V. Li,
+  [Metric Entropy and the Small Ball Problem for Gaussian Measures](https://doi.org/10.1006/jfan.1993.1107),
+  J. Funct. Anal. 116 (1993), 133–157, for the entropy–small-deviation correspondence (4.1).
 
 ## License
 
 MIT for project-owned material, with the retained Apache-2.0 exception for
-the ported Isoperimetric sources.
+the ported Isoperimetric and TauCeti sources.
 See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

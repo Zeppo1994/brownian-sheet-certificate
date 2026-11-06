@@ -1,5 +1,18 @@
 import BrownianSharp.AlignmentGaussianBochner
-import BrownianSharp.AllThreeCertified
+import BrownianSharp.UniformSharpCertified
+import BrownianSharp.GaussianEhrhardCertified
+import BrownianSharp.CameronMartinNativeConfinement
+import BrownianSharp.CarlRateExtraction
+import BrownianSharp.ExtendedStatements
+import BrownianSharp.NativeCameronMartinEntropyUpper
+import BrownianSharp.CameronMartinWidthCertified
+import BrownianSharp.EntropyCoverInversion
+import BrownianSharp.PeriodicEntropy
+import BrownianSharp.TheoremDEntropyPacking
+import Mathlib.Analysis.Asymptotics.Lemmas
+import Mathlib.Topology.Basic
+import Mathlib.Algebra.Order.Floor.Semifield
+import BrownianSharp.PeriodicMixedFinal
 import BrownianSharp.AlignmentLatestStatements
 
 noncomputable section
@@ -39,33 +52,5 @@ theorem fractionalIntegrationBall_one_eq_KdUnitCube (d : ℕ) :
     exact (fractionalIntegrationValue_one g x).symm.trans (hgf x)
   · rintro ⟨g,hg,rfl⟩
     exact ⟨g,hg,fun x => fractionalIntegrationValue_one g x⟩
-
-/-- The full entropy and width package in the all-unit-order fractional
-subcase is inherited by an exact operator identification. -/
-theorem unit_orders_entropy_width {d : ℕ} (hd : 2≤d) :
-    ∃c C : ℝ,0<c ∧ 0<C ∧ ∃k₀ : ℕ,2≤k₀ ∧ ∀k : ℕ,k₀≤k →
-      ENNReal.ofReal (c*logarithmicIndexRate 1
-        (((d-1:ℕ):ℝ)+1/2) k)≤
-        HaarQuarter.TheoremD.entropyNumber k
-          (Latest.fractionalIntegrationBall (fun _ : Fin d => (1:ℝ))) ∧
-      HaarQuarter.TheoremD.entropyNumber k
-          (Latest.fractionalIntegrationBall (fun _ : Fin d => (1:ℝ)))≤
-        ENNReal.ofReal (C*logarithmicIndexRate 1 (((d-1:ℕ):ℝ)+1/2) k) ∧
-      ENNReal.ofReal (c*logarithmicIndexRate 1
-        (((d-1:ℕ):ℝ)+1/2) k)≤
-        HaarQuarter.TheoremD.Width.kolmogorovWidth
-          (Latest.fractionalIntegrationBall (fun _ : Fin d => (1:ℝ))) k ∧
-      HaarQuarter.TheoremD.Width.kolmogorovWidth
-          (Latest.fractionalIntegrationBall (fun _ : Fin d => (1:ℝ))) k≤
-        ENNReal.ofReal (C*logarithmicIndexRate 1 (((d-1:ℕ):ℝ)+1/2) k) := by
-  obtain ⟨c,C,t₀,hc,hC,ht₀,hsmall,hcover,k₀,hk₀,h⟩ :=
-    cameronMartinEntropyWidth_certified d hd
-  have hexp : ((d-1:ℕ):ℝ)+1/2=(d:ℝ)-1/2 := by
-    rw [Nat.cast_sub (by omega : 1≤d)]
-    push_cast
-    ring
-  refine ⟨c,C,hc,hC,k₀,hk₀,?_⟩
-  intro k hk
-  simpa only [fractionalIntegrationBall_one_eq_KdUnitCube,hexp,cmIndexRate] using h k hk
 
 end BrownianSharp.AlignmentFractionalUnitOrders

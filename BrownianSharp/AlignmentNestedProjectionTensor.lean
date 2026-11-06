@@ -112,42 +112,6 @@ theorem tensorFrame_orthonormal {d : ℕ} {I : Fin d → Type*}
     obtain ⟨i, hi⟩ := hne
     exact Finset.prod_eq_zero (Finset.mem_univ i) (by simp [hi])
 
-/-- The orthogonal projection onto the span of a finite tensor frame has the
-usual exact coefficient expansion. -/
-theorem tensorFrame_span_starProjection_eq_sum {d : ℕ} {I : Fin d → Type*}
-    [∀ i, Fintype (I i)] (e : ∀ i, I i → AxisL2)
-    (he : ∀ i, Orthonormal ℝ (e i))
-    (x : UnitCubeL2 d) :
-    (Submodule.span ℝ (Set.range (tensorFrame e))).starProjection x =
-      ∑ a : (∀ i, I i), ⟪x, tensorFrame e a⟫ • tensorFrame e a := by
-  classical
-  let f : (∀ i, I i) → UnitCubeL2 d := tensorFrame e
-  let W : Submodule ℝ (UnitCubeL2 d) := Submodule.span ℝ (Set.range f)
-  have horth : Orthonormal ℝ f := tensorFrame_orthonormal e he
-  let q := BrownianSharp.finiteOrthonormalProjection f x
-  have hmem : q ∈ W := by
-    dsimp [q, BrownianSharp.finiteOrthonormalProjection, W]
-    apply Submodule.sum_mem
-    intro a ha
-    exact Submodule.smul_mem _ _ (Submodule.subset_span ⟨a,rfl⟩)
-  have hres : x-q ∈ Wᗮ := by
-    rw [Submodule.mem_orthogonal']
-    intro w hw
-    dsimp [W] at hw
-    refine Submodule.span_induction ?_ ?_ ?_ ?_ hw
-    · rintro z ⟨a,rfl⟩
-      exact BrownianSharp.finiteProjection_residual_orthogonal f x
-        (orthonormal_iff_ite.mp horth) a
-    · simp
-    · intro y z hy hz hpy hpz
-      rw [inner_add_right, hpy, hpz]
-      simp
-    · intro c y hy hpy
-      rw [inner_smul_right, hpy]
-      simp
-  have hp := W.eq_starProjection_of_mem_orthogonal hmem hres
-  simpa [W, q, f, BrownianSharp.finiteOrthonormalProjection] using hp
-
 /-- Exact scalar coefficient factorization for the actual tensor RL kernel and
 an arbitrary product source vector. -/
 theorem tensorKernel_inner_source {d : ℕ} (α : Fin d → ℝ)
@@ -224,65 +188,5 @@ theorem tensorKernel_profile_energy_eq_product {d : ℕ}
             ⟪kernelVector (α i) (t.val i) (hα i)
               (Set.mem_Icc.mp (t.property i)).1
               (Set.mem_Icc.mp (t.property i)).2, e i (embed i j)⟫)
-
-/-- The tensor frame specialized to a possibly coordinate-dependent family of
-nested source-space filtrations. The truncation depth `N i` may vary with the
-coordinate (for example when polynomial degrees vary). -/
-def tensorNestedFrame {d : ℕ}
-    (U : Fin d → ℕ → Submodule ℝ AxisL2)
-    (hfinite : ∀ i n, FiniteDimensional ℝ ↥(U i n))
-    (N : Fin d → ℕ)
-    (a : ∀ i, FrameIndex (U i) (N i)) : UnitCubeL2 d :=
-  tensorFrame (fun i => nestedFrame (U i) (hfinite i) (N i)) a
-
-instance tensorNestedFrame_span_finiteDimensional {d : ℕ}
-    (U : Fin d → ℕ → Submodule ℝ AxisL2)
-    (hfinite : ∀ i n, FiniteDimensional ℝ ↥(U i n))
-    (N : Fin d → ℕ) :
-    FiniteDimensional ℝ ↥
-      (Submodule.span ℝ (Set.range (tensorNestedFrame U hfinite N))) :=
-  FiniteDimensional.span_of_finite ℝ
-    (Set.finite_range (tensorNestedFrame U hfinite N))
-
-theorem tensorNestedFrame_orthonormal {d : ℕ}
-    (U : Fin d → ℕ → Submodule ℝ AxisL2)
-    (hfinite : ∀ i n, FiniteDimensional ℝ ↥(U i n))
-    (hnested : ∀ i n, U i n ≤ U i (n+1))
-    (N : Fin d → ℕ) :
-    Orthonormal ℝ (tensorNestedFrame U hfinite N) := by
-  apply tensorFrame_orthonormal
-  intro i
-  exact nestedFrame_orthonormal (U i) (hfinite i) (hnested i) (N i)
-
-theorem tensorNestedFrame_span_starProjection_eq_sum {d : ℕ}
-    (U : Fin d → ℕ → Submodule ℝ AxisL2)
-    (hfinite : ∀ i n, FiniteDimensional ℝ ↥(U i n))
-    (hnested : ∀ i n, U i n ≤ U i (n+1))
-    (N : Fin d → ℕ) (x : UnitCubeL2 d) :
-    (Submodule.span ℝ (Set.range (tensorNestedFrame U hfinite N))).starProjection x =
-      ∑ a : (∀ i, FrameIndex (U i) (N i)),
-        ⟪x, tensorNestedFrame U hfinite N a⟫ •
-          tensorNestedFrame U hfinite N a := by
-  change (Submodule.span ℝ
-      (Set.range (tensorFrame (fun i => nestedFrame (U i) (hfinite i) (N i))))).starProjection x = _
-  exact tensorFrame_span_starProjection_eq_sum
-    (e:=fun i => nestedFrame (U i) (hfinite i) (N i))
-    (he:=fun i => nestedFrame_orthonormal (U i) (hfinite i) (hnested i) (N i)) x
-
-theorem tensorKernel_inner_nestedFrame {d : ℕ}
-    (U : Fin d → ℕ → Submodule ℝ AxisL2)
-    (hfinite : ∀ i n, FiniteDimensional ℝ ↥(U i n))
-    (N : Fin d → ℕ)
-    (α : Fin d → ℝ) (hα : ∀ i, 1/2 < α i)
-    (t : BrownianCubeAnchor d)
-    (a : ∀ i, FrameIndex (U i) (N i)) :
-    ⟪tensorKernelFamily α hα t, tensorNestedFrame U hfinite N a⟫ =
-      ∏ i : Fin d,
-        ⟪kernelVector (α i) (t.val i) (hα i)
-          (Set.mem_Icc.mp (t.property i)).1
-          (Set.mem_Icc.mp (t.property i)).2,
-          nestedFrame (U i) (hfinite i) (N i) (a i)⟫ := by
-  exact tensorKernel_inner_frame α hα t
-    (fun i => nestedFrame (U i) (hfinite i) (N i)) a
 
 end BrownianSharp.AlignmentNestedProjectionTensor

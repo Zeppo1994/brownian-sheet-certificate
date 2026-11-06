@@ -93,29 +93,4 @@ end BrownianSharp.AlignmentCompactFeatureBall
 namespace BrownianSharp.AlignmentFractionalCompactness
 open AlignmentFractionalTensorOperator AlignmentCompactFeatureBall
 
-theorem fractionalTensorRL_eq_featurePath {d : ℕ} (a : Fin d → ℝ)
-    (ha : ∀ i,1/2<a i) (g : CameronMartin.UnitCubeL2 d) :
-    fractionalTensorRL a ha g = featurePath (tensorKernelFamily a ha) g := by
-  ext t
-  change inner ℝ (tensorKernelFamily a ha t) g = inner ℝ g (tensorKernelFamily a ha t)
-  exact real_inner_comm _ _
-
-theorem fractionalIntegrationBall_eq_featureBall {d : ℕ} (a : Fin d → ℝ)
-    (ha : ∀ i,1/2<a i) :
-    Latest.fractionalIntegrationBall a = featureBall (tensorKernelFamily a ha) := by
-  rw [fractionalIntegrationBall_eq_operator_image a ha]
-  ext f
-  constructor
-  · rintro ⟨g,hg,rfl⟩
-    exact ⟨g,hg,(fractionalTensorRL_eq_featurePath a ha g).symm⟩
-  · rintro ⟨g,hg,rfl⟩
-    exact ⟨g,hg,fractionalTensorRL_eq_featurePath a ha g⟩
-
-/-- The actual tensor RL image unit ball is compact in the uniform norm for
-all coordinate orders above one half. -/
-theorem fractionalIntegrationBall_isCompact {d : ℕ} (a : Fin d → ℝ)
-    (ha : ∀ i,1/2<a i) : IsCompact (Latest.fractionalIntegrationBall a) := by
-  rw [fractionalIntegrationBall_eq_featureBall a ha]
-  exact featureBall_isCompact _
-
 end BrownianSharp.AlignmentFractionalCompactness

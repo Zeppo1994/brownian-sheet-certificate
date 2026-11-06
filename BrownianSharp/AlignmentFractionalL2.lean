@@ -13,28 +13,6 @@ namespace BrownianSharp.AlignmentFractionalL2
 
 open BrownianSharp.AlignmentFractionalKernel
 
-/-- The translated RL kernel belongs to `L²` on its causal interval. This is
-obtained directly from the exact square-integrability calculation and the
-standard `MemLp 2` characterization by integrability of the square. -/
-theorem translatedKernel_memLp {α t : ℝ} (hα : 1/2 < α) (ht : 0 ≤ t) :
-    MemLp (fun u : ℝ => kernel α (t - u)) 2 (volume.restrict (Set.Ioc 0 t)) := by
-  have h1 : IntervalIntegrable (fun u : ℝ => kernel α (t - u)) volume 0 t := by
-    have hbase : IntervalIntegrable (kernel α) volume 0 t := kernel_intervalIntegrable hα
-    have hshift := hbase.comp_sub_left t
-    simpa using hshift.symm
-  have h2 : IntervalIntegrable (fun u : ℝ => (kernel α (t - u)) ^ 2) volume 0 t := by
-    have hbase : IntervalIntegrable (fun x : ℝ => (kernel α x) ^ 2) volume 0 t :=
-      kernel_sq_intervalIntegrable hα ht
-    have hshift := hbase.comp_sub_left t
-    simpa using hshift.symm
-  have h1' : Integrable (fun u : ℝ => kernel α (t - u))
-      (volume.restrict (Set.Ioc 0 t)) := by
-    exact (intervalIntegrable_iff_integrableOn_Ioc_of_le ht).mp h1
-  have h2' : Integrable (fun u : ℝ => (kernel α (t - u)) ^ 2)
-      (volume.restrict (Set.Ioc 0 t)) := by
-    exact (intervalIntegrable_iff_integrableOn_Ioc_of_le ht).mp h2
-  exact (memLp_two_iff_integrable_sq h1'.aestronglyMeasurable).2 h2'
-
 /-- The causal RL kernel viewed as a function on the fixed source interval. -/
 def causalKernel (α t u : ℝ) : ℝ :=
   if u < t then kernel α (t - u) else 0
@@ -160,16 +138,6 @@ theorem evaluationFunctional_apply (α t : ℝ) (hα : 1/2 < α)
 /-- The unit interval as the compact parameter and source space. -/
 abbrev UnitInterval := Set.Icc (0:ℝ) 1
 
-/-- For order greater than one, the causal kernel extends continuously across
-the diagonal because its power vanishes at zero. -/
-noncomputable def jointKernel (α : ℝ) (hα : 1 < α) :
-    C(UnitInterval × UnitInterval, ℝ) := by
-  have hq : 0 ≤ α - 1 := by linarith
-  let x : UnitInterval × UnitInterval → ℝ := fun p => max (p.1.1 - p.2.1) 0
-  have hx : Continuous x := by fun_prop
-  refine ⟨fun p => (Real.Gamma α)⁻¹ * x p ^ (α - 1), ?_⟩
-  exact continuous_const.mul ((Real.continuous_rpow_const hq).comp hx)
-
 /-- Clamp a real source coordinate to the unit interval. -/
 def clipUnit (x : ℝ) : UnitInterval :=
   ⟨min 1 (max 0 x), ⟨le_min (by norm_num) (le_max_left 0 x), min_le_left _ _⟩⟩
@@ -201,57 +169,5 @@ noncomputable def extendUnitProfile :
       intro x
       exact f.norm_coe_le_norm (clipUnit x)
     _ = 1 * ‖f‖ := by ring
-
-/-- The continuous causal profile on the source interval, for `α > 1`. -/
-noncomputable def continuousKernelProfile (α : ℝ) (hα : 1 < α)
-    (t : UnitInterval) : C(UnitInterval, ℝ) :=
-  (jointKernel α hα).curry t
-
-/-- The translated kernel varies continuously in `L²` with its evaluation
-point when `α > 1`: curry the jointly continuous kernel, extend it boundedly
-to the line, and apply the continuous embedding into the restricted `L²`. -/
-noncomputable def continuousKernelL2Family (α : ℝ) (hα : 1 < α) :
-    C(UnitInterval, UnitL2) := by
-  let μ : Measure ℝ := volume.restrict (Set.Icc (0:ℝ) 1)
-  let toL2 : (ℝ →ᵇ ℝ) →L[ℝ] UnitL2 := BoundedContinuousFunction.toLp 2 μ ℝ
-  let family : C(UnitInterval, C(UnitInterval, ℝ)) :=
-    ContinuousMap.curry (jointKernel α hα)
-  let embed : C(UnitInterval, ℝ) →L[ℝ] UnitL2 := toL2.comp extendUnitProfile
-  exact ⟨fun t => embed (family t), embed.continuous.comp family.continuous⟩
-
-/-- The continuous profile agrees on the source interval with the causal
-kernel in the RL integral. -/
-theorem continuousKernelProfile_apply_eq (α : ℝ) (hα : 1 < α)
-    (t u : UnitInterval) :
-    continuousKernelProfile α hα t u = causalKernel α t.1 u.1 := by
-  have hq : 0 < α - 1 := by linarith
-  by_cases h : u.1 < t.1
-  · simp [continuousKernelProfile, jointKernel, causalKernel, kernel, h,
-      max_eq_left (le_of_lt (sub_pos.mpr h))]
-  · have hu : t.1 ≤ u.1 := le_of_not_gt h
-    simp [continuousKernelProfile, jointKernel, causalKernel, kernel, h,
-      max_eq_right (sub_nonpos.mpr hu), Real.zero_rpow hq.ne']
-
-/-- The same translated kernel on the closed source interval. The endpoint
-convention for real powers changes only a null singleton, so the `Icc`
-realization follows from the interval-integrability characterization. -/
-theorem translatedKernel_memLp_Icc {α t : ℝ} (hα : 1/2 < α) (ht : 0 ≤ t) :
-    MemLp (fun u : ℝ => kernel α (t - u)) 2 (volume.restrict (Set.Icc 0 t)) := by
-  have h1 : IntervalIntegrable (fun u : ℝ => kernel α (t - u)) volume 0 t := by
-    have hbase : IntervalIntegrable (kernel α) volume 0 t := kernel_intervalIntegrable hα
-    have hshift := hbase.comp_sub_left t
-    simpa using hshift.symm
-  have h2 : IntervalIntegrable (fun u : ℝ => (kernel α (t - u)) ^ 2) volume 0 t := by
-    have hbase : IntervalIntegrable (fun x : ℝ => (kernel α x) ^ 2) volume 0 t :=
-      kernel_sq_intervalIntegrable hα ht
-    have hshift := hbase.comp_sub_left t
-    simpa using hshift.symm
-  have h1' : Integrable (fun u : ℝ => kernel α (t - u))
-      (volume.restrict (Set.Icc 0 t)) := by
-    exact (intervalIntegrable_iff_integrableOn_Icc_of_le ht).mp h1
-  have h2' : Integrable (fun u : ℝ => (kernel α (t - u)) ^ 2)
-      (volume.restrict (Set.Icc 0 t)) := by
-    exact (intervalIntegrable_iff_integrableOn_Icc_of_le ht).mp h2
-  exact (memLp_two_iff_integrable_sq h1'.aestronglyMeasurable).2 h2'
 
 end BrownianSharp.AlignmentFractionalL2

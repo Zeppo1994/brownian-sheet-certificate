@@ -70,34 +70,4 @@ theorem native_sharpRadius_standardized_threshold {d n p : ℕ}
     _ ≤ c * Real.sqrt (p : ℝ) / 4 := (div_le_iff₀ hroot).2 (by simpa [mul_comm] using hbound)
     _ ≤ _ := by linarith
 
-/-- The only remaining probabilistic input here is the normalized root event
-bound. Every scale factor and the original-sheet projection are proved. -/
-theorem original_sheet_sharpRadius_bound_of_native_root_bound
-    {d n p : ℕ} {Ω : Type*} [MeasurableSpace Ω]
-    {P : Measure Ω} [IsProbabilityMeasure P]
-    (B : BrownianSheetOnCube d Ω P) (hd : 2 ≤ d) (hn : 0 < n)
-    (hp : 2 ≤ p) (heven : Even p) {c κ Q : ℝ}
-    (hc : 0 < c) (hκ : 0 < κ) (hM : 0 < standardGaussianMoment p)
-    (hpLower : κ * (n : ℝ) ≤ 2 * (p : ℝ))
-    (hMoment : c * Real.sqrt (p : ℝ) ≤ standardGaussianMoment p ^ (1 / (p : ℝ)))
-    (hroot : (productStandardGaussian (LayerIndex d n)).real
-      {x | nativeGoodRootStatistic d n p x ≤ 1 / 4} ≤ Q) :
-    P.real {ω | ‖B.path ω‖ ≤ sharpRadius d (nativeRadiusConstant d c κ) n} ≤ Q := by
-  letI := nativeGoodGrid_nonempty (d := d) (n := n) (by omega : 0 < d)
-  let ε := sharpRadius d (nativeRadiusConstant d c κ) n
-  have hε : 0 ≤ ε := (sharpRadius_pos hd (nativeRadiusConstant_pos d hc hκ) hn).le
-  have hv₀ : 0 < nativeVarianceMeanLowerBound d n / 2 :=
-    half_pos (nativeVarianceMeanLowerBound_pos (by omega))
-  have hthreshold := native_sharpRadius_standardized_threshold hd hn hp hc hκ hpLower hMoment
-  have hsub := native_uniform_event_subset_normalized_root_event
-    (fun q : NativeGoodGrid d n => q.val) p hp heven hM hv₀
-    (fun q => q.property) hε hthreshold
-  change {x : LayerIndex d n → ℝ |
-      ∀ i : NativeGoodGrid d n, |∑ a, nativeLayerRowCoefficient i.val a * x a| ≤ ε} ⊆
-    {x | nativeGoodRootStatistic d n p x ≤ 1 / 4} at hsub
-  have hcomp := original_sheet_product_native_comparison (n := n)
-    (by omega : 0 < d) B (fun q : NativeGoodGrid d n => q.val) hε
-  have hcompReal := ENNReal.toReal_mono (measure_ne_top _ _) hcomp
-  exact hcompReal.trans ((measureReal_mono hsub).trans hroot)
-
 end BrownianSharp

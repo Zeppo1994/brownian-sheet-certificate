@@ -70,12 +70,6 @@ theorem nikolsky_two_sup_norm_le_radius {d : ℕ} (r : ℝ)
     _ ≤ ∑' s : Fin d → ℕ, ‖block s f‖ := hblocksum
     _ ≤ periodicNikolskyRadius d r := hsumle
 
-theorem sobolev_two_sup_norm_le_radius {d : ℕ} (r : ℝ)
-    (hr : 1/2 < r) (f : RealPeriodic d) (hf : SobolevUnitBall 2 r f) :
-    ‖f‖ ≤ periodicNikolskyRadius d r :=
-  nikolsky_two_sup_norm_le_radius r hr f
-    (sobolev_two_subset_nikolsky_two r f hf)
-
 theorem kolmogorovWidth_zero_le_of_norm_bound
     {X : Type*} [NormedAddCommGroup X] [NormedSpace ℝ X]
     (K : Set X) (R : ℝ)

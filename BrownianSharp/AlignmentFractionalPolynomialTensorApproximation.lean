@@ -58,56 +58,6 @@ noncomputable def polynomialTensorProjectedKernel {d : ℕ}
     (fun i => nestedFrame (polynomialFiltration q i) (polynomialFiltration_finite q i) N)
     a ha
 
-private theorem polynomialTensorProjectedKernel_eq_frameProjection
-    {d : ℕ} (q : Fin d → ℕ) (N : ℕ) (a : Fin d → ℝ)
-    (ha : ∀ i, 1/2 < a i) (t : BrownianCubeAnchor d) :
-    polynomialTensorProjectedKernel q N a ha t =
-      (Submodule.span ℝ (Set.range (tensorFrame
-        (fun i => nestedFrame (polynomialFiltration q i)
-          (polynomialFiltration_finite q i) N)))).starProjection
-        (tensorKernelFamily a ha t) := by
-  let e : ∀ i, FrameIndex (polynomialFiltration q i) N → AxisL2 :=
-    fun i => nestedFrame (polynomialFiltration q i) (polynomialFiltration_finite q i) N
-  have he : ∀ i, Orthonormal ℝ (e i) := fun i =>
-    nestedFrame_orthonormal (polynomialFiltration q i)
-      (polynomialFiltration_finite q i) (polynomialFiltration_nested q i) N
-  change tensorFrameProjectedKernel e a ha t = _
-  rw [tensorFrameProjectedKernel_eq_sum e he a ha t,
-    tensorFrame_span_starProjection_eq_sum e he (tensorKernelFamily a ha t)]
-
-/-- Orthogonal projection is contractive, so the finite polynomial tensor
-feature inherits the same Holder modulus as the actual tensor RL feature. -/
-theorem polynomialTensorProjectedKernel_holder {d : ℕ} (hd : 0 < d)
-    (q : Fin d → ℕ) (hq : ∀ i, 0 < q i)
-    (a : Fin d → ℝ) (ha : ∀ i, 1/2 < a i)
-    (r : ℝ) (hr : 1/2 < r) (hra : ∀ i, r ≤ a i)
-    (N : ℕ) :
-    ∃ C : ℝ, 0 < C ∧
-      ∀ x y : BrownianCubeAnchor d,
-        ‖polynomialTensorProjectedKernel q N a ha x -
-          polynomialTensorProjectedKernel q N a ha y‖ ≤
-            C * (dist x y)^(tensorHolderExponent r) := by
-  obtain ⟨C,hC,hactual⟩ := tensorKernelFamily_holder hd a ha r hr hra
-  refine ⟨C,hC,?_⟩
-  intro x y
-  rw [polynomialTensorProjectedKernel_eq_frameProjection q N a ha x,
-    polynomialTensorProjectedKernel_eq_frameProjection q N a ha y]
-  let W : Submodule ℝ (UnitCubeL2 d) := Submodule.span ℝ (Set.range (tensorFrame
-    (fun i => nestedFrame (polynomialFiltration q i)
-      (polynomialFiltration_finite q i) N)))
-  have hproj : ‖W.starProjection‖ ≤ 1 := W.starProjection_norm_le
-  calc
-    ‖W.starProjection (tensorKernelFamily a ha x) -
-        W.starProjection (tensorKernelFamily a ha y)‖ =
-        ‖W.starProjection (tensorKernelFamily a ha x - tensorKernelFamily a ha y)‖ := by
-          rw [map_sub]
-    _ ≤ ‖W.starProjection‖ *
-          ‖tensorKernelFamily a ha x - tensorKernelFamily a ha y‖ :=
-          W.starProjection.le_opNorm _
-    _ ≤ 1 * (C*(dist x y)^(tensorHolderExponent r)) := by
-          apply mul_le_mul hproj (hactual x y) (norm_nonneg _) (by norm_num)
-    _ = C*(dist x y)^(tensorHolderExponent r) := by ring
-
 private def scalarPolynomialProjectionConstant (a : ℝ) : ℝ :=
   ((Real.Gamma a)⁻¹)^2 * (2 + (2:ℝ)^(2*a-1)/(2*a-1))
 

@@ -73,22 +73,6 @@ theorem rlIntegrand_intervalIntegrable {α t : ℝ} {g : ℝ → ℝ}
     simpa using hshift.symm
   exact hk.mul_continuousOn hg.continuousOn
 
-/-- Cauchy--Schwarz bounds the absolute RL integrand pairing by the product
-of the two `L²` norms, for any measure on which the factors are square
-integrable. The kernel-specific hypotheses are established above on each
-anchored interval. -/
-theorem kernel_pairing_cauchy_schwarz {α t : ℝ} {g : ℝ → ℝ} {μ : Measure ℝ}
-    (hK : MemLp (fun u => kernel α (t - u)) 2 μ) (hg : MemLp g 2 μ) :
-    (∫ u, |kernel α (t - u)| * |g u| ∂μ) ≤
-      (∫ u, |kernel α (t - u)| ^ 2 ∂μ) ^ (1 / 2 : ℝ) *
-        (∫ u, |g u| ^ 2 ∂μ) ^ (1 / 2 : ℝ) := by
-  have hK' : MemLp (fun u => kernel α (t - u)) (ENNReal.ofReal 2) μ := by simpa using hK
-  have hg' : MemLp g (ENNReal.ofReal 2) μ := by simpa using hg
-  have h := integral_mul_norm_le_Lp_mul_Lq
-    (p := 2) (q := 2)
-    (by norm_num [Real.holderConjugate_iff]) hK' hg'
-  simpa [Real.norm_eq_abs] using h
-
 /-- Exact squared kernel norm on `[0,t]`; the order threshold is the condition
 that the power integral at zero converges. -/
 theorem kernel_sq_integral {α t : ℝ} (hα : 1/2 < α) (ht : 0 ≤ t) :

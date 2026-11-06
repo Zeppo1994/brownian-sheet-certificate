@@ -2,7 +2,7 @@ import BrownianSharp.AlignmentLatestStatements
 import BrownianSharp.KolmogorovWidth
 
 /-! Bridges between set widths in the certificate and the strict-dimension
-operator Kolmogorov numbers used by the revised manuscript. -/
+operator Kolmogorov numbers used in the manuscript. -/
 
 noncomputable section
 open scoped ENNReal

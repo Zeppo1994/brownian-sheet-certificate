@@ -21,5 +21,14 @@ and measurable-equivalence inverse arguments, update tactic case names, and
 replace the removed Measurable.comp′ with explicit marginal composition.
 Basic.lean is an unchanged copy of the upstream file.
 
+The Lean files in TauCeti are ported from
+[TauCetiProject/TauCeti](https://github.com/TauCetiProject/TauCeti),
+commit 385ec2ddd8ddf8cc779b78c176308cb9c6b55499. They retain Apache-2.0;
+the complete license is at [TauCeti/LICENSE](TauCeti/LICENSE).
+The root MIT grant does not replace that license. The files are pruned to the
+declarations used for the reflexivity of Lᵖ (uniform convexity and the
+Milman–Pettis theorem) and weak compactness of its unit ball; the remaining
+statements and proofs are unchanged.
+
 Lean, Mathlib, and the transitive dependencies fetched by Lake retain their
 own licenses. Their revisions are pinned; they are not bundled in the ZIP.

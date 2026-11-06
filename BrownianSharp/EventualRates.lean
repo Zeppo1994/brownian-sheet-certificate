@@ -17,10 +17,6 @@ namespace BrownianSharp
 noncomputable def gradeEvenPower (κ : ℝ) (n : ℕ) : ℕ :=
   2 * Nat.floor (κ * (n + 1) / 2)
 
-theorem gradeEvenPower_even (κ : ℝ) (n : ℕ) : Even (gradeEvenPower κ n) := by
-  refine ⟨Nat.floor (κ * (n + 1) / 2), ?_⟩
-  simp [gradeEvenPower, two_mul]
-
 theorem gradeEvenPower_bounds {κ : ℝ} (hκ : 0 < κ) (n : ℕ)
     (hlarge : 4 ≤ κ * (n + 1)) :
     (gradeEvenPower κ n : ℝ) ≤ κ * (n + 1) ∧
@@ -51,19 +47,6 @@ theorem eventually_gradeEvenPower_bounds {κ : ℝ} (hκ : 0 < κ) :
     have h := (div_le_iff₀ hκ).mp hdiv
     nlinarith
   exact gradeEvenPower_bounds hκ n hlarge
-
-/-- The elementary exponential-over-polynomial decay controlling the
-high-power variance budget. -/
-theorem grade_square_over_dyadic_tendsto_zero :
-    Tendsto (fun n : ℕ => ((n : ℝ) + 1) ^ 2 / (2 : ℝ) ^ n) atTop (𝓝 0) := by
-  have h := (tendsto_pow_const_div_const_pow_of_one_lt 2 (by norm_num : (1 : ℝ) < 2)).comp
-    (tendsto_add_atTop_nat 1)
-  have htwo := h.const_mul (2 : ℝ)
-  convert htwo using 1
-  · funext n
-    simp only [Function.comp_apply, Nat.cast_add, Nat.cast_one, pow_add, pow_one]
-    field_simp
-  · norm_num
 
 /-- Every fixed polynomial is negligible against the dyadic grade factor. -/
 theorem grade_power_over_dyadic_tendsto_zero (k : ℕ) :

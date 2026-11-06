@@ -340,7 +340,6 @@ theorem forall₂_tailIncrements_ofFn {n : ℕ} {x : X}
       simpa only [tailIncrements, List.cons_append] using
         (List.Forall₂.cons (R := fun z S => z ∈ S) (by simpa using hstep 0) htail)
 
-
 /-- Selected finite-dimensional approximants give the actual telescoping
 increment chain used by Carl's covering argument. The initial zero space,
 each consecutive sum-space increment, and the final residual are all
@@ -614,61 +613,6 @@ theorem entropyNumber_le_of_dyadic_approximation_chain
         exact_mod_cast Nat.pow_le_pow_right (by omega) hexponent
   exact entropyNumber_le_of_approximation_chain K pieces k hchain hbudget
 
-/-- A norm approximation by a finite-dimensional subspace turns a bounded set
-into an ambient-center cover.  The output radius is the sum of the subspace
-net radius and the approximation error. -/
-theorem exists_approximation_cover
-    (K : Set X) (V : Submodule ℝ X)
-    [FiniteDimensional ℝ V] [Nontrivial V] [CompleteSpace V]
-    [MeasurableSpace V] [BorelSpace V]
-    {R δ ε : ℝ} (hR : 0 ≤ R) (hδ : 0 ≤ δ) (hε : 0 < ε)
-    (hbound : ∀ x ∈ K, ‖x‖ ≤ R)
-    (happrox : ∀ x ∈ K, ∃ v : V, ‖x - (v : X)‖ ≤ δ) :
-    ∃ C : Set X, C.Finite ∧
-      Metric.IsCover (NNReal.mk (ε + δ) (by positivity)) K C ∧
-      C.encard ≤ ↑(Nat.ceil ((1 + 2 * (R + δ) / ε) ^ Module.finrank ℝ V)) := by
-  classical
-  obtain ⟨C, hCball, hCfin, hCcover, hCcard⟩ :=
-    HaarQuarter.TheoremF.FiniteDimensionalCovering.exists_submodule_ball_cover
-      V (R + δ) ε (by positivity) hε
-  refine ⟨C, hCfin, ?_, hCcard⟩
-  change ∀ ⦃x⦄, x ∈ K →
-    ∃ y ∈ C, edist x y ≤ (NNReal.mk (ε + δ) (by positivity) : ENNReal)
-  intro x hx
-  obtain ⟨v, hv⟩ := happrox x hx
-  have hvnorm : ‖(v : X)‖ ≤ R + δ := by
-    calc
-      ‖(v : X)‖ = ‖x - (x - (v : X))‖ := by congr 1; abel
-      _ ≤ ‖x‖ + ‖x - (v : X)‖ := norm_sub_le _ _
-      _ ≤ R + δ := add_le_add (hbound x hx) hv
-  have hvball : (v : X) ∈
-      HaarQuarter.TheoremF.FiniteDimensionalCovering.submoduleBallImage V (R + δ) :=
-    ⟨v, Metric.mem_closedBall.mpr (by simpa [dist_eq_norm] using hvnorm), rfl⟩
-  obtain ⟨y, hyC, hvy⟩ := hCcover hvball
-  have hdist : dist x y ≤ δ + ε := by
-    calc
-      dist x y ≤ dist x (v : X) + dist (v : X) y := dist_triangle x (v : X) y
-      _ ≤ δ + ε := by
-        have h1 : dist x (v : X) ≤ δ := by
-          simpa [dist_eq_norm] using hv
-        have h2 : dist (v : X) y ≤ ε := by
-          have h2' : edist (v : X) y ≤ (NNReal.mk ε hε.le : ENNReal) := by
-            change edist (v : X) y ≤ (NNReal.mk ε hε.le : ENNReal) at hvy
-            exact hvy
-          have h2'' : dist (v : X) y ≤ ε := by
-            have hcast : (↑(nndist (v : X) y) : ℝ) = nndist (v : X) y := rfl
-            have hnnd : nndist (v : X) y ≤ (NNReal.mk ε hε.le : ℝ≥0) :=
-              (edist_le_coe.mp h2')
-            exact_mod_cast hnnd
-          exact h2''
-        linarith
-  have hdist' : edist x y ≤ (NNReal.mk (ε + δ) (by positivity) : ENNReal) := by
-    rw [edist_dist]
-    rw [← ENNReal.ofReal_eq_coe_nnreal (by positivity : 0 ≤ ε + δ)]
-    apply ENNReal.ofReal_le_ofReal
-    simpa [add_comm] using hdist
-  exact ⟨y, hyC, hdist'⟩
-
 private theorem dyadic_geom_sum_le (L : ℕ) :
     (∑ j ∈ Finset.range (L + 1), 2 ^ j) ≤ 2 ^ (L + 1) := by
   induction L with
@@ -889,23 +833,6 @@ theorem exists_selected_width_cover_pieces
     (R := fun z S => z ∈ S) (f := CoverPiece.source)).mp
   rw [hsrc]
   exact hx
-
-/-- Consecutive near-approximants from two (not necessarily nested)
-subspaces have their difference in the sum subspace, with the expected sum
-of approximation errors. -/
-theorem approximation_increment_mem_ball_sup
-    {V W : Submodule ℝ X} {x y z : X} {δ ε : ℝ}
-    (hy : y ∈ V) (hz : z ∈ W)
-    (hδ : 0 ≤ δ) (hε : 0 ≤ ε)
-    (hyerr : ‖x - y‖ ≤ δ) (hzerr : ‖x - z‖ ≤ ε) :
-    y - z ∈ V ⊔ W ∧ ‖y - z‖ ≤ δ + ε := by
-  constructor
-  · exact Submodule.sub_mem_sup hy hz
-  · calc
-      ‖y - z‖ = ‖(y - x) + (x - z)‖ := by congr 1; abel
-      _ ≤ ‖y - x‖ + ‖x - z‖ := norm_add_le _ _
-      _ = ‖x - y‖ + ‖x - z‖ := by rw [norm_sub_rev]
-      _ ≤ δ + ε := add_le_add hyerr hzerr
 
 /-- The actual increment scales are the nonzero levels of the dyadic sum,
 so their total logarithmic budget is bounded by the full level sum. -/
@@ -1205,24 +1132,5 @@ theorem exists_entropy_cover_of_dyadic_width_bound
     rw [hlist]
     simpa using htotal
   exact hEntropy.trans (ENNReal.coe_le_coe.mpr hradii)
-
-/-- Product budget for all scales `0,…,L` when each scale is paid at the
-volumetric cost from `dyadic_volumetric_card_bound`. -/
-theorem dyadicCarl_product_budget (L : ℕ) :
-    (∏ j ∈ Finset.range (L + 1),
-      2 ^ (24 * 2 ^ j * (L - j + 1))) ≤ 2 ^ (96 * 2 ^ L) := by
-  rw [Finset.prod_pow_eq_pow_sum]
-  have hsum :
-      (∑ j ∈ Finset.range (L + 1), 24 * 2 ^ j * (L - j + 1)) =
-        24 * (∑ j ∈ Finset.range (L + 1), 2 ^ j * (L - j + 1)) := by
-    rw [Finset.mul_sum]
-    apply Finset.sum_congr rfl
-    intro j hj
-    ring
-  rw [hsum]
-  have hweighted := dyadicCarl_weighted_sum_le L
-  have hexp : 24 * (∑ j ∈ Finset.range (L + 1), 2 ^ j * (L - j + 1)) ≤
-      96 * 2 ^ L := by nlinarith
-  exact Nat.pow_le_pow_right (by omega) hexp
 
 end BrownianSharp.Carl

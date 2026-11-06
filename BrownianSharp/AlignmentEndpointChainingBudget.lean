@@ -87,22 +87,6 @@ private theorem sqrt_index_bound (n k : ℕ) :
   rw [hsqrtprod] at hsqrt
   exact hsqrt
 
-/-- The same index estimate with a fixed dimension factor carried in the
-first-level scale. -/
-theorem sqrt_dimension_index_bound (d n k : ℕ) :
-    Real.sqrt (((d+2:ℕ):ℝ) * (((n+k:ℕ):ℝ)+2)) ≤
-      Real.sqrt (((d+2:ℕ):ℝ) * ((n+1:ℕ):ℝ)) * ((k+2:ℕ):ℝ) := by
-  calc
-    Real.sqrt (((d+2:ℕ):ℝ) * (((n+k:ℕ):ℝ)+2)) =
-        Real.sqrt ((d+2:ℕ):ℝ) * Real.sqrt (((n+k:ℕ):ℝ)+2) := by
-          rw [Real.sqrt_mul (by positivity)]
-    _ ≤ Real.sqrt ((d+2:ℕ):ℝ) *
-        (Real.sqrt ((n+1:ℕ):ℝ) * ((k+2:ℕ):ℝ)) :=
-      mul_le_mul_of_nonneg_left (sqrt_index_bound n k) (Real.sqrt_nonneg _)
-    _ = Real.sqrt (((d+2:ℕ):ℝ) * ((n+1:ℕ):ℝ)) * ((k+2:ℕ):ℝ) := by
-      rw [Real.sqrt_mul (by positivity)]
-      ring
-
 private theorem chainTerm_eq_q (n k : ℕ) :
     (2:ℝ)^(-(((n+k:ℕ):ℝ)/2)) * Real.sqrt (((n+k:ℕ):ℝ)+2) =
       q^n * (q^k * Real.sqrt (((n+k:ℕ):ℝ)+2)) := by

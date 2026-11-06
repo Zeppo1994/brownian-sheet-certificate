@@ -86,43 +86,4 @@ theorem brownianSheetBoxIndicatorLp_inner {d : ℕ}
       rw [sub_zero]
       exact ENNReal.toReal_ofReal (le_min (hs i) (ht i))
 
-/-- A finite family of anchored-box evaluations from white noise is jointly
-Gaussian. This gives the finite-dimensional Gaussian process law of the
-Brownian sheet once an isonormal family on the product L² space is supplied. -/
-theorem brownianSheetBoxEval_jointlyGaussian {d : ℕ} {ι Ω : Type*}
-    [Fintype ι] [MeasurableSpace Ω] {P : Measure Ω}
-    (W : IsonormalGaussianFamily
-      (Lp ℝ 2 (Measure.pi fun _ : Fin d => (volume : Measure ℝ))) Ω ι P)
-    (t : ι → Fin d → ℝ) :
-    HasGaussianLaw
-      (fun ω i => W.eval (brownianSheetBoxIndicatorLp (t i)) ω) P := by
-  exact W.jointlyGaussian (fun i => brownianSheetBoxIndicatorLp (t i))
-
-/-- The covariance of the finite anchored-box process is the Brownian-sheet
-kernel, derived from the actual L² inner product of its indicators. -/
-theorem brownianSheetBoxEval_covariance {d : ℕ} {ι Ω : Type*}
-    [Fintype ι] [MeasurableSpace Ω] {P : Measure Ω}
-    (W : IsonormalGaussianFamily
-      (Lp ℝ 2 (Measure.pi fun _ : Fin d => (volume : Measure ℝ))) Ω ι P)
-    (t : ι → Fin d → ℝ) (ht : ∀ i k, 0 ≤ t i k) (i j : ι) :
-    cov[fun ω => W.eval (brownianSheetBoxIndicatorLp (t i)) ω,
-        fun ω => W.eval (brownianSheetBoxIndicatorLp (t j)) ω; P] =
-      ∏ k, min (t i k) (t j k) := by
-  rw [W.covariance_eq_inner]
-  exact brownianSheetBoxIndicatorLp_inner (t i) (t j) (ht i) (ht j)
-
-/-- Each anchored-box coordinate has the centered Gaussian marginal with
-variance equal to its rectangle volume. -/
-theorem brownianSheetBoxEval_coordinate_law {d : ℕ} {ι Ω : Type*}
-    [Fintype ι] [MeasurableSpace Ω] {P : Measure Ω}
-    (W : IsonormalGaussianFamily
-      (Lp ℝ 2 (Measure.pi fun _ : Fin d => (volume : Measure ℝ))) Ω ι P)
-    (t : ι → Fin d → ℝ) (ht : ∀ i k, 0 ≤ t i k) (i : ι) :
-    P.map (fun ω => W.eval (brownianSheetBoxIndicatorLp (t i)) ω) =
-      gaussianReal 0 (∏ k, t i k).toNNReal := by
-  have h := W.coordinate_law (fun j => brownianSheetBoxIndicatorLp (t j)) i
-  have hnorm := brownianSheetBoxIndicatorLp_inner (t i) (t i) (ht i) (ht i)
-  rw [hnorm] at h
-  simpa [min_self] using h
-
 end HaarQuarter

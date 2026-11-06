@@ -1,7 +1,20 @@
 import BrownianSharp.UniformSharpStatement
 import BrownianSharp.GaussianEhrhardCertified
-import BrownianSharp.NativeConditional
-import BrownianSharp.ScaleClosure
+import BrownianSharp.NativeVarianceBound
+import BrownianSharp.NativeStatisticProperties
+import BrownianSharp.NativeScale
+import BrownianSharp.EventualRates
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Sqrt
+import Mathlib.Tactic
+import Mathlib.Analysis.Calculus.MeanValue
+import Mathlib.Analysis.SpecialFunctions.Pow.Deriv
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.Probability.Moments.Variance
+import Mathlib.MeasureTheory.Function.L2Space
+import Mathlib.MeasureTheory.Integral.Bochner.Set
+import BrownianSharp.Statement
+import BrownianSharp.Interpolation
 
 /-! Dimension-uniform constants for the literal Brownian-sheet event. All
 scale constants are chosen before the probability-space realization; the
@@ -14,46 +27,6 @@ open scoped BigOperators
 
 namespace BrownianSharp
 open HaarQuarter
-
-/-- A uniform version of the discrete native-layer estimate. Its constants
-are selected solely from `d`; the estimate then holds for every realization. -/
-theorem uniformDiscreteSheetBound_of_productGaussianEhrhard
-    (hEhrhard : ProductGaussianEhrhard) :
-    ∀ d : ℕ, 2 ≤ d → ∃ a b : ℝ, 0 < a ∧ 0 < b ∧ ∃ N : ℕ, 2 * d ≤ N ∧
-      ∀ (Ω : Type) [MeasurableSpace Ω] (P : Measure Ω) [IsProbabilityMeasure P]
-        (B : BrownianSheetOnCube d Ω P) (n : ℕ), N ≤ n →
-        P.real {ω | ‖B.path ω‖ ≤ sharpRadius d a n} ≤
-          Real.exp (-b * nativeDimension d n) := by
-  intro d hd
-  have hκ := nativeMomentSlope_pos d
-  obtain ⟨Nr, hNr, hroot⟩ := nativeGoodRoot_confinement_of_ehrhard hd
-    (fun n => hEhrhard (LayerIndex d n))
-  obtain ⟨Np, hNp⟩ := eventually_gradeEvenPower_bounds hκ
-  let N := max Nr Np
-  refine ⟨nativeRadiusConstant d (1 / 2) (nativeMomentSlope d),
-    nativeConfinementExponent d,
-    nativeRadiusConstant_pos d (by norm_num) hκ,
-    nativeConfinementExponent_pos d, N, hNr.trans (le_max_left _ _), ?_⟩
-  intro Ω _ P _ B n hnN
-  have hnr : Nr ≤ n := (le_max_left _ _).trans hnN
-  have hnp : Np ≤ n := (le_max_right _ _).trans hnN
-  obtain ⟨_, hpLower, hp2⟩ := hNp n hnp
-  let p := gradeEvenPower (nativeMomentSlope d) n
-  have heven : Even p := gradeEvenPower_even _ _
-  have hM : 0 < standardGaussianMoment p := by
-    obtain ⟨k, hk⟩ := heven
-    have hpk : p = 2 * k := by omega
-    rw [hpk]
-    exact standardGaussianMoment_even_pos k
-  have hn : 0 < n := by
-    have : 2 * d ≤ n := hNr.trans hnr
-    omega
-  apply original_sheet_sharpRadius_bound_of_native_root_bound B hd hn hp2 heven
-    (by norm_num : (0 : ℝ) < 1 / 2) hκ hM
-  · nlinarith [hpLower]
-  · simpa only [Real.rpow_eq_pow, one_div, div_eq_mul_inv, mul_comm,
-      one_mul, mul_one, p] using standardGaussianMoment_evenOrder_root_lower heven hp2
-  · exact hroot n hnr
 
 /-- Uniform scale closure for all realizations of the original sheet. -/
 theorem uniformSharpLog_of_uniformDiscreteSheetBound
@@ -97,13 +70,6 @@ theorem uniformSharpLog_of_uniformDiscreteSheetBound
     hε hεle1 hεN
   have hexponent : 2 * (d - 1) + 1 = 2 * d - 1 := by omega
   simpa [c, sharpRate, hexponent, mul_assoc] using hresult
-
-theorem uniformSharpLog_certified : UniformSharpLogStatement :=
-  uniformSharpLog_of_uniformDiscreteSheetBound
-    (uniformDiscreteSheetBound_of_productGaussianEhrhard productGaussianEhrhard_certified)
-
-theorem uniformSharpProbability_certified : UniformSharpProbabilityStatement :=
-  uniformSharp_statements_iff.mpr uniformSharpLog_certified
 
 end BrownianSharp
 

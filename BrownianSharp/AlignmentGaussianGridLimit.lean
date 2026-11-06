@@ -58,5 +58,4 @@ theorem finite_grid_mass_lower_to_uniform_mass_lower
   have hbound := (mul_le_mul le_rfl (measure_mono hbase) bot_le bot_le).trans (hfinite S)
   simpa only [S,A,Finset.forall_mem_image] using hbound
 
-
 end BrownianSharp.AlignmentGaussianGridLimit

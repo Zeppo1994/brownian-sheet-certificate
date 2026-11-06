@@ -21,14 +21,12 @@ open BrownianSharp.AlignmentPeriodicAdmissibleCutoffTensorKernel
 open BrownianSharp.AlignmentFiniteFourierMultiplierConvolution
 open BrownianSharp.AlignmentPeriodicCutoffClasses
 
-
 private def phiSymbol {d : ℕ} (φ : AdmissibleCutoff)
     (s : Fin d → ℕ) (k : Fin d → ℤ) : ℂ :=
   ∏ i, (scalarBlock φ (s i) (k i : ℝ) : ℂ)
 
 private def maxFrequencyBox {d : ℕ} (s t : Fin d → ℕ) : Finset (Fin d → ℤ) :=
   SmoothResolution.frequencyBox (fun i => max (s i) (t i))
-
 
 private theorem phiSymbol_eq_zero_of_not_mem_box {d : ℕ}
     (φ : AdmissibleCutoff) (s : Fin d → ℕ) {k : Fin d → ℤ}
@@ -122,7 +120,6 @@ theorem admissibleCrossBlock_eq_convolution {d : ℕ}
   rw [admissibleCrossBlock_eq_complexFiniteMultiplier]
   exact complexFiniteMultiplier_eq_kernel_convolution _ _ _ _
 
-
 theorem admissibleCrossBlock_eq_admissibleKernel_convolution {d : ℕ}
     (φ ψ : AdmissibleCutoff) (s t : Fin d → ℕ) (f : RealPeriodic d)
     (x : UnitAddTorus (Fin d)) :
@@ -139,23 +136,6 @@ private theorem admissibleBlockKernel_l1_uniform {d : ℕ}
       (∫ x : UnitAddTorus (Fin d), ‖admissibleBlockKernel φ s x‖
         ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤ L ^ d :=
   exists_admissibleBlockKernel_uniform_L1_bound φ
-
-theorem admissibleCrossBlock_sup_le {d : ℕ}
-    (φ ψ : AdmissibleCutoff) (s t : Fin d → ℕ) (f : RealPeriodic d)
-    (x : UnitAddTorus (Fin d)) :
-    ∃ L : ℝ, 0 ≤ L ∧
-      ‖admissibleCrossBlock φ ψ s t f x‖ ≤ L ^ d * ‖admissibleBlock ψ t f‖ := by
-  obtain ⟨L,hL,hK⟩ := admissibleBlockKernel_l1_uniform φ
-  refine ⟨L,hL,?_⟩
-  have hyoung := convolution_sup_bound_of_eq
-    (admissibleBlockKernel φ s) (admissibleBlock ψ t f)
-    (admissibleCrossBlock φ ψ s t f)
-    (fun x => admissibleCrossBlock_eq_admissibleKernel_convolution φ ψ s t f x)
-  have hpoint := hyoung x
-  have hnorm : (∫ y : UnitAddTorus (Fin d),
-      ‖admissibleBlockKernel φ s y‖
-      ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤ L ^ d := hK s
-  exact hpoint.trans (mul_le_mul_of_nonneg_right hnorm (norm_nonneg _))
 
 theorem admissibleCrossBlock_eLpNorm_top_le_of_kernel_bound {d : ℕ}
     (φ ψ : AdmissibleCutoff) (s t : Fin d → ℕ) (f : RealPeriodic d)
@@ -186,7 +166,6 @@ theorem admissibleCrossBlock_eLpNorm_top_le_of_kernel_bound {d : ℕ}
       ENNReal.ofReal_le_ofReal hsup
     _ = ENNReal.ofReal (L ^ d) * ENNReal.ofReal ‖u‖ :=
       ENNReal.ofReal_mul (by positivity)
-
 
 private theorem eLpNorm_eq_integral_root {d : ℕ}
     (f : C(UnitAddTorus (Fin d), ℂ)) (p : ℝ) (hp : 0 < p) :
@@ -262,58 +241,6 @@ theorem admissibleCrossBlock_eLpNorm_le_of_kernel_bound {d : ℕ}
   rw [hfactor] at hroot
   rw [← ENNReal.ofReal_mul (by positivity : 0 ≤ L ^ d)]
   exact ENNReal.ofReal_le_ofReal hroot
-
- theorem admissibleCrossBlock_eLpNorm_le {d : ℕ}
-    (φ ψ : AdmissibleCutoff) (s t : Fin d → ℕ) (f : RealPeriodic d)
-    (p : ℝ) (hp : 1 ≤ p) :
-    ∃ L : ℝ, 0 ≤ L ∧
-      eLpNorm (admissibleCrossBlock φ ψ s t f) (ENNReal.ofReal p)
-          (volume : Measure (UnitAddTorus (Fin d))) ≤
-        ENNReal.ofReal (L ^ d) *
-          eLpNorm (admissibleBlock ψ t f) (ENNReal.ofReal p)
-            (volume : Measure (UnitAddTorus (Fin d))) := by
-  obtain ⟨L,hL,hK⟩ := admissibleBlockKernel_l1_uniform φ
-  refine ⟨L,hL,?_⟩
-  let g := admissibleCrossBlock φ ψ s t f
-  let u := admissibleBlock ψ t f
-  have hyoung := convolution_Lp_bound_of_eq (admissibleBlockKernel φ s) u g p hp
-    (fun x => admissibleCrossBlock_eq_admissibleKernel_convolution φ ψ s t f x)
-  have hKpow : (∫ y : UnitAddTorus (Fin d),
-      ‖admissibleBlockKernel φ s y‖
-      ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ^ p ≤ (L ^ d) ^ p := by
-    exact Real.rpow_le_rpow (by positivity) (hK s) (by linarith)
-  have hInt : (∫ x : UnitAddTorus (Fin d), ‖g x‖ ^ p
-      ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ≤
-      (L ^ d)^p * (∫ x : UnitAddTorus (Fin d), ‖u x‖ ^ p
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) := by
-    calc
-      _ ≤ (∫ y : UnitAddTorus (Fin d), ‖admissibleBlockKernel φ s y‖
-          ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ^ p *
-          (∫ x : UnitAddTorus (Fin d), ‖u x‖ ^ p
-            ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) := hyoung
-      _ ≤ _ := mul_le_mul_of_nonneg_right hKpow (by positivity)
-  have hIg : 0 ≤ ∫ x : UnitAddTorus (Fin d), ‖g x‖ ^ p
-      ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle) := by positivity
-  have hIu : 0 ≤ ∫ x : UnitAddTorus (Fin d), ‖u x‖ ^ p
-      ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle) := by positivity
-  rw [eLpNorm_eq_integral_root g p (by linarith),
-    eLpNorm_eq_integral_root u p (by linarith)]
-  have hroot := Real.rpow_le_rpow hIg hInt (by positivity : 0 ≤ 1/p)
-  have hfactor : ((L ^ d)^p *
-      (∫ x : UnitAddTorus (Fin d), ‖u x‖ ^ p
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle))) ^ (1/p) =
-      L ^ d * (∫ x : UnitAddTorus (Fin d), ‖u x‖ ^ p
-        ∂(Measure.pi fun _ : Fin d => AddCircle.haarAddCircle)) ^ (1/p) := by
-    rw [Real.mul_rpow (by positivity) hIu]
-    rw [← Real.rpow_mul (by positivity : 0 ≤ L ^ d)]
-    have hpow : p * (1/p) = 1 := by field_simp
-    rw [hpow, Real.rpow_one]
-  rw [hfactor] at hroot
-  rw [← ENNReal.ofReal_mul (by positivity : 0 ≤ L ^ d)]
-  exact ENNReal.ofReal_le_ofReal hroot
-
-
-
 
 theorem admissibleCrossBlock_eLpNorm_le_of_kernel_bound_ennreal {d : ℕ}
     (φ ψ : AdmissibleCutoff) (s t : Fin d → ℕ) (f : RealPeriodic d)
@@ -592,7 +519,6 @@ theorem weightedBlockNorm_le_neighbor_sum {d : ℕ}
             (fun t ht => if_neg (fun hct => ht ((closeRow_spec s t).2 hct)))).symm
       rw [hsum]
 
-
 /-- Arbitrary admissible smooth cutoffs define equivalent mixed Besov balls.
 The constant is obtained from the uniform tensor-kernel L¹ estimate and the
 finite overlap of the dyadic frequency boxes. -/
@@ -624,7 +550,5 @@ theorem cutoffBesovScaleTransfer_certified :
     A hA N hN htheta' closeRow_card_le closeCol_card_le (by
       intro f s
       exact weightedBlockNorm_le_neighbor_sum φ ψ p r hp hr s f L hL hKernel')
-
-
 
 end BrownianSharp.AlignmentPeriodicCutoffYoung

@@ -1,5 +1,6 @@
 import BrownianSharp.AlignmentGaussianBochner
-import BrownianSharp.AlignmentGaussianIntegratedFiniteProjection
+import BrownianSharp.AlignmentGaussianShift
+import BrownianSharp.SheetProjection
 import BrownianSharp.GaussianProjection
 import Mathlib.Probability.Distributions.Gaussian.Multivariate
 import Mathlib.Probability.Distributions.Gaussian.HasGaussianLaw.Basic
@@ -93,52 +94,6 @@ def finiteSourceIsonormal {d : ℕ} {κ : Type*} [Fintype κ]
     have hcov := ProbabilityTheory.covarianceBilin_apply_eq_cov hid f g
     rw [ProbabilityTheory.covarianceBilin_stdGaussian] at hcov
     exact hcov.symm
-
-/-- A finite model for selected orthonormal source coordinates and arbitrary
-finite evaluation features. The evaluation side and selected coefficients are
-independent after orthogonal projection, and all selected coordinates are
-independent standard normals. -/
-theorem exists_finiteSourceProjection_model
-    {d : ℕ} {I J : Type*} [Fintype I] [DecidableEq I] [Nonempty I] [Fintype J]
-    (e : I → CameronMartin.UnitCubeL2 d)
-    (v : J → CameronMartin.UnitCubeL2 d)
-    (he : ∀ i j, ⟪e i, e j⟫ = if i = j then 1 else 0) :
-    ∃ W : IsonormalGaussianFamily
-      (finiteSourceSpan (Sum.elim e v))
-      (finiteSourceSpan (Sum.elim e v)) (Sum I J)
-      (stdGaussian (finiteSourceSpan (Sum.elim e v))),
-      iIndepFun (fun i ω => W.eval
-        (⟨e i, Submodule.subset_span ⟨Sum.inl i, rfl⟩⟩ : finiteSourceSpan (Sum.elim e v)) ω)
-        (stdGaussian (finiteSourceSpan (Sum.elim e v))) ∧
-      (∀ i, (stdGaussian (finiteSourceSpan (Sum.elim e v))).map
-        (W.eval (⟨e i, Submodule.subset_span ⟨Sum.inl i, rfl⟩⟩ :
-          finiteSourceSpan (Sum.elim e v))) = gaussianReal 0 1) ∧
-      IndepFun
-        (fun ω i => W.eval
-          (⟨e i, Submodule.subset_span ⟨Sum.inl i, rfl⟩⟩ :
-            finiteSourceSpan (Sum.elim e v)) ω)
-        (fun ω j => W.eval
-          ((⟨v j, Submodule.subset_span ⟨Sum.inr j, rfl⟩⟩ :
-            finiteSourceSpan (Sum.elim e v)) -
-          projection
-            (fun i => (⟨e i, Submodule.subset_span ⟨Sum.inl i, rfl⟩⟩ :
-              finiteSourceSpan (Sum.elim e v)))
-            (⟨v j, Submodule.subset_span ⟨Sum.inr j, rfl⟩⟩ :
-              finiteSourceSpan (Sum.elim e v))) ω)
-        (stdGaussian (finiteSourceSpan (Sum.elim e v))) := by
-  let W := finiteSourceIsonormal (Sum.elim e v)
-  let eb : I → finiteSourceSpan (Sum.elim e v) := fun i =>
-    ⟨e i, Submodule.subset_span ⟨Sum.inl i, rfl⟩⟩
-  let vb : J → finiteSourceSpan (Sum.elim e v) := fun j =>
-    ⟨v j, Submodule.subset_span ⟨Sum.inr j, rfl⟩⟩
-  have heb : ∀ i j, ⟪eb i, eb j⟫ = if i = j then 1 else 0 := by
-    intro i j
-    exact he i j
-  refine ⟨W, ?_, ?_, ?_⟩
-  · exact coefficients_independent W eb vb heb
-  · intro i
-    exact coefficient_standard_normal W eb vb heb i
-  · exact coefficients_residual_independent W eb vb heb
 
 /-- The source-space feature of an integer integrated sheet evaluation is the
 Gamma-normalized tensor Riemann--Liouville kernel. -/

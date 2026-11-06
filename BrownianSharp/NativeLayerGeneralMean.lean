@@ -1,6 +1,10 @@
-import BrownianSharp.NativeLayerThetaMean
-import BrownianSharp.SmoothBesovGeneralMean
+import BrownianSharp.NativeLayerThetaLow
+import BrownianSharp.LayerBlockVariance
+import BrownianSharp.SmoothGaussianLp
+import BrownianSharp.SmoothClassEvents
+import BrownianSharp.SmoothClassMeasurability
 import BrownianSharp.NativeClassReindex
+import BrownianSharp.SmoothBesovGeneralMean
 
 /-! Actual arbitrary-p, finite-theta Besov energy for the native Gaussian
 layer. The finite-theta moment theorem reduces its numerical hypothesis to

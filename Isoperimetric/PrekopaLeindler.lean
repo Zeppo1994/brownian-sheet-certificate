@@ -346,7 +346,6 @@ lemma prekopa_leindler_1d_normalized
     _ = fint + gint := by simp [h_fint_eq_top, h_gint_eq_top]
     _ ≤ hint := by exact h_ineq_integral
 
-
 -- Prekopa-Leindler in 1 dimension assuming boundedness.
 -- This removes the sup norm 1 assumption of prekopa_leindler_1d_normalized by scaling.
 lemma prekopa_leindler_1d_bounded {θ : ℝ} {f g h : ℝ → ENNReal}

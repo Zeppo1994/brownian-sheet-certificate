@@ -52,29 +52,6 @@ theorem weightedTaylorCandidate_mem_taylorSpan (M : ℕ)
   intro i hi
   exact Submodule.smul_mem _ _ (localTaylor_mem_taylorSpan M v center i t)
 
-/-- The coefficient span has dimension at most the number of Taylor
-coefficients. -/
-theorem taylorSpan_rank_le (M : ℕ) (v : I → Fin M → H) :
-    Module.rank ℝ (taylorSpan M v) ≤ ((Fintype.card I)*M : Cardinal) := by
-  classical
-  let f : I × Fin M → H := fun p => v p.1 p.2
-  let f' : ULift.{u} (I × Fin M) → H := fun p => f p.down
-  have hrange : Set.range f = Set.range f' := by
-    ext x
-    constructor
-    · rintro ⟨p,hp⟩
-      exact ⟨ULift.up p,hp⟩
-    · rintro ⟨p,hp⟩
-      exact ⟨p.down,hp⟩
-  change Module.rank ℝ (Submodule.span ℝ (Set.range f)) ≤ _
-  rw [hrange]
-  calc
-    Module.rank ℝ (Submodule.span ℝ (Set.range f')) ≤
-        Cardinal.mk (Set.range f') := rank_span_le _
-    _ ≤ Cardinal.mk (ULift.{u} (I × Fin M)) := Cardinal.mk_range_le
-    _ = ((Fintype.card I)*M : Cardinal) := by
-      simp [Cardinal.mk_uLift, Cardinal.mk_fintype, f']
-
 /-- If every active local Taylor model has residual at most `δ`, and the
 unallocated remainder has kernel norm at most `η`, their weighted candidate
 approximates the kernel uniformly. All hypotheses are pointwise. -/
@@ -170,62 +147,5 @@ theorem weightedTaylorCandidate_error
     have h2 : 0 ≤ η*(1-rem) := mul_nonneg hη (sub_nonneg.mpr hrem_le)
     nlinarith
   exact hnorm.trans hfinal
-
-/-- Uniform kernel approximation by one fixed finite Taylor span. -/
-theorem exists_taylor_span_approximation
-    (M : ℕ) (v : I → Fin M → H) (center : I → ℝ)
-    (weight : I → ℝ → ℝ) (remainder : ℝ → ℝ) (K : ℝ → H)
-    {δ η : ℝ} (hδ : 0 ≤ δ) (hη : 0 ≤ η)
-    (hweights : ∀ t i, 0 ≤ weight i t)
-    (hrem : ∀ t, 0 ≤ remainder t)
-    (hmass : ∀ t, (∑ i : I, weight i t)+remainder t=1)
-    (hlocal : ∀ t i, weight i t ≠ 0 →
-      ‖K t-localTaylor M v center i t‖ ≤ δ)
-    (htail : ∀ t, remainder t ≠ 0 → ‖K t‖ ≤ η) :
-    ∀ t, ∃ u ∈ taylorSpan M v, ‖K t-u‖ ≤ δ+η := by
-  intro t
-  refine ⟨weightedTaylorCandidate M v center weight t,
-    weightedTaylorCandidate_mem_taylorSpan M v center weight t, ?_⟩
-  exact weightedTaylorCandidate_error M v center weight remainder K
-    hδ hη (fun i => hweights t i) (hrem t) (hmass t)
-    (hlocal t) (htail t)
-
-/-- A pointwise weighted Taylor construction gives an actual Kolmogorov-width
-bound for any parameterized family. The coefficient subspace is chosen once,
-independently of the parameter. -/
-theorem weighted_taylor_family_width
-    (M : ℕ) (v : I → Fin M → H) (center : I → ℝ)
-    (weight : I → ℝ → ℝ) (remainder : ℝ → ℝ) (K : ℝ → H)
-    (A : Set ℝ) {δ η : ℝ} (hδ : 0 ≤ δ) (hη : 0 ≤ η)
-    (hweights : ∀ t, t ∈ A → ∀ i, 0 ≤ weight i t)
-    (hrem : ∀ t, t ∈ A → 0 ≤ remainder t)
-    (hmass : ∀ t, t ∈ A → (∑ i : I, weight i t)+remainder t=1)
-    (hlocal : ∀ t, t ∈ A → ∀ i, weight i t ≠ 0 →
-      ‖K t-localTaylor M v center i t‖ ≤ δ)
-    (htail : ∀ t, t ∈ A → remainder t ≠ 0 → ‖K t‖ ≤ η) :
-    kolmogorovWidth (K '' A) (Fintype.card I * M) ≤
-      ENNReal.ofReal (δ+η) := by
-  classical
-  let U := taylorSpan M v
-  have hUrank : Module.rank ℝ U ≤ ((Fintype.card I * M : ℕ) : Cardinal) := by
-    simpa [U, Nat.cast_mul] using taylorSpan_rank_le M v
-  have hpoint : ∀ x ∈ K '' A, ∃ y ∈ U, ‖x-y‖ ≤ δ+η := by
-    rintro x ⟨t, ht, rfl⟩
-    refine ⟨weightedTaylorCandidate M v center weight t, ?_, ?_⟩
-    · simpa [U] using weightedTaylorCandidate_mem_taylorSpan M v center
-        weight t
-    · exact weightedTaylorCandidate_error M v center weight remainder K
-        hδ hη (fun i => hweights t ht i) (hrem t ht) (hmass t ht)
-        (hlocal t ht) (htail t ht)
-  have herror : approximationError (K '' A) U ≤ ENNReal.ofReal (δ+η) :=
-    BrownianSharp.AlignmentAmbientWidth.approximationError_le_of_pointwise
-      (K '' A) U (add_nonneg hδ hη) hpoint
-  unfold kolmogorovWidth
-  calc
-    _ ≤ approximationError (K '' A) U := iInf_le
-      (fun V : {V : Submodule ℝ H // Module.rank ℝ V ≤
-          ((Fintype.card I * M : ℕ) : Cardinal)} =>
-        approximationError (K '' A) V.val) ⟨U,hUrank⟩
-    _ ≤ ENNReal.ofReal (δ+η) := herror
 
 end BrownianSharp.AlignmentFractionalHilbertTaylor
